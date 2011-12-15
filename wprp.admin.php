@@ -1,51 +1,78 @@
 <?php
 
+/**
+ * Register the wpr_api_key settings
+ *
+ * @return null
+ */
 function wprp_setup_admin() {
-	wprp_register_settings();
-	add_options_page( 'WP Remote Settings', 'WP Remote', 'manage_options', 'wp-remote-options', 'wprp_options_page' );
-}
-add_action( 'admin_menu', 'wprp_setup_admin' );
-
-function wprp_register_settings() {
 	register_setting( 'wpr-settings', 'wpr_api_key' );
 }
 
-function wprp_options_page() { ?>
+add_action( 'admin_menu', 'wprp_setup_admin' );
 
-	<?php require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' ); ?>
+/**
+ * Add API Key form
+ *
+ * Only shown if no API Key
+ *
+ * @return null
+ */
+function wprp_add_api_key_admin_notice() { ?>
 
-	<div class="wrap">
-
-		<h2>WP Remote Settings</h2>
+	<div id="wprp-message" class="updated">
 
 		<form method="post" action="options.php">
-			<table class="form-table">
 
-				<tr valign="top">
+			<p>
 
-					<th scope="row"><strong>API Key</strong></th>
+				<strong>WP Remote is almost ready</strong>, <label style="vertical-align: baseline;" for="wpr_api_key">enter your API Key to continue</label>
 
-					<td>
-						<input type="text" name="wpr_api_key" class="regular-text" value="<?php echo get_option( 'wpr_api_key', '' ); ?>" /><br />
-					</td>
+				<input style="margin: 0; vertical-align: bottom;" type="text" class="code regular-text" id="wpr_api_key" name="wpr_api_key" />
 
-				</tr>
-
-			</table>
-
-			<input type="hidden" name="action" value="update" />
-
-			<p class="submit">
-				<input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
+				<input style="vertical-align: middle;" type="submit" value="Save API Key" class="button-primary" />
 			</p>
 
 			<?php settings_fields( 'wpr-settings' );
 
 			// Output any sections defined for page sl-settings
-			do_settings_sections('wpr-settings'); ?>
+			do_settings_sections( 'wpr-settings' ); ?>
 
 		</form>
 
 	</div>
 
+
 <?php }
+
+if ( ! get_option( 'wpr_api_key' ) )
+	add_action( 'admin_notices', 'wprp_add_api_key_admin_notice' );
+
+/**
+ * Success message for a newly added API Key
+ *
+ * @return null
+ */
+function wprp_api_key_added_admin_notice() {
+
+	if ( get_current_screen()->base != 'plugins' || empty( $_GET['settings-updated'] ) )
+		return; ?>
+
+	<div id="wprp-message" class="updated">
+		<p><strong>WP Remote API Key successfully added</strong>, close this page to go back to <a href="https://wpremote.com/">WP Remote</a>.</p>
+	</div>
+
+<?php }
+add_action( 'admin_notices', 'wprp_api_key_added_admin_notice' );
+
+/**
+ * Delete the API key on activate and deactivate
+ *
+ * @return null
+ */
+function wprp_deactivate() {
+	delete_option( 'wpr_api_key' );
+}
+// Plugin activation and deactivation
+add_action( 'activate_' . WPRP_PLUGIN_SLUG . '/wprp.plugin.php', 'wprp_deactivate' );
+add_action( 'deactivate_' . WPRP_PLUGIN_SLUG . '/wprp.plugin.php', 'wprp_deactivate' );

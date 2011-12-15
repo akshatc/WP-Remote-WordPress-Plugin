@@ -2,7 +2,7 @@
 
 /*
 Plugin Name: WP Remote
-Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
+Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>. Deactivate to clear your API Key.
 Version: 2.0 Bleeding
 Author: Human Made Limited
 Author URI: http://hmn.md/
@@ -24,8 +24,6 @@ Author URI: http://hmn.md/
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-// TODO update the API Key option to use wprp
 
 define( 'WPRP_PLUGIN_SLUG', basename( dirname( __FILE__ ) ) );
 define( 'WPRP_PLUGIN_PATH', WP_PLUGIN_DIR . '/' . WPRP_PLUGIN_SLUG );
@@ -109,7 +107,6 @@ endif;
 /**
  * Catch the API calls and load the API
  *
- * @access public
  * @return null
  */
 function wprp_catch_api_call() {
@@ -118,7 +115,6 @@ function wprp_catch_api_call() {
 		return;
 
 	require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
-
 	require_once( WPRP_PLUGIN_PATH . '/wprp.plugins.php' );
 	require_once( WPRP_PLUGIN_PATH . '/wprp.themes.php' );
 
