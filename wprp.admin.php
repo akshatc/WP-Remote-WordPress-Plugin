@@ -28,10 +28,13 @@ function wprp_add_api_key_admin_notice() { ?>
 
 				<strong>WP Remote is almost ready</strong>, <label style="vertical-align: baseline;" for="wpr_api_key">enter your API Key to continue</label>
 
-				<input style="margin: 0; vertical-align: bottom;" type="text" class="code regular-text" id="wpr_api_key" name="wpr_api_key" />
+				<input style="margin: -4px 5px; vertical-align: text-bottom; line-height: 13px; font-size: 12px;" type="text" class="code regular-text" id="wpr_api_key" name="wpr_api_key" />
 
-				<input style="vertical-align: middle;" type="submit" value="Save API Key" class="button-primary" />
+				<input style="vertical-align: text-bottom; margin: -3px 0; line-height: 12px;" type="submit" value="Save API Key" class="button-primary" />
+
 			</p>
+
+			<style>#message { display : none; }</style>
 
 			<?php settings_fields( 'wpr-settings' );
 
@@ -55,7 +58,7 @@ if ( ! get_option( 'wpr_api_key' ) )
  */
 function wprp_api_key_added_admin_notice() {
 
-	if ( get_current_screen()->base != 'plugins' || empty( $_GET['settings-updated'] ) )
+	if ( get_current_screen()->base != 'plugins' || empty( $_GET['settings-updated'] ) || ! get_option( 'wpr_api_key' ) )
 		return; ?>
 
 	<div id="wprp-message" class="updated">
