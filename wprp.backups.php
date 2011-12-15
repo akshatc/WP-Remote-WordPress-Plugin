@@ -12,7 +12,10 @@ function _wprp_backups_api_call( $action ) {
 		return new WP_Error( 'Backups module not present' );
 
 	switch( $action ) :
-
+		
+		case 'supports_backups' :
+			return true;
+			
 		case 'do_backup' :
 
 			$backup = new HM_Backup();
@@ -30,8 +33,6 @@ function _wprp_backups_api_call( $action ) {
 			$backup->backup();
 
 			return str_replace( ABSPATH, site_url( '/' ), $backup->archive_filepath() );
-
-		break;
 
 		case 'delete_backup' :
 
