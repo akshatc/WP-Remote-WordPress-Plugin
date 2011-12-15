@@ -2,12 +2,12 @@
 
 function wprp_setup_admin() {
 	wprp_register_settings();
-	add_options_page('WP Remote Settings', 'WP Remote', 'manage_options', 'wp-remote-options', 'wprp_options_page');
+	add_options_page( 'WP Remote Settings', 'WP Remote', 'manage_options', 'wp-remote-options', 'wprp_options_page' );
 }
-add_action('admin_menu', 'wprp_setup_admin');
+add_action( 'admin_menu', 'wprp_setup_admin' );
 
 function wprp_register_settings() {
-	register_setting( 'wpr-settings', 'wprp_api_key' );
+	register_setting( 'wpr-settings', 'wpr_api_key' );
 }
 
 function wprp_options_page() { ?>
@@ -26,7 +26,7 @@ function wprp_options_page() { ?>
 					<th scope="row"><strong>API Key</strong></th>
 
 					<td>
-						<input type="text" name="wprp_api_key" class="regular-text" value="<?php echo get_option('wprp_api_key', ''); ?>" /><br />
+						<input type="text" name="wpr_api_key" class="regular-text" value="<?php echo get_option( 'wpr_api_key', '' ); ?>" /><br />
 					</td>
 
 				</tr>

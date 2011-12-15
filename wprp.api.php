@@ -1,7 +1,7 @@
 <?php
 
 // Check the API Key
-if ( ! isset( $_GET['wprp_api_key'] ) || urldecode( $_GET['wprp_api_key'] ) !== get_option( 'wprp_api_key' ) || ! isset( $_GET['actions'] ) ) {
+if ( ! isset( $_GET['wpr_api_key'] ) || urldecode( $_GET['wpr_api_key'] ) !== get_option( 'wpr_api_key' ) || ! isset( $_GET['actions'] ) ) {
 	echo json_encode( 'bad-api-key' );
 	exit;
 }
@@ -60,9 +60,8 @@ foreach( $actions as $action => $value ) {
 
 		break;
 
-		case 'get_backups' :
 		case 'do_backup' :
-		case 'download_backup' :
+		case 'delete_backup' :
 
 			$actions[$action] = _wprp_backups_api_call( $action );
 
@@ -71,6 +70,8 @@ foreach( $actions as $action => $value ) {
 		default :
 
 			$actions[$action] = 'not-implemented';
+			
+		break;
 
 	}
 

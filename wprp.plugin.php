@@ -114,7 +114,7 @@ endif;
  */
 function wprp_catch_api_call() {
 
-	if ( empty( $_GET['wprp_api_key'] ) || ! urldecode( $_GET['wprp_api_key'] ) || ! isset( $_GET['actions'] ) )
+	if ( empty( $_GET['wpr_api_key'] ) || ! urldecode( $_GET['wpr_api_key'] ) || ! isset( $_GET['actions'] ) )
 		return;
 
 	require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
