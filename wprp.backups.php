@@ -13,6 +13,7 @@ function _wprp_backups_api_call( $action ) {
 
 	switch( $action ) :
 		
+		// TODO in the future we should do some check here to make sure they do support backups
 		case 'supports_backups' :
 			return true;
 			
