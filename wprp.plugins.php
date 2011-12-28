@@ -51,10 +51,6 @@ function _wprp_get_plugins() {
 
 	}
 
-	// TODO is this necessary?
-	global $wp_version;
-	$plugins_args = (object) compact( 'plugins' );
-
 	return $plugins;
 }
 
