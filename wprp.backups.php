@@ -28,8 +28,6 @@ function _wprp_backups_api_call( $action ) {
 			// Set a random backup filename
 			$backup->archive_filename = md5( time() ) . '.zip';
 
-			$backup->database_only = true;
-
 			$backup->backup();
 
 			return str_replace( ABSPATH, site_url( '/' ), $backup->archive_filepath() );
