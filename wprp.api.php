@@ -25,9 +25,15 @@ foreach( $actions as $action => $value ) {
 		case 'get_plugin_version' :
 
 			$actions[$action] = '1.1';
-
+			
 		break;
+		
+		case 'get_filesystem_method' :
 
+			$actions[$action] = get_filesystem_method();
+		
+		break;
+		
 		case 'get_wp_version' :
 
 			global $wp_version;

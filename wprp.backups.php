@@ -30,6 +30,16 @@ function _wprp_backups_api_call( $action ) {
 			$backup->archive_filename = md5( time() ) . '.zip';
 
 			$backup->backup();
+			
+			if ( $errors = $backup->errors() ) {
+				$wp_error = new WP_Error;
+				
+				foreach ( $errors as $error )
+					$wp_error->add( reset( $error ), reset( $error ) );
+					
+				return $wp_error;
+			}
+			
 
 			return str_replace( ABSPATH, site_url( '/' ), $backup->archive_filepath() );
 
