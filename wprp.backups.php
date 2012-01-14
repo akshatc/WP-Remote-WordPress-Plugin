@@ -28,7 +28,14 @@ function _wprp_backups_api_call( $action ) {
 
 			// Set a random backup filename
 			$backup->archive_filename = md5( time() ) . '.zip';
-
+			
+			// Excludes
+			if ( ! empty( $_REQUEST['backup_excludes'] ) ) {
+			
+				$excludes = array_map( 'urldecode', (array) $_REQUEST['backup_excludes'] );
+				$backup->excludes = $excludes;
+			}
+			
 			$backup->backup();
 			
 			if ( $errors = $backup->errors() ) {
