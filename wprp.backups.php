@@ -24,8 +24,11 @@ function _wprp_backups_api_call( $action ) {
 			$upload_dir = wp_upload_dir();
 
 			// Store the backup file in the uploads dir
-			$backup->path = $upload_dir['basedir'];
-
+			$backup->path = $upload_dir['basedir'] . '/_wpremote_backups';
+			
+			if ( !is_dir( $backup->path ) )
+				mkdir( $backup->path );
+			
 			// Set a random backup filename
 			$backup->archive_filename = md5( time() ) . '.zip';
 			
@@ -54,8 +57,8 @@ function _wprp_backups_api_call( $action ) {
 
 			$upload_dir = wp_upload_dir();
 
-			if ( ! empty( $_REQUEST['backup'] ) && file_exists( $upload_dir['basedir'] . '/' . $_REQUEST['backup'] ) && substr( $_REQUEST['backup'], -4 ) == '.zip' )
-				unlink( $upload_dir['basedir'] . '/' . $_REQUEST['backup'] );
+			if ( ! empty( $_REQUEST['backup'] ) && file_exists( $upload_dir['basedir'] . '/_wpremote_backups/' . $_REQUEST['backup'] ) && substr( $_REQUEST['backup'], -4 ) == '.zip' )
+				unlink( $upload_dir['basedir'] . '/_wpremote_backups/' . $_REQUEST['backup'] );
 
 		break;
 
