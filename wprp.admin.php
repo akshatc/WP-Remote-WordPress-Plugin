@@ -77,5 +77,5 @@ function wprp_deactivate() {
 	delete_option( 'wpr_api_key' );
 }
 // Plugin activation and deactivation
-add_action( 'activate_' . WPRP_PLUGIN_SLUG . '/wprp.plugin.php', 'wprp_deactivate' );
-add_action( 'deactivate_' . WPRP_PLUGIN_SLUG . '/wprp.plugin.php', 'wprp_deactivate' );
+add_action( 'activate_' . WPRP_PLUGIN_SLUG . '/plugin.php', 'wprp_deactivate' );
+add_action( 'deactivate_' . WPRP_PLUGIN_SLUG . '/plugin.php', 'wprp_deactivate' );
