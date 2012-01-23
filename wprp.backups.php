@@ -18,16 +18,32 @@ function _wprp_backups_api_call( $action ) {
 			return true;
 			
 		case 'do_backup' :
-
+		
+			@ignore_user_abort(true);
+			
 			$backup = new HM_Backup();
-
+			$running_file = $backup->path . '/.backup_running';
 			$upload_dir = wp_upload_dir();
-
+			
 			// Store the backup file in the uploads dir
 			$backup->path = $upload_dir['basedir'] . '/_wpremote_backups';
 			
-			if ( !is_dir( $backup->path ) )
-				mkdir( $backup->path );
+			// delete the backups folder to cleanup old backups
+			_wprp_backups_rmdirtree( $backup->path );
+			
+			if ( ! @mkdir( $backup->path ) )
+				return new WP_Error( 'unable-to-create-backups-directory' );
+				
+			// write the backup runing file for tracking...
+			if ( ! $handle = @fopen( $running_file, 'w' ) )
+				return new WP_Error( 'unable-to-write-backup-running-file' );
+	
+			fwrite( $handle, $backup->archive_filename() );
+	
+			fclose( $handle );
+			
+			if ( ! file_exists( $running_file ) )
+				return new WP_Error( 'backup-running-file-was-not-created' );
 			
 			// Set a random backup filename
 			$backup->archive_filename = md5( time() ) . '.zip';
@@ -41,27 +57,86 @@ function _wprp_backups_api_call( $action ) {
 			
 			$backup->backup();
 			
-			if ( $errors = $backup->errors() ) {
-				$wp_error = new WP_Error;
+			unlink( $backup->path . '/.backup_completed' );
+			unlink( $backup->path . '/.backup_running' );
+			
+			// write the backup runing file for tracking...
+			$completed_file = $backup->path . '/.backup_completed';
+
+			if ( ! $handle = @fopen( $completed_file, 'w' ) )
+				return new WP_Error( 'unable-to-write-backup-completed-file' );
+			
+			if ( $backup->errors() || ( $backup->warnings() && ! file_exists( $backup->archive_filepath() ) ) ) {
 				
-				foreach ( $errors as $error )
-					$wp_error->add( reset( $error ), reset( $error ) );
-					
-				return $wp_error;
+				$errors = array_merge( $backup->errors(), $backup->warnings() );
+				fwrite( $handle, json_encode( $errors ) );
+				
+			} else {
+			
+				fwrite( $handle, 'file:' . $backup->archive_filename() );
 			}
 			
+			fclose( $handle );
+			
+			return true;
+					
+		case 'get_backup' :
+			
+			$upload_dir = wp_upload_dir();
 
-			return str_replace( ABSPATH, site_url( '/' ), $backup->archive_filepath() );
+			// Store the backup file in the uploads dir
+			$path = $upload_dir['basedir'] . '/_wpremote_backups';
+			$url = $upload_dir['baseurl'] . '/_wpremote_backups';
+			
+			if ( ! is_dir( $path ) )
+				return new WP_Error( 'backups-dir-does-not-exist' );
 
+			if ( file_exists( $path . '/.backup_running' ) )
+				return new WP_Error( 'backup-running' );
+
+			if ( ! file_exists( $path . '/.backup_completed' ) )
+				return new WP_Error( 'backup-not-started' );
+			
+			$file = file_get_contents( $path . '/.backup_completed' );
+			
+			if ( strpos( $file, 'file:' ) === 0 )
+				return $url . '/' . substr( $file, 5 );
+			
+			// must have errored, return errors in a WP_Error
+			return new WP_Error( 'backup-failed', json_decode( $file ) );
+										
 		case 'delete_backup' :
 
 			$upload_dir = wp_upload_dir();
-
-			if ( ! empty( $_REQUEST['backup'] ) && file_exists( $upload_dir['basedir'] . '/_wpremote_backups/' . $_REQUEST['backup'] ) && substr( $_REQUEST['backup'], -4 ) == '.zip' )
-				unlink( $upload_dir['basedir'] . '/_wpremote_backups/' . $_REQUEST['backup'] );
-
+			
+			_wprp_backups_rmdirtree( $upload_dir['basedir'] . '/_wpremote_backups' );
+			
 		break;
 
 	endswitch;
+
+}
+
+function _wprp_backups_rmdirtree( $dir ) {
+
+	if ( is_file( $dir ) )
+		unlink( $dir );
+
+    if ( ! is_dir( $dir ) )
+    	return false;
+
+    $files = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $dir ), RecursiveIteratorIterator::CHILD_FIRST, RecursiveIteratorIterator::CATCH_GET_CHILD );
+
+	foreach ( $files as $file ) {
+
+		if ( $file->isDir() )
+			@rmdir( $file->getPathname() );
+
+		else
+			@unlink( $file->getPathname() );
+
+	}
+
+	@rmdir( $dir );
 
 }

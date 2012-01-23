@@ -69,6 +69,7 @@ foreach( $actions as $action => $value ) {
 		case 'do_backup' :
 		case 'delete_backup' :
 		case 'supports_backups' :
+		case 'get_backup' :
 	
 			$actions[$action] = _wprp_backups_api_call( $action );
 
