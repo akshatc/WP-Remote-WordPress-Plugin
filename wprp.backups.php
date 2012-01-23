@@ -37,7 +37,7 @@ function _wprp_backups_api_call( $action ) {
 				
 			// write the backup runing file for tracking...
 			if ( ! $handle = @fopen( $running_file, 'w' ) )
-				return new WP_Error( 'unable-to-write-backup-running-file',  );
+				return new WP_Error( 'unable-to-write-backup-running-file' );
 	
 			fwrite( $handle, $backup->archive_filename() );
 	
