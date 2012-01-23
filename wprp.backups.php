@@ -22,21 +22,22 @@ function _wprp_backups_api_call( $action ) {
 			@ignore_user_abort(true);
 			
 			$backup = new HM_Backup();
-			$running_file = $backup->path . '/.backup_running';
 			$upload_dir = wp_upload_dir();
 			
 			// Store the backup file in the uploads dir
 			$backup->path = $upload_dir['basedir'] . '/_wpremote_backups';
 			
+			$running_file = $backup->path . '/.backup_running';
+			
 			// delete the backups folder to cleanup old backups
 			_wprp_backups_rmdirtree( $backup->path );
 			
 			if ( ! @mkdir( $backup->path ) )
-				return new WP_Error( 'unable-to-create-backups-directory' );
+				return new WP_Error( 'unable-to-create-backups-directory', 'Unable to write the .backup_running file - check your permissions on wp-content/uploads' );
 				
 			// write the backup runing file for tracking...
 			if ( ! $handle = @fopen( $running_file, 'w' ) )
-				return new WP_Error( 'unable-to-write-backup-running-file' );
+				return new WP_Error( 'unable-to-write-backup-running-file',  );
 	
 			fwrite( $handle, $backup->archive_filename() );
 	
@@ -137,6 +138,6 @@ function _wprp_backups_rmdirtree( $dir ) {
 
 	}
 
-	@rmdir( $dir );
+	return @rmdir( $dir );
 
 }
