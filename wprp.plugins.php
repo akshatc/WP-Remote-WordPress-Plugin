@@ -14,7 +14,14 @@ function _wprp_get_plugins() {
 
 	// Get the list of active plugins
 	$active  = get_option( 'active_plugins', array() );
-
+	
+	// Delete the transient so wp_update_plugins can get fresh data
+	if ( function_exists( 'get_site_transient' ) )
+		delete_site_transient( 'update_plugins' );
+	
+	else
+		delete_transient( 'update_plugins' );
+	
 	// Force a plugin update check
 	wp_update_plugins();
 
