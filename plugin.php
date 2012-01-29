@@ -29,6 +29,17 @@ define( 'WPRP_PLUGIN_SLUG', basename( dirname( __FILE__ ) ) );
 define( 'WPRP_PLUGIN_PATH', WP_PLUGIN_DIR . '/' . WPRP_PLUGIN_SLUG );
 define( 'WPRP_PLUGIN_URL', WP_PLUGIN_URL . '/' . WPRP_PLUGIN_SLUG );
 
+// Don't activate on anything less than PHP 5.2.4
+if ( version_compare( phpversion(), '5.2.4', '<' ) ) {
+
+	require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+	deactivate_plugins( WPRP_PLUGIN_SLUG . '/plugin.php' );
+
+	if ( isset( $_GET['action'] ) && ( $_GET['action'] == 'activate' || $_GET['action'] == 'error_scrape' ) )
+		die( __( 'WP Remote requires PHP version 5.2.4 or greater.', 'wpremote' ) );
+
+}
+
 require_once( WPRP_PLUGIN_PATH  .'/wprp.admin.php' );
 
 // Backups require 3.1
