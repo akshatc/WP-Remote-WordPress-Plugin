@@ -31,8 +31,8 @@ define( 'WPRP_PLUGIN_URL', WP_PLUGIN_URL . '/' . WPRP_PLUGIN_SLUG );
 
 require_once( WPRP_PLUGIN_PATH  .'/wprp.admin.php' );
 
-// Backups require 3.1 TODO - do they?
-if ( version_compare( get_bloginfo('version'), '3.1', '>=' ) && ! class_exists( 'HM_Backup' ) )
+// Backups require 3.1
+if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) && ! class_exists( 'HM_Backup' ) )
 	require( WPRP_PLUGIN_PATH . '/hm-backup/hm-backup.php' );
 
 // Don't include when doing a core update
