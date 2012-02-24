@@ -95,16 +95,47 @@ function _wprp_upgrade_plugin( $plugin ) {
 		return array( 'status' => 'error', 'error' => $skin->error );
 
 	// If the plugin was activited, we have to re-activate it
-	// @todo Shouldn't this use activate_plugin?
 	if ( $is_active ) {
-		$current = get_option( 'active_plugins', array() );
-		$current[] = plugin_basename( trim( $plugin ) );;
-		sort( $current );
-		update_option('active_plugins', $current );
+		
+		// we do a remote request to activate, as we don;t want to kill any installs 
+		$url = add_query_arg( 'wpr_api_key', $_GET['wpr_api_key'], get_bloginfo( 'url' ) );
+		$url = add_query_arg( 'actions', 'activate_plugin', $url );
+		$url = add_query_arg( 'plugin', $plugin, $url );
+		
+		$request = wp_remote_get( $url );
+
+		if ( is_wp_error( $request ) ) {
+			return array( 'status' => 'error', 'error' => $request->get_error_code() );
+		}
+		
+		$body = wp_remote_retrieve_body( $request );
+		
+		
+		if ( ! $json = @json_decode( $body ) )
+			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate.' );
+		
+		$json = $json->activate_plugin;
+		
+		if ( empty( $json->status ) )
+			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate. The activation reuest returned no response' );
+		
+		if ( $json->status != 'success' )
+			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate. The activation reuest returned response: ' . $json->status );
 	}
 
 	return array( 'status' => 'success' );
+}
 
+function _wprp_activate_plugin( $plugin ) {
+	
+	include_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+	$result = activate_plugin( $plugin );
+
+	if ( is_wp_error( $result ) )
+		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+	
+	return array( 'status' => 'success' );
 }
 
 /**

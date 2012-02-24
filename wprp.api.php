@@ -53,7 +53,13 @@ foreach( $actions as $action => $value ) {
 			$actions[$action] = _wprp_upgrade_plugin( (string) $_GET['plugin'] );
 
 		break;
-
+		
+		case 'activate_plugin' :
+			
+			$actions[$action] = _wprp_activate_plugin( (string) $_GET['plugin'] );
+		
+		break;
+			
 		case 'get_themes' :
 
 			$actions[$action] = _wprp_supports_theme_upgrade() ? _wprp_get_themes() : 'not-implemented';
