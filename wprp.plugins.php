@@ -101,8 +101,8 @@ function _wprp_upgrade_plugin( $plugin ) {
 	if ( $is_active ) {
 		
 		// we can not use the "normal" way or lazy activating, as thet requires wpremote to be activated
-		if ( strpos( $plugin, 'wpremote') !== false ) {
-			activate_plugin( $plugin );
+		if ( strpos( $plugin, 'wpremote' ) !== false ) {
+			activate_plugin( $plugin, '', false, true );
 			return array( 'status' => 'success' );
 		}
 
