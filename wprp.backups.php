@@ -19,7 +19,7 @@ function _wprp_backups_api_call( $action ) {
 			
 		case 'do_backup' :
 		
-			@ignore_user_abort(true);
+			@ignore_user_abort( true );
 			
 			$backup = new HM_Backup();
 			$upload_dir = wp_upload_dir();
@@ -27,15 +27,31 @@ function _wprp_backups_api_call( $action ) {
 			// Store the backup file in the uploads dir
 			$backup->path = $upload_dir['basedir'] . '/_wpremote_backups';
 			
-			$running_file = $backup->path . '/.backup_running';
+			$running_file = $backup->path() . '/.backup_running';
+			$index_php = $backup->path() . '/index.php';
+			
+			// Set a random backup filename
+			$backup->archive_filename = md5( time() ) . '.zip';
 			
 			// delete the backups folder to cleanup old backups
-			_wprp_backups_rmdirtree( $backup->path );
+			_wprp_backups_rmdirtree( $backup->path() );
 			
-			if ( ! @mkdir( $backup->path ) )
+			if ( ! @mkdir( $backup->path() ) )
 				return new WP_Error( 'unable-to-create-backups-directory', 'Unable to write the .backup_running file - check your permissions on wp-content/uploads' );
 				
-			// write the backup runing file for tracking...
+
+			// Write an index.php file so stop directory listing
+			if ( ! $handle = @fopen( $index_php, 'w' ) )
+				return new WP_Error( 'unable-to-write-index-php-file' );
+	
+			fwrite( $handle, '' );
+	
+			fclose( $handle );
+			
+			if ( ! file_exists( $index_php ) )
+				return new WP_Error( 'index-php-file-was-not-created' );
+
+			// Write the backup runing file for tracking...
 			if ( ! $handle = @fopen( $running_file, 'w' ) )
 				return new WP_Error( 'unable-to-write-backup-running-file' );
 	
@@ -46,9 +62,6 @@ function _wprp_backups_api_call( $action ) {
 			if ( ! file_exists( $running_file ) )
 				return new WP_Error( 'backup-running-file-was-not-created' );
 			
-			// Set a random backup filename
-			$backup->archive_filename = md5( time() ) . '.zip';
-			
 			// Excludes
 			if ( ! empty( $_REQUEST['backup_excludes'] ) ) {
 			
@@ -58,11 +71,11 @@ function _wprp_backups_api_call( $action ) {
 			
 			$backup->backup();
 			
-			unlink( $backup->path . '/.backup_completed' );
-			unlink( $backup->path . '/.backup_running' );
+			unlink( $backup->path() . '/.backup_completed' );
+			unlink( $backup->path() . '/.backup_running' );
 			
-			// write the backup runing file for tracking...
-			$completed_file = $backup->path . '/.backup_completed';
+			// Write the backup runing file for tracking...
+			$completed_file = $backup->path() . '/.backup_completed';
 
 			if ( ! $handle = @fopen( $completed_file, 'w' ) )
 				return new WP_Error( 'unable-to-write-backup-completed-file' );
