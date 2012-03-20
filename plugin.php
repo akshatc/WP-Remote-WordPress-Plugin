@@ -3,7 +3,7 @@
 /*
 Plugin Name: WP Remote
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>. Deactivate to clear your API Key.
-Version: 2.1.1
+Version: 2.1.2
 Author: Human Made Limited
 Author URI: http://hmn.md/
 */
