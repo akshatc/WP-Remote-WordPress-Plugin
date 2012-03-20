@@ -79,6 +79,9 @@ function _wprp_upgrade_plugin( $plugin ) {
 	$upgrader = new Plugin_Upgrader( $skin );
 	$is_active = is_plugin_active( $plugin );
 
+	// Force a plugin update check
+	wp_update_plugins();
+
 	// Do the upgrade
 	ob_start();
 	$result = $upgrader->upgrade( $plugin );
@@ -97,6 +100,13 @@ function _wprp_upgrade_plugin( $plugin ) {
 	// If the plugin was activited, we have to re-activate it
 	if ( $is_active ) {
 		
+		// we can not use the "normal" way or lazy activating, as thet requires wpremote to be activated
+		if ( strpos( $plugin, 'wpremote') !== false ) {
+			activate_plugin( $plugin );
+			return array( 'status' => 'success' );
+		}
+
+
 		// we do a remote request to activate, as we don;t want to kill any installs 
 		$url = add_query_arg( 'wpr_api_key', $_GET['wpr_api_key'], get_bloginfo( 'url' ) );
 		$url = add_query_arg( 'actions', 'activate_plugin', $url );
