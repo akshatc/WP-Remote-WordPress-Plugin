@@ -84,7 +84,6 @@ foreach( $actions as $action => $value ) {
 		// get site info
 		case 'get_site_info' :
 		
-			// $actions[$action] = 'test';
 			$actions[$action] = array( 'site_url' => get_site_url(), 'home_url' => get_home_url(), 'admin_url' => get_admin_url(),  );
 		
 		break;
