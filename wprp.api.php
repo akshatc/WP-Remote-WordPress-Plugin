@@ -1,7 +1,10 @@
 <?php
 
 // Check the API Key
-if ( ! isset( $_GET['wpr_api_key'] ) || urldecode( $_GET['wpr_api_key'] ) !== get_option( 'wpr_api_key' ) || ! isset( $_GET['actions'] ) ) {
+if ( ! get_option( 'wpr_api_key' ) ) {
+	echo json_encode( 'blank-api-key' );
+	exit;
+} elseif ( ! isset( $_GET['wpr_api_key'] ) || urldecode( $_GET['wpr_api_key'] ) !== get_option( 'wpr_api_key' ) || ! isset( $_GET['actions'] ) ) {
 	echo json_encode( 'bad-api-key' );
 	exit;
 }
