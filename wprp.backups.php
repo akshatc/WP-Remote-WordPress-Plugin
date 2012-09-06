@@ -8,7 +8,7 @@
  */
 function _wprp_backups_api_call( $action ) {
 
-	if ( ! class_exists( 'hm_backup' ) )
+	if ( ! class_exists( 'WPR_HM_Backup' ) )
 		return new WP_Error( 'Backups module not present' );
 
 	switch( $action ) :
@@ -21,7 +21,7 @@ function _wprp_backups_api_call( $action ) {
 		
 			@ignore_user_abort( true );
 			
-			$backup = new HM_Backup();
+			$backup = new WPR_HM_Backup();
 			$upload_dir = wp_upload_dir();
 			
 			// Store the backup file in the uploads dir
@@ -156,10 +156,10 @@ function _wprp_backups_rmdirtree( $dir ) {
 }
 
 function _wprp_get_backups_info() {
-	if ( ! class_exists( 'hm_backup' ) )
+	if ( ! class_exists( 'WPR_HM_Backup' ) )
 		return;
 
-	$hm_backup = new HM_Backup();
+	$hm_backup = new WPR_HM_Backup();
 	$info = array(
 		'mysqldump_path' => $hm_backup->get_mysqldump_command_path(),
 		'zip_path' => $hm_backup->get_zip_command_path()
