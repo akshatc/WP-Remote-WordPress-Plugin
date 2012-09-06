@@ -31,25 +31,49 @@ function _wprp_get_themes() {
 
 	foreach ( (array) $themes as $theme ) {
 
-	    $new_version = isset( $current->response[$theme['Template']] ) ? $current->response[$theme['Template']]['new_version'] : null;
+		// WordPress 3.4+
+		if ( is_object( $theme ) && is_a( $theme, 'WP_Theme' ) ) {
 
-	    if ( $active == $theme['Name'] )
-	    	$themes[$theme['Name']]['active'] = true;
+			$new_version = isset( $current->response[$theme['Template']] ) ? $current->response[$theme['Template']]['new_version'] : null;
 
-	    else
-	    	$themes[$theme['Name']]['active'] = false;
+			$theme_array = array(
+				'Name' 		=> $theme->get( 'Name' ),
+				'Template' 	=> $theme->get( 'Template' ),
+				'active'	=> $active == $theme->get( 'Name' ),
+				'Stylesheet' => $theme->get( 'Stylesheet' ),
+				'Template' 	=> $theme->get_template(),
+				'Stylesheet'=> $theme->get_stylesheet(),
+				'Screenshot'=> $theme->get_screenshot(),
+				'AuthorURI'=> $theme->get( 'AuthorURI' ),
+				'Author'	=> $theme->get( 'Author' ),
+				'latest_version' => $new_version ? $new_version : $theme->get( 'Version' ),
+				'Version'	=> $theme->get( 'Version' ),
+				'ThemeURI'	=> $theme->get( 'ThemeURI' )
+			);
 
-	    if ( $new_version ) {
+			$themes[$theme['Name']] = $theme_array;
 
-	    	$themes[$theme['Name']]['latest_version'] = $new_version;
-	    	$themes[$theme['Name']]['latest_package'] = $current->response[$theme['Template']]['package'];
+		} else {
 
-	    } else {
+			$new_version = isset( $current->response[$theme['Template']] ) ? $current->response[$theme['Template']]['new_version'] : null;
 
-	    	$themes[$theme['Name']]['latest_version'] = $theme['Version'];
+			if ( $active == $theme['Name'] )
+				$themes[$theme['Name']]['active'] = true;
 
-	    }
+			else
+				$themes[$theme['Name']]['active'] = false;
 
+			if ( $new_version ) {
+
+				$themes[$theme['Name']]['latest_version'] = $new_version;
+				$themes[$theme['Name']]['latest_package'] = $current->response[$theme['Template']]['package'];
+
+			} else {
+
+				$themes[$theme['Name']]['latest_version'] = $theme['Version'];
+
+			}
+		}
 	}
 
 	return $themes;
