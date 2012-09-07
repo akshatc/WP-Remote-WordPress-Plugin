@@ -608,7 +608,7 @@ class WPR_HM_Backup {
 	 */
 	public function backup() {
 
-		$this->do_action( 'hmbkp_backup_started' );
+		$this->do_action( 'wprhmbkp_backup_started' );
 
 		// Backup database
 		if ( $this->get_type() !== 'file' )
@@ -617,7 +617,7 @@ class WPR_HM_Backup {
 		// Zip everything up
 		$this->archive();
 
-		$this->do_action( 'hmbkp_backup_complete' );
+		$this->do_action( 'wprhmbkp_backup_complete' );
 
 	}
 
@@ -631,7 +631,7 @@ class WPR_HM_Backup {
 	 */
 	public function dump_database() {
 
-		$this->do_action( 'hmbkp_mysqldump_started' );
+		$this->do_action( 'wprhmbkp_mysqldump_started' );
 
 		if ( $this->get_mysqldump_command_path() )
 			$this->mysqldump();
@@ -639,7 +639,7 @@ class WPR_HM_Backup {
 		if ( empty( $this->mysqldump_verified ) )
 			$this->mysqldump_fallback();
 
-		$this->do_action( 'hmbkp_mysqldump_finished' );
+		$this->do_action( 'wprhmbkp_mysqldump_finished' );
 
 	}
 
@@ -741,7 +741,7 @@ class WPR_HM_Backup {
 	 */
 	public function archive() {
 
-		$this->do_action( 'hmbkp_archive_started' );
+		$this->do_action( 'wprhmbkp_archive_started' );
 
 		// Do we have the path to the zip command
 		if ( $this->get_zip_command_path() )
@@ -759,7 +759,7 @@ class WPR_HM_Backup {
 		if ( file_exists( $this->get_database_dump_filepath() ) )
 			unlink( $this->get_database_dump_filepath() );
 
-		$this->do_action( 'hmbkp_archive_finished' );
+		$this->do_action( 'wprhmbkp_archive_finished' );
 
 	}
 

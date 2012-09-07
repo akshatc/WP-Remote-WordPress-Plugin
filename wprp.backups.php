@@ -66,8 +66,11 @@ function _wprp_backups_api_call( $action ) {
 			if ( ! empty( $_REQUEST['backup_excludes'] ) ) {
 			
 				$excludes = array_map( 'urldecode', (array) $_REQUEST['backup_excludes'] );
-				$backup->set_excludes( $excludes );
+				$backup->set_excludes( $excludes, true );
 			}
+
+			if ( function_exists( 'hmbkp_path' ) )
+				$backup->set_excludes( array( hmbkp_path() ), true );
 			
 			$backup->backup();
 			
