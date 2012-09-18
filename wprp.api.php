@@ -13,7 +13,7 @@ $actions = explode( ',', $_GET['actions'] );
 $actions = array_flip( $actions );
 
 // Disable error_reporting so they don't break the json request
-//error_reporting( 0 );
+error_reporting( 0 );
 
 // Log in as admin
 wp_set_current_user( 1 );
@@ -42,6 +42,12 @@ foreach( $actions as $action => $value ) {
 			global $wp_version;
 
 			$actions[$action] = (string) $wp_version;
+
+		break;
+
+		case 'upgrade_core' :
+
+			$actions[$action] = _wprp_upgrade_core();
 
 		break;
 
