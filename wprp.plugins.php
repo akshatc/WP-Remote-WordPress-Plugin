@@ -40,7 +40,7 @@ function _wprp_get_plugins() {
 
 	foreach ( (array) $plugins as $plugin_file => $plugin ) {
 
-        $new_version = isset( $current->response[$plugin_file] ) ? $current->response[$plugin_file]->new_version : null;
+	    $new_version = isset( $current->response[$plugin_file] ) ? $current->response[$plugin_file]->new_version : null;
 
 	    if ( is_plugin_active( $plugin_file ) )
 	    	$plugins[$plugin_file]['active'] = true;
@@ -77,7 +77,11 @@ function _wprp_upgrade_plugin( $plugin ) {
 	if ( ! _wprp_supports_plugin_upgrade() )
 		return array( 'status' => 'error', 'error' => 'WordPress version too old for plugin upgrades' );
 
-    _wpr_add_non_extend_plugin_support();
+        _wpr_add_non_extend_plugin_support();
+	
+	// check for filesystem access
+	if ( ! _wpr_check_filesystem_access() )
+		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );		
 
 	$skin = new WPRP_Plugin_Upgrader_Skin();
 	$upgrader = new Plugin_Upgrader( $skin );
@@ -166,7 +170,6 @@ function _wprp_supports_plugin_upgrade() {
 	return class_exists( 'Plugin_Upgrader' );
 
 }
-
 
 function _wpr_add_non_extend_plugin_support() {
 

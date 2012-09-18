@@ -92,6 +92,10 @@ function _wprp_upgrade_theme( $theme ) {
 	if ( ! _wprp_supports_theme_upgrade() )
 		return array( 'status' => 'error', 'error' => 'WordPress version too old for theme upgrades' );
 
+	// check for filesystem access
+	if ( ! _wpr_check_filesystem_access() )
+		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );		
+
 	$skin = new WPRP_Theme_Upgrader_Skin();
 	$upgrader = new Theme_Upgrader( $skin );
 
