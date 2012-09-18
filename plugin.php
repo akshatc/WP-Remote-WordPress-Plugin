@@ -148,6 +148,10 @@ function _wprp_upgrade_core()  {
 	include_once ( ABSPATH . 'wp-admin/includes/upgrade.php' );
 	include_once ( ABSPATH . 'wp-includes/update.php' );
 
+	// check for filesystem access
+	if ( ! _wpr_check_filesystem_access() )
+		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );		
+
 	// force refresh
 	wp_version_check();
 
@@ -179,3 +183,35 @@ function _wprp_upgrade_core()  {
 
 	return true;
 }
+
+function _wpr_check_filesystem_access() {
+
+	ob_start();
+	$success = request_filesystem_credentials();
+	ob_end_clean();
+
+	error_log( var_export( $success, true ) );
+
+	return (bool) $success;
+}
+
+function _wpr_set_filesystem_credentials( $credentials ) {
+
+	if ( empty( $_GET['filesystem_details'] ) )
+		return $credentials;
+
+	$_credentials = array(
+		'username' => $_GET['filesystem_details']['credentials']['username'],
+		'password' => $_GET['filesystem_details']['credentials']['password'],
+		'hostname' => $_GET['filesystem_details']['credentials']['hostname'],
+		'connection_type' => $_GET['filesystem_details']['method']
+	);
+
+	// check whether the crdentials can be used
+	if ( ! WP_Filesystem( $_credentials ) ) {
+		return $credentials;
+	}
+
+	return $_credentials;
+}
+add_filter( 'request_filesystem_credentials', '_wpr_set_filesystem_credentials' );

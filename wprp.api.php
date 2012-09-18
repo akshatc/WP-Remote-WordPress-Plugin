@@ -35,6 +35,19 @@ foreach( $actions as $action => $value ) {
 
 			$actions[$action] = get_filesystem_method();
 		
+		case 'get_supported_filesystem_methods' :
+
+			$actions[$action] = array();
+
+			if ( extension_loaded('ftp') || extension_loaded('sockets') || function_exists('fsockopen') )
+				$actions[$action][] = 'ftp';
+
+			if ( extension_loaded('ftp') )
+				$actions[$action][] = 'ftps';
+
+			if ( extension_loaded('ssh2') && function_exists('stream_get_contents') )
+				$actions[$action][] = 'ssh';
+
 		break;
 		
 		case 'get_wp_version' :

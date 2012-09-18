@@ -75,6 +75,10 @@ function _wprp_upgrade_plugin( $plugin ) {
 	if ( ! _wprp_supports_plugin_upgrade() )
 		return array( 'status' => 'error', 'error' => 'WordPress version too old for plugin upgrades' );
 
+	// check for filesystem access
+	if ( ! _wpr_check_filesystem_access() )
+		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );		
+
 	$skin = new WPRP_Plugin_Upgrader_Skin();
 	$upgrader = new Plugin_Upgrader( $skin );
 	$is_active = is_plugin_active( $plugin );
