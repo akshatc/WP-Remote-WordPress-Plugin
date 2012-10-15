@@ -9,7 +9,7 @@ function _wprp_get_plugins() {
 
 	require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
-    _wpr_add_non_extend_plugin_support();
+    _wpr_add_non_extend_plugin_support_filter();
 
 	// Get all plugins
 	$plugins = get_plugins();
@@ -77,7 +77,7 @@ function _wprp_upgrade_plugin( $plugin ) {
 	if ( ! _wprp_supports_plugin_upgrade() )
 		return array( 'status' => 'error', 'error' => 'WordPress version too old for plugin upgrades' );
 
-        _wpr_add_non_extend_plugin_support();
+	_wpr_add_non_extend_plugin_support_filter();
 
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
@@ -171,43 +171,50 @@ function _wprp_supports_plugin_upgrade() {
 
 }
 
-function _wpr_add_non_extend_plugin_support() {
-
-    add_filter( 'pre_set_site_transient_update_plugins', function( $value ) {
-
-        foreach( $non_extend_list = _wprp_get_non_extend_plugins_data() as $key => $anon_function ) {
-
-            if ( ( $returned = $non_extend_list[$key]() ) )
-                $value->response[$returned->plugin_location] = $returned;
-        }
-
-        return $value;
-
-    } );
+function _wpr_add_non_extend_plugin_support_filter() {
+    add_filter( 'pre_set_site_transient_update_plugins', '_wpr_add_non_extend_plugin_support' );
 }
+
+function _wpr_add_non_extend_plugin_support( $value ) {
+
+    foreach( $non_extend_list = _wprp_get_non_extend_plugins_data() as $key => $anon_function ) {
+
+        if ( ( $returned = call_user_func( $non_extend_list[$key] ) ) )
+            $value->response[$returned->plugin_location] = $returned;
+    }
+
+    return $value;
+
+}
+
 
 function _wprp_get_non_extend_plugins_data() {
 
     return array(
-        'gravity_forms' => function() {
 
-            if ( ! class_exists('GFCommon') || ! method_exists( 'GFCommon', 'get_version_info' ) || ! method_exists( 'RGForms', 'premium_update_push' ) )
-                return false;
+        'gravity_forms' => '_wpr_get_gravity_form_plugin_data'
 
-            $version_data  = GFCommon::get_version_info();
-            $plugin_data   = reset( RGForms::premium_update_push( array() ) );
-
-            if ( empty( $version_data['url'] ) || empty( $version_data['is_valid_key'] ) || empty( $plugin_data['new_version'] ) || empty( $plugin_data['PluginURI'] ) || empty( $plugin_data['slug'] ) )
-                return false;
-
-            return (object) array(
-                'plugin_location' => $plugin_data['slug'], //Not in standard structure but don't forget to include it!
-                'id'              => 999999999,
-                'slug'            => 'gravityforms',
-                'url'             => $plugin_data['PluginURI'],
-                'package'         => $version_data['url'],
-                'new_version'     => $version_data['version']
-            );
-        }
     );
+}
+
+function _wpr_get_gravity_form_plugin_data() {
+
+    if ( ! class_exists('GFCommon') || ! method_exists( 'GFCommon', 'get_version_info' ) || ! method_exists( 'RGForms', 'premium_update_push' ) )
+        return false;
+
+    $version_data  = GFCommon::get_version_info();
+    $plugin_data   = reset( RGForms::premium_update_push( array() ) );
+
+    if ( empty( $version_data['url'] ) || empty( $version_data['is_valid_key'] ) || empty( $plugin_data['new_version'] ) || empty( $plugin_data['PluginURI'] ) || empty( $plugin_data['slug'] ) )
+        return false;
+
+    return (object) array(
+        'plugin_location' => $plugin_data['slug'], //Not in standard structure but don't forget to include it!
+        'id'              => 999999999,
+        'slug'            => 'gravityforms',
+        'url'             => $plugin_data['PluginURI'],
+        'package'         => $version_data['url'],
+        'new_version'     => $version_data['version']
+    );
+
 }
