@@ -205,7 +205,7 @@ function _wpr_set_filesystem_credentials( $credentials ) {
 		'connection_type' => $_GET['filesystem_details']['method']
 	);
 
-	// check whether the crdentials can be used
+	// check whether the credentials can be used
 	if ( ! WP_Filesystem( $_credentials ) ) {
 		return $credentials;
 	}

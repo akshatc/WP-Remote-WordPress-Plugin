@@ -16,14 +16,14 @@ function _wprp_get_plugins() {
 
 	// Get the list of active plugins
 	$active  = get_option( 'active_plugins', array() );
-	
+
 	// Delete the transient so wp_update_plugins can get fresh data
 	if ( function_exists( 'get_site_transient' ) )
 		delete_site_transient( 'update_plugins' );
-	
+
 	else
 		delete_transient( 'update_plugins' );
-	
+
 	// Force a plugin update check
 	wp_update_plugins();
 
@@ -40,7 +40,7 @@ function _wprp_get_plugins() {
 
 	foreach ( (array) $plugins as $plugin_file => $plugin ) {
 
-	    $new_version = isset( $current->response[$plugin_file] ) ? $current->response[$plugin_file]->new_version : null;
+		$new_version = isset( $current->response[$plugin_file] ) ? $current->response[$plugin_file]->new_version : null;
 
 	    if ( is_plugin_active( $plugin_file ) )
 	    	$plugins[$plugin_file]['active'] = true;
@@ -78,10 +78,10 @@ function _wprp_upgrade_plugin( $plugin ) {
 		return array( 'status' => 'error', 'error' => 'WordPress version too old for plugin upgrades' );
 
         _wpr_add_non_extend_plugin_support();
-	
+
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
-		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );		
+		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );
 
 	$skin = new WPRP_Plugin_Upgrader_Skin();
 	$upgrader = new Plugin_Upgrader( $skin );
@@ -107,7 +107,7 @@ function _wprp_upgrade_plugin( $plugin ) {
 
 	// If the plugin was activited, we have to re-activate it
 	if ( $is_active ) {
-		
+
 		// we can not use the "normal" way or lazy activating, as thet requires wpremote to be activated
 		if ( strpos( $plugin, 'wpremote' ) !== false ) {
 			activate_plugin( $plugin, '', false, true );
@@ -115,28 +115,28 @@ function _wprp_upgrade_plugin( $plugin ) {
 		}
 
 
-		// we do a remote request to activate, as we don;t want to kill any installs 
+		// we do a remote request to activate, as we don;t want to kill any installs
 		$url = add_query_arg( 'wpr_api_key', $_GET['wpr_api_key'], get_bloginfo( 'url' ) );
 		$url = add_query_arg( 'actions', 'activate_plugin', $url );
 		$url = add_query_arg( 'plugin', $plugin, $url );
-		
+
 		$request = wp_remote_get( $url );
 
 		if ( is_wp_error( $request ) ) {
 			return array( 'status' => 'error', 'error' => $request->get_error_code() );
 		}
-		
+
 		$body = wp_remote_retrieve_body( $request );
-		
-		
+
+
 		if ( ! $json = @json_decode( $body ) )
 			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate.' );
-		
+
 		$json = $json->activate_plugin;
-		
+
 		if ( empty( $json->status ) )
 			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate. The activation reuest returned no response' );
-		
+
 		if ( $json->status != 'success' )
 			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate. The activation reuest returned response: ' . $json->status );
 	}
@@ -145,14 +145,14 @@ function _wprp_upgrade_plugin( $plugin ) {
 }
 
 function _wprp_activate_plugin( $plugin ) {
-	
+
 	include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 	$result = activate_plugin( $plugin );
 
 	if ( is_wp_error( $result ) )
 		return array( 'status' => 'error', 'error' => $result->get_error_code() );
-	
+
 	return array( 'status' => 'success' );
 }
 
@@ -211,5 +211,3 @@ function _wprp_get_non_extend_plugins_data() {
         }
     );
 }
-
-
