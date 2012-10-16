@@ -42,8 +42,16 @@ if ( version_compare( phpversion(), '5.2.4', '<' ) ) {
 require_once( WPRP_PLUGIN_PATH  .'/wprp.admin.php' );
 
 // Backups require 3.1
-if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) && ! class_exists( 'WPR_HM_Backup' ) )
-	require( WPRP_PLUGIN_PATH . '/hm-backup/hm-backup.php' );
+if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
+
+	// deactivate backupwordpress
+	if ( defined( 'HMBKP_PLUGIN_PATH' ) ) {
+		$plugin_file = str_replace( WP_PLUGIN_DIR . '/', '', HMBKP_PLUGIN_PATH . 'plugin.php' );
+		deactivate_plugins( array( $plugin_file, true ) );
+	} else {
+		require( WPRP_PLUGIN_PATH . '/backupwordpress/plugin.php' );
+	}
+}
 
 // Don't include when doing a core update
 if ( empty( $_GET['action'] ) || $_GET['action'] != 'do-core-upgrade' ) :
@@ -213,3 +221,12 @@ function _wpr_set_filesystem_credentials( $credentials ) {
 	return $_credentials;
 }
 add_filter( 'request_filesystem_credentials', '_wpr_set_filesystem_credentials' );
+
+// we need the calculate filesize to work on no priv too
+add_action( 'wp_ajax_nopriv_wprp_calculate_backup_size', 'wprp_ajax_calculate_backup_size' );
+
+function wprp_ajax_calculate_backup_size() {
+	require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
+	WPRP_Backups::getInstance()->calculateEstimatedSize();
+	exit;
+}
