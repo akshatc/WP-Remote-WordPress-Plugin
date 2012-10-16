@@ -1,0 +1,3 @@
+[submodule "backupwordpress"]
+	path = backupwordpress
+	url = git@github.com:humanmade/BackUpWordPress.git
