@@ -50,6 +50,11 @@ if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 		deactivate_plugins( array( $plugin_file, true ) );
 	} else {
 		require( WPRP_PLUGIN_PATH . '/backupwordpress/plugin.php' );
+
+		// unhook default schedules from being created
+		remove_action( 'admin_init', 'hmbkp_setup_default_schedules' );
+
+		require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
 	}
 }
 
@@ -139,7 +144,6 @@ function wprp_catch_api_call() {
 	if ( empty( $_GET['wpr_api_key'] ) || ! urldecode( $_GET['wpr_api_key'] ) || ! isset( $_GET['actions'] ) )
 		return;
 
-	require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
 	require_once( WPRP_PLUGIN_PATH . '/wprp.plugins.php' );
 	require_once( WPRP_PLUGIN_PATH . '/wprp.themes.php' );
 
