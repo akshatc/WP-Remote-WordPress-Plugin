@@ -81,6 +81,46 @@ class WPRP_Backups {
 	}
 
 	/**
+	 * Enabled automatic backups for this install
+	 * 
+	 * @param  array  $options { 'id' => string, type' => 'complete|files|database', 'reoccurance' => 'daily|...', 'excludes' => array() } 
+	 * @return [type]          [description]
+	 */
+	public function addSchedule( $options = array() ) {
+
+		$schedules = new HMBKP_Schedules();
+
+		if ( $schedules->get_schedule( $options['id'] ) )
+			return;
+
+		$schedule = new HMBKP_Scheduled_Backup( $options['id'] );
+		$schedule->set_type( $options['type'] );
+		$schedule->set_excludes( $options['excludes'], true );
+		$schedule->set_max_backups( 1 );
+
+		if ( $options['start_date'] )
+			$schedule->set_schedule_start_time( $options['start_date'] );
+
+		$schedule->set_reoccurrence( $options['reoccurance'] );
+
+		$schedule->save();
+	}
+
+	/**
+	 * Remove a schedule
+	 * 
+	 * @param  int $id
+	 */
+	public function removeSchedule( $id ) {
+		$schedules = new HMBKP_Schedules();
+
+		if ( ! $schedules->get_schedule( $id ) )
+			return;
+
+		$schedules->get_schedule( $id )->cancel();
+	}
+
+	/**
 	 * Get the manual backup schedule from BackupWordPress
 	 * @return HMBKP_Scheduled_Backup
 	 */
@@ -100,6 +140,45 @@ class WPRP_Backups {
 		return $schedule;
 	}
 }
+
+class WPRP_Backup_Service extends HMBKP_Service {
+	
+	/**
+	 * Fire the email notification on the hmbkp_backup_complete
+	 *
+	 * @see  HM_Backup::do_action
+	 * @param  string $action The action received from the backup
+	 * @return void
+	 */
+	public function action( $action ) {
+		
+		if ( $action == 'hmbkp_backup_complete' && strpos(  $this->schedule->get_id(), 'wpremote' ) !== false ) {
+
+			$file = $this->schedule->get_archive_filepath();
+			$file_url = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $file );
+			$api_url = 'http://local.wpremote.com/api/json/backups/upload';
+
+			$args = array( 
+				'api_key' 	=> get_option( 'wpr_api_key' ),
+				'backup_url'=> $file_url
+			);
+
+			wp_remote_post( $api_url, array( 'timeout' => 2, 'body' => $args ) );
+		}
+	}
+
+	/**
+	 * Abstract methods must be implemented
+	 */
+	public function form() {}
+
+	public function field() {}
+
+	public function update( &$new_data, $old_data ) {}
+
+	public function display() {}
+}
+HMBKP_Services::register( __FILE__, 'WPRP_Backup_Service' );
 
 /**
  * Handle the backups API calls
@@ -126,7 +205,13 @@ function _wprp_backups_api_call( $action ) {
 		case 'delete_backup' :
 
 			return WPRP_Backups::getInstance()->cleanBackup();
-			
+		
+		case 'add_backup_schedule' :
+			return WPRP_Backups::getInstance()->addSchedule( $_GET );
+
+		case 'remove_backup_schedule' :
+			return WPRP_Backups::getInstance()->removeSchedule( $_GET['id'] );
+
 		break;
 
 	endswitch;
