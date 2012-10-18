@@ -160,7 +160,8 @@ class WPRP_Backup_Service extends HMBKP_Service {
 
 			$args = array( 
 				'api_key' 	=> get_option( 'wpr_api_key' ),
-				'backup_url'=> $file_url
+				'backup_url'=> $file_url,
+				'domain'	=> get_bloginfo( 'url' )
 			);
 
 			wp_remote_post( $api_url, array( 'timeout' => 2, 'body' => $args ) );
