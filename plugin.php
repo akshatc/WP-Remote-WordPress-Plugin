@@ -46,15 +46,23 @@ if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 
 	// deactivate backupwordpress
 	if ( defined( 'HMBKP_PLUGIN_PATH' ) ) {
-		$plugin_file = str_replace( WP_PLUGIN_DIR . '/', '', HMBKP_PLUGIN_PATH . 'plugin.php' );
-		deactivate_plugins( array( $plugin_file, true ) );
+
+		$plugin_file = dirname( plugin_dir_path( HMBKP_PLUGIN_PATH ) ) . 'plugin.php';
+
+		deactivate_plugins( array( 'backupwordpress/plugin.php' ), true );
+
 	} else {
+
 		require( WPRP_PLUGIN_PATH . '/backupwordpress/plugin.php' );
 
 		// unhook default schedules from being created
 		remove_action( 'admin_init', 'hmbkp_setup_default_schedules' );
 
 		require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
+
+		remove_filter( 'all_plugins', 'hmbkp_plugin_row', 10 );
+		remove_filter( 'plugin_action_links', 'hmbkp_plugin_action_link', 10, 2 );
+
 	}
 }
 
