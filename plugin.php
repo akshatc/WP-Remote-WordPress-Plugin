@@ -60,6 +60,9 @@ if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 
 	} else {
 
+		define( 'HMBKP_PLUGIN_PATH', trailingslashit( WPRP_PLUGIN_PATH ) . 'backupwordpress' );
+		define( 'HMBKP_PLUGIN_URL', trailingslashit( plugins_url( WPRP_PLUGIN_SLUG ) ) . 'backupwordpress' );
+
 		require( WPRP_PLUGIN_PATH . '/backupwordpress/plugin.php' );
 
 		require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
