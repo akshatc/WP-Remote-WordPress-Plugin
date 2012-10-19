@@ -30,7 +30,7 @@ function wprp_add_api_key_admin_notice() { ?>
 
 				<input style="margin: -4px 5px; vertical-align: text-bottom; line-height: 13px; font-size: 12px;" type="text" class="code regular-text" id="wpr_api_key" name="wpr_api_key" />
 
-				<input style="vertical-align: text-bottom; margin: -3px 0; line-height: 12px;" type="submit" value="Save API Key" class="button-primary" />
+				<input style="margin: -6px 0 -3px; line-height: 12px; height: 12px;" type="submit" value="Save API Key" class="button-primary" />
 
 			</p>
 
