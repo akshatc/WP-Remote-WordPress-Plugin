@@ -53,7 +53,11 @@ class WPRP_Backups {
 		return new WP_Error( 'backup-failed', 'No backup was found' );
 	}
 
-	public function cleanBackup() {
+	public function cleanBackup( $schedule ) {
+
+		$schedules = new HMBKP_Schedules();
+		$schedule = $schedules->get_schedule( $schedule );
+
 		$backup = reset( $schedule->get_backups() );
 
 		if ( file_exists( $backup ) )
@@ -68,7 +72,7 @@ class WPRP_Backups {
 		// we dont know the size yet, fire off a remote request to get it for later
 		// it can take some time so we have a small timeout then return "Calculating"
 		wp_remote_get( 
-			$url = add_query_arg( array( 'action' => 'wprp_calculate_backup_size' ), admin_url( 'admin-ajax.php' ) ), 
+			$url = add_query_arg( array( 'action' => 'wprp_calculate_backup_size', 'backup_excludes' => $this->getManualBackupSchedule()->get_excludes() ), admin_url( 'admin-ajax.php' ) ), 
 			array( 'timeout' => 0.1, 'sslverify' => false )
 		);
 
@@ -121,6 +125,22 @@ class WPRP_Backups {
 	}
 
 	/**
+	 * Get an array of all the backup schedules
+	 * 
+	 * @return array : array( 'id' => int, 'next_run_date' => int )
+	 */
+	public function getSchedules() {
+
+		$schedules = new HMBKP_Schedules();
+		$array = array();
+
+		foreach ( $schedules->get_schedules() as $schedule )
+			$array[] = array( 'id' => $schedule->get_id(), 'next_run_date' => $schedule->get_next_occurrence() );
+
+		return $array;
+	}
+
+	/**
 	 * Get the manual backup schedule from BackupWordPress
 	 * @return HMBKP_Scheduled_Backup
 	 */
@@ -132,7 +152,7 @@ class WPRP_Backups {
 
 		// Excludes
 		if ( ! empty( $_REQUEST['backup_excludes'] ) ) {
-		
+			
 			$excludes = array_map( 'urldecode', (array) $_REQUEST['backup_excludes'] );
 			$schedule->set_excludes( $excludes, true );
 		}
@@ -205,7 +225,7 @@ function _wprp_backups_api_call( $action ) {
 										
 		case 'delete_backup' :
 
-			return WPRP_Backups::getInstance()->cleanBackup();
+			return WPRP_Backups::getInstance()->cleanBackup( $_GET['schedule_id']);
 		
 		case 'add_backup_schedule' :
 			return WPRP_Backups::getInstance()->addSchedule( $_GET );
@@ -213,6 +233,8 @@ function _wprp_backups_api_call( $action ) {
 		case 'remove_backup_schedule' :
 			return WPRP_Backups::getInstance()->removeSchedule( $_GET['id'] );
 
+		case 'get_backup_schedules' :
+			return WPRP_Backups::getInstance()->getSchedules();
 		break;
 
 	endswitch;
