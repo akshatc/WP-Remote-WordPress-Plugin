@@ -51,6 +51,13 @@ if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 
 		deactivate_plugins( array( 'backupwordpress/plugin.php' ), true );
 
+		function wprp_backupwordpress_deactivated_notice() {
+
+			echo '<div class="updated fade"><p><strong>The BackUpWordPress Plugin has been de-activated</strong> The WP Remote Plugin includes BackUpWordPress.</strong></p></div>';
+
+		}
+		add_action( 'admin_notices', 'wprp_backupwordpress_deactivated_notice' );
+
 	} else {
 
 		require( WPRP_PLUGIN_PATH . '/backupwordpress/plugin.php' );
