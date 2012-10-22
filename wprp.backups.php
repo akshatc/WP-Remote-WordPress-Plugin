@@ -88,7 +88,6 @@ class WPRP_Backups {
 	 * Enabled automatic backups for this install
 	 * 
 	 * @param  array  $options { 'id' => string, type' => 'complete|files|database', 'reoccurance' => 'daily|...', 'excludes' => array() } 
-	 * @return [type]          [description]
 	 */
 	public function addSchedule( $options = array() ) {
 
@@ -172,11 +171,11 @@ class WPRP_Backup_Service extends HMBKP_Service {
 	 */
 	public function action( $action ) {
 		
-		if ( $action == 'hmbkp_backup_complete' && strpos(  $this->schedule->get_id(), 'wpremote' ) !== false ) {
+		if ( $action == 'hmbkp_backup_complete' && strpos( $this->schedule->get_id(), 'wpremote' ) !== false ) {
 
 			$file = $this->schedule->get_archive_filepath();
 			$file_url = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $file );
-			$api_url = 'http://local.wpremote.com/api/json/backups/upload';
+			$api_url = WPR_API_URL . 'backups/upload';
 
 			$args = array( 
 				'api_key' 	=> get_option( 'wpr_api_key' ),
@@ -184,7 +183,7 @@ class WPRP_Backup_Service extends HMBKP_Service {
 				'domain'	=> get_bloginfo( 'url' )
 			);
 
-			wp_remote_post( $api_url, array( 'timeout' => 2, 'body' => $args ) );
+			wp_remote_post( $api_url, array( 'timeout' => 60, 'body' => $args ) );
 		}
 	}
 

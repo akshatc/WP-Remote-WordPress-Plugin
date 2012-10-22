@@ -79,3 +79,16 @@ function wprp_deactivate() {
 // Plugin activation and deactivation
 add_action( 'activate_' . WPRP_PLUGIN_SLUG . '/plugin.php', 'wprp_deactivate' );
 add_action( 'deactivate_' . WPRP_PLUGIN_SLUG . '/plugin.php', 'wprp_deactivate' );
+
+/**
+ * Remove the BackUpWordPress menu from the Tools menu
+ * 
+ */
+function wprp_remove_backupwordpress_from_admin_menu() {
+
+	global $submenu;
+
+	if ( isset( $submenu['tools.php'][16] ) && $submenu['tools.php'][16][2] === 'backupwordpress' )
+		unset( $submenu['tools.php'][16] );
+}
+add_action( 'admin_menu', 'wprp_remove_backupwordpress_from_admin_menu', 11 );

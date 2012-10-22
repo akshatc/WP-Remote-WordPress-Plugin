@@ -28,6 +28,9 @@ Author URI: http://hmn.md/
 define( 'WPRP_PLUGIN_SLUG', 'wpremote' );
 define( 'WPRP_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
+if ( ! defined( 'WPR_API_URL' ) )
+	define( 'WPR_API_URL', 'https://wpremote.com/api/json/' );
+
 // Don't activate on anything less than PHP 5.2.4
 if ( version_compare( phpversion(), '5.2.4', '<' ) ) {
 
@@ -39,7 +42,7 @@ if ( version_compare( phpversion(), '5.2.4', '<' ) ) {
 
 }
 
-require_once( WPRP_PLUGIN_PATH  .'/wprp.admin.php' );
+require_once( WPRP_PLUGIN_PATH . '/wprp.admin.php' );
 
 // Backups require 3.1
 if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
@@ -53,7 +56,7 @@ if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 
 		function wprp_backupwordpress_deactivated_notice() {
 
-			echo '<div class="updated fade"><p><strong>The BackUpWordPress Plugin has been de-activated</strong> The WP Remote Plugin includes BackUpWordPress.</strong></p></div>';
+			echo '<div class="updated fade"><p><strong>The BackUpWordPress Plugin has been de-activated</strong> The WP Remote Plugin includes BackUpWordPress.</p></div>';
 
 		}
 		add_action( 'admin_notices', 'wprp_backupwordpress_deactivated_notice' );
@@ -73,7 +76,6 @@ if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 	remove_action( 'admin_init', 'hmbkp_setup_default_schedules' );
 	remove_filter( 'all_plugins', 'hmbkp_plugin_row', 10 );
 	remove_filter( 'plugin_action_links', 'hmbkp_plugin_action_link', 10, 2 );
-
 }
 
 // Don't include when doing a core update
