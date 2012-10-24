@@ -67,7 +67,7 @@ class WPRP_Backups {
 	public function getEstimatedSize() {
 		
 		if ( $size = get_transient( 'hmbkp_schedule_manual_filesize' ) )
-			return HMBKP_Scheduled_Backup::human_filesize( $size, null, '%01u %s' );
+			return size_format( $size, null, '%01u %s' );
 
 		// we dont know the size yet, fire off a remote request to get it for later
 		// it can take some time so we have a small timeout then return "Calculating"
