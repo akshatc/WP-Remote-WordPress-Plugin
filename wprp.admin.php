@@ -88,7 +88,16 @@ function wprp_remove_backupwordpress_from_admin_menu() {
 
 	global $submenu;
 
-	if ( isset( $submenu['tools.php'][16] ) && $submenu['tools.php'][16][2] === 'backupwordpress' )
+	// only remove BackUpWordPress if they didn't have it installed
+	$plugins = get_plugins();
+
+	$has_backupwordpress = false;
+
+	foreach ( $plugins as $plugin_info )
+		if ( $plugin_info['Name'] == 'BackUpWordPress')
+			$has_backupwordpress = true;
+
+	if ( ! $has_backupwordpress &&  isset( $submenu['tools.php'][16] ) && $submenu['tools.php'][16][2] === 'backupwordpress' )
 		unset( $submenu['tools.php'][16] );
 }
 add_action( 'admin_menu', 'wprp_remove_backupwordpress_from_admin_menu', 11 );
