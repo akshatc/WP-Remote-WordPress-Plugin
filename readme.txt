@@ -3,7 +3,7 @@ Contributors: humanmade, joehoyle, mattheu, tcrsavage, willmot
 Tags: wpremote, remote administration, multiple wordpress
 Requires at least: 2.9
 Tested up to: 3.5
-Stable tag: 2.4
+Stable tag: 2.4.2
 
 WP Remote is a free web app that enables you to easily manage all of your WordPress powered sites from one place.
 
@@ -30,6 +30,10 @@ You can email us at support@wpremote.com for support.
 3. Sign up for an account at wpremote.com and add your site.
 
 == Changelog ==
+
+#### 2.4.1
+
+* Minor bug fixes
 
 #### 2.4
 
