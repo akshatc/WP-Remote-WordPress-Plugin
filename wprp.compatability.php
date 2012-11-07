@@ -1,8 +1,9 @@
 <?php 
 /**
  * Function which takes active plugins and foreaches them though our list of security plugins
+ * @return array
  */
-function wprp_compatability_check() {
+function wprp_get_incompatible_plugins() {
 
 	// Temporary array of plugins.
 	// TODO: Handle this array. Hardcoded in the wprp? or should it ping the app?
@@ -13,18 +14,15 @@ function wprp_compatability_check() {
 	$plugin_matches = array();
 
 	// foreach through activated plugins and split the string to have one name to check results against.
-	
 	foreach ( $active as $single_active ) {
 
 		foreach ( $security_plugin as $plugin_name ) {
 
-			$regex = '"' . $plugin_name . '"';
+			if ( strpos( $single_active, $plugin_name ) !== false ) {
 
-			if ( preg_match( $regex, $single_active, $match ) ) {
+				$plugin_matches[] = $plugin_name;
 
-				$plugin_matches[] = $match[0];
-
-			}
+			} 
 		}
 	}
 
@@ -35,10 +33,9 @@ function wprp_compatability_check() {
 /**
  * foreach through array of matched plugins and for each print the notice.
  */
-
 function wprp_security_admin_notice() { 
 
-	foreach ( wprp_compatability_check() as $matched_plugins ) { ?>
+	foreach ( wprp_get_incompatible_plugins() as $matched_plugins ) { ?>
 	
 		<div class="error">
 
