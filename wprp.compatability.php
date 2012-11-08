@@ -19,7 +19,6 @@ function wprp_get_incompatible_plugins() {
 		$plugin = get_plugin_data( WP_PLUGIN_DIR . '/' . $single_active );
 
 		foreach ( $security_plugin as $plugin_path ) {
-			
 			if ( strpos( $single_active, $plugin_path ) !== false || stripos( $plugin['Name'], $plugin_path ) !== false ) {
 
 				if ( ! in_array( $single_active, get_option( 'dismissed-plugins', array() ) ) )
@@ -43,7 +42,7 @@ function wprp_security_admin_notice() {
 			
 			<div class="close-button" style="float: right; margin-top: 15px; margin-right: 8px;"><a href="?wpr_dismiss_plugin_warning=<?php echo $plugin_path; ?>">Don't show again</a></div>
 
-			<h4> You are running <a href="https://wpremote.com/faq/#<?php echo $matched_plugins; ?>"><em><?php echo $plugin_name; ?></em></a> plugin, this may cause issues with WP Remote. 
+			<h4> You are running <a href="https://wpremote.com/faq/#<?php echo $plugin_name; ?>"><em><?php echo $plugin_name; ?></em></a> plugin, this may cause issues with WP Remote. 
 			
 			<a href="https://wpremote.com/faq/#<?php echo $plugin_name; ?>" alt="WPRemote FAQ"> Click here for instructions on how to solve this issue </a></h4>
 
@@ -59,6 +58,7 @@ add_action( 'admin_notices', 'wprp_security_admin_notice' );
 function wprp_dismissed_plugin_notice_check() {
 	
 	if ( !empty( $_GET['wpr_dismiss_plugin_warning'] ) ) {
+		wp_redirect( remove_query_arg( 'wpr_dismiss_plugin_warning' ) );
 
 		$dismissed = get_option( 'dismissed-plugins', array() );
 
@@ -66,6 +66,7 @@ function wprp_dismissed_plugin_notice_check() {
 
 		update_option( 'dismissed-plugins', $dismissed );
 
+		exit;
 	}
 }
 
