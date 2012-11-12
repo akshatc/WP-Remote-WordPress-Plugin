@@ -41,16 +41,22 @@ function wprp_security_admin_notice() {
 	foreach ( wprp_get_incompatible_plugins() as $plugin_path => $plugin_name ) { ?>
 
 		<div class="error">
-			
-			<div class="close-button" style="float: right; margin-top: 15px; margin-right: 8px;"><a href="?wpr_dismiss_plugin_warning=<?php echo $plugin_path; ?>">Don't show again</a></div>
 
-			<h4> You are running <a href="https://wpremote.com/faq/#<?php echo $plugin_name; ?>"><em><?php echo $plugin_name; ?></em></a> plugin, this may cause issues with WP Remote. 
-			
-			<a href="https://wpremote.com/faq/#<?php echo $plugin_name; ?>" alt="WPRemote FAQ"> Click here for instructions on how to solve this issue </a></h4>
+			<a class="close-button button" style="float: right; margin-top: 4px; color: inherit; text-decoration: none; " href="<?php echo add_query_arg( 'wpr_dismiss_plugin_warning', $plugin_path ); ?>">Don't show again</a>
+
+			<p>
+
+				The plugin <strong><?php echo esc_attr( $plugin_name ); ?></strong> may cause issues with WP Remote.
+
+				<a href="https://wpremote.com/faq/#<?php echo esc_attr( $plugin_name ); ?>" alt="WPRemote FAQ"> Click here for instructions on how to resolve this issue </a>
+
+			</p>
 
 		</div>
 
-<?php } }
+	<?php endforeach;
+
+}
 
 add_action( 'admin_notices', 'wprp_security_admin_notice' );
 
