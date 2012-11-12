@@ -5,27 +5,29 @@
  */
 function wprp_get_incompatible_plugins() {
 
-	// Temporary array of plugins.
-	// TODO: Handle this array. Hardcoded in the wprp? or should it ping the app?
-	$security_plugin = array( 'better-wp-security', 'Bulletproof security', 'bulletproof-security', 'wordfence', 'wordpress-firewall-2' );
+	// Plugins to check for.
+	$security_plugins = array(
+		'BulletProof Security',
+		'Wordfence Security',
+		'Better WP Security',
+		'Wordpress Firewall 2'
+	);
 
-	$active = get_option( 'active_plugins', array() );
+	$active_plugins = get_option( 'active_plugins', array() );
+	$dismissed_plugins = get_option( 'dismissed-plugins', array() );
+
+	//update_option( 'dismissed-plugins', array() );
 
 	$plugin_matches = array();
 
 	// foreach through activated plugins and split the string to have one name to check results against.
-	foreach ( $active as $key => $single_active ) {
-		
-		$plugin = get_plugin_data( WP_PLUGIN_DIR . '/' . $single_active );
+	foreach ( $active_plugins as $active_plugin ) {
 
-		foreach ( $security_plugin as $plugin_path ) {
-			if ( strpos( $single_active, $plugin_path ) !== false || stripos( $plugin['Name'], $plugin_path ) !== false ) {
+		$plugin = get_plugin_data( WP_PLUGIN_DIR . '/' . $active_plugin );
 
-				if ( ! in_array( $single_active, get_option( 'dismissed-plugins', array() ) ) )
-					$plugin_matches[$single_active] = $plugin['Name'];
+		if ( in_array( $plugin['Name'], $security_plugins ) && ! in_array( $active_plugin, $dismissed_plugins ) )
+			$plugin_matches[$active_plugin] = $plugin['Name'];
 
-			}
-		}
 	}
 
 	return $plugin_matches;
