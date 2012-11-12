@@ -10,7 +10,10 @@ function _wprp_get_themes() {
 	require_once( ABSPATH . '/wp-admin/includes/theme.php' );
 
 	// Get all themes
-	$themes = get_themes();
+	if ( function_exists( 'wp_get_themes' ) )
+		$themes = wp_get_themes();
+	else
+		$themes = get_themes();
 
 	// Get the list of active themes
 	$active  = get_option( 'current_theme' );
