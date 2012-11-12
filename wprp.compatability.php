@@ -65,7 +65,6 @@ add_action( 'admin_notices', 'wprp_security_admin_notice' );
  */
 function wprp_dismissed_plugin_notice_check() {
 	
-		wp_redirect( remove_query_arg( 'wpr_dismiss_plugin_warning' ) );
 
 		$dismissed = get_option( 'dismissed-plugins', array() );
 	if ( ! empty( $_GET['wpr_dismiss_plugin_warning'] ) ) {
@@ -74,6 +73,7 @@ function wprp_dismissed_plugin_notice_check() {
 
 		update_option( 'dismissed-plugins', $dismissed );
 
+		wp_redirect( remove_query_arg( 'wpr_dismiss_plugin_warning' ) );
 		exit;
 	}
 }
