@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Function which takes active plugins and foreaches them though our list of security plugins
  * @return array
@@ -34,11 +34,13 @@ function wprp_get_incompatible_plugins() {
 }
 
 /**
- * foreach through array of matched plugins and for each print the notice.  
+ * foreach through array of matched plugins and for each print the notice.
  */
-function wprp_security_admin_notice() { 
+function wprp_security_admin_notice() {
 
-	foreach ( wprp_get_incompatible_plugins() as $plugin_path => $plugin_name ) { ?>
+	foreach ( wprp_get_incompatible_plugins() as $plugin_path => $plugin_name ) :
+
+		?>
 
 		<div class="error">
 
@@ -64,18 +66,17 @@ add_action( 'admin_notices', 'wprp_security_admin_notice' );
  * Function which checks to see if the plugin was dismissed.
  */
 function wprp_dismissed_plugin_notice_check() {
-	
 
-		$dismissed = get_option( 'dismissed-plugins', array() );
 	if ( ! empty( $_GET['wpr_dismiss_plugin_warning'] ) ) {
 
+		$dismissed = get_option( 'dismissed-plugins', array() );
 		$dismissed[] = $_GET['wpr_dismiss_plugin_warning'];
 
 		update_option( 'dismissed-plugins', $dismissed );
 
 		wp_redirect( remove_query_arg( 'wpr_dismiss_plugin_warning' ) );
 		exit;
+
 	}
 }
-
 add_action( 'init', 'wprp_dismissed_plugin_notice_check' );
