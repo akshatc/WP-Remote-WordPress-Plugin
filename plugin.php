@@ -53,6 +53,7 @@ if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 
 		$plugin_file = dirname( plugin_dir_path( HMBKP_PLUGIN_PATH ) ) . 'plugin.php';
 
+		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		deactivate_plugins( array( 'backupwordpress/plugin.php' ), true );
 
 		function wprp_backupwordpress_deactivated_notice() {
