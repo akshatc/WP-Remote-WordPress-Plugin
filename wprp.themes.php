@@ -9,6 +9,8 @@ function _wprp_get_themes() {
 
 	require_once( ABSPATH . '/wp-admin/includes/theme.php' );
 
+	_wpr_add_non_extend_theme_support_filter();
+
 	// Get all themes
 	if ( function_exists( 'wp_get_themes' ) )
 		$themes = wp_get_themes();
@@ -95,6 +97,8 @@ function _wprp_upgrade_theme( $theme ) {
 	if ( ! _wprp_supports_theme_upgrade() )
 		return array( 'status' => 'error', 'error' => 'WordPress version too old for theme upgrades' );
 
+	_wpr_add_non_extend_theme_support_filter();
+
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
 		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );		
@@ -133,5 +137,46 @@ function _wprp_supports_theme_upgrade() {
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 
 	return class_exists( 'Theme_Upgrader' );
+
+}
+
+function _wpr_add_non_extend_theme_support_filter() {
+    add_filter( 'pre_set_site_transient_update_themes', '_wpr_add_non_extend_theme_support' );
+}
+
+function _wpr_add_non_extend_theme_support( $value ) {
+
+    foreach( $non_extend_list = _wprp_get_non_extend_themes_data() as $key => $anon_function ) {
+
+        if ( ( $returned = call_user_func( $non_extend_list[$key] ) ) )
+            $value->response[$returned->theme_location] = $returned;
+    }
+
+    return $value;
+
+}
+
+
+function _wprp_get_non_extend_themes_data() {
+
+    return array(
+        'pagelines' => '_wpr_get_pagelines_theme_data'
+    );
+
+}
+
+function _wpr_get_pagelines_theme_data() {
+
+	if ( !class_exists('PageLinesUpdateCheck') || !defined('PL_CORE_VERSION') || !defined('PL_SETTINGS_SLUG') )
+		return false;
+
+	$update_data = new PageLinesUpdateCheck( PL_CORE_VERSION );
+
+	if ( is_array($update_data) && isset($update_data['new_version']) ) {
+		$update_data['theme_location'] = PL_SETTINGS_SLUG;
+		return (object) $update_data;
+	}
+
+	return false;
 
 }
