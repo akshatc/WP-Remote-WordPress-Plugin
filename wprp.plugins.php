@@ -230,6 +230,8 @@ function _wpr_get_backupbuddy_plugin_data() {
 	if ($update_data->key_status != 'ok' || version_compare($update_data->new_version, $current_version, '<='))
 		return false;
 
+	$update_data->plugin_location = $update_data->slug; // needed in _wpr_add_non_extend_plugin_support()
+
 	return $update_data;
 
 }
