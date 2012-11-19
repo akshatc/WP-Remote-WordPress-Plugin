@@ -177,14 +177,19 @@ function wprp_catch_api_call() {
 }
 add_action( 'init', 'wprp_catch_api_call', 1 );
 
+function wprp_plugin_update_check() {
+
 $plugin_data = get_plugin_data( __FILE__ );
 
 // define the plugin version
 define( 'WPRP_VERSION', $plugin_data['Version'] );
 
 // Fire the update action
-//if ( WPR_VERSION != get_option( 'wpr_plugin_version' ) )
+if ( WPRP_VERSION !== get_option( 'wprp_plugin_version' ) )
 	wprp_update();
+
+}
+add_action( 'admin_init', 'wprp_plugin_update_check' );
 
 /**
  * Run any update code and update the current version in the db
