@@ -177,6 +177,39 @@ function wprp_catch_api_call() {
 }
 add_action( 'init', 'wprp_catch_api_call', 1 );
 
+$plugin_data = get_plugin_data( __FILE__ );
+
+// define the plugin version
+define( 'WPRP_VERSION', $plugin_data['Version'] );
+
+// Fire the update action
+//if ( WPR_VERSION != get_option( 'wpr_plugin_version' ) )
+	wprp_update();
+
+/**
+ * Run any update code and update the current version in the db
+ *
+ * @access public
+ * @return void
+ */
+function wprp_update() {
+
+	/**
+	 * Remove the old _wpremote_backups directory
+	 */
+	$uploads_dir = wp_upload_dir();
+
+	$old_wpremote_dir = trailingslashit( $uploads_dir['basedir'] ) . '_wpremote_backups';
+
+	if ( file_exists( $old_wpremote_dir ) && function_exists( 'hmbkp_rmdirtree' ) )
+		hmbkp_rmdirtree( $old_wpremote_dir );
+
+	// Update the version stored in the db
+	if ( get_option( 'wprp_plugin_version' ) !== WPRP_VERSION )
+		update_option( 'wprp_plugin_version', WPRP_VERSION );
+
+}
+
 function _wprp_upgrade_core()  {
 
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
