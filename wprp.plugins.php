@@ -9,7 +9,7 @@ function _wprp_get_plugins() {
 
 	require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
-    _wpr_add_non_extend_plugin_support_filter();
+	_wpr_add_non_extend_plugin_support_filter();
 
 	// Get all plugins
 	$plugins = get_plugins();
