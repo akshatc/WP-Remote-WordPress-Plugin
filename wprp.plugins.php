@@ -9,7 +9,7 @@ function _wprp_get_plugins() {
 
 	require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
-    _wpr_add_non_extend_plugin_support_filter();
+	_wpr_add_non_extend_plugin_support_filter();
 
 	// Get all plugins
 	$plugins = get_plugins();
@@ -221,16 +221,25 @@ function _wpr_get_gravity_form_plugin_data() {
 
 function _wpr_get_backupbuddy_plugin_data() {
 
-	if ( !class_exists('pb_backupbuddy') || !is_a(pb_backupbuddy::$_updater, 'pb_backupbuddy_updater') || !method_exists(pb_backupbuddy::$_updater, 'check_for_updates') )
+	if ( !class_exists('pb_backupbuddy') )
 		return false;
 
-	$current_version = pb_backupbuddy::settings('version');
+	require_once( pb_backupbuddy::plugin_path() . '/pluginbuddy/lib/updater/updater.php' );
+	$preloader_class = 'pb_' . pb_backupbuddy::settings( 'slug' ) . '_updaterpreloader';
+	$updater_preloader = new $preloader_class( pb_backupbuddy::settings( 'slug' ) );
+	$updater_preloader->upgrader_register();
+	$updater_preloader->upgrader_select();
+
+	if ( !is_a( pb_backupbuddy::$_updater, 'pb_backupbuddy_updater' ) || !method_exists( pb_backupbuddy::$_updater, 'check_for_updates' ) )
+		return false;
+
+	$current_version = pb_backupbuddy::settings( 'version' );
 	$update_data = pb_backupbuddy::$_updater->check_for_updates();
 
-	if ($update_data->key_status != 'ok' || version_compare($update_data->new_version, $current_version, '<='))
+	if ( $update_data->key_status != 'ok' || version_compare( $update_data->new_version, $current_version, '<=' ) )
 		return false;
 
-	$update_data->plugin_location = $update_data->slug; // needed in _wpr_add_non_extend_plugin_support()
+	$update_data->plugin_location = plugin_basename( pb_backupbuddy::plugin_path() . '/backupbuddy.php' ); // needed in _wpr_add_non_extend_plugin_support()
 
 	return $update_data;
 
