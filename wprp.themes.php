@@ -17,8 +17,15 @@ function _wprp_get_themes() {
 	else
 		$themes = get_themes();
 
-	// Get the list of active themes
+	// Get the active theme
 	$active  = get_option( 'current_theme' );
+
+	// Delete the transient so wp_update_themes can get fresh data
+	if ( function_exists( 'get_site_transient' ) )
+		delete_site_transient( 'update_themes' );
+
+	else
+		delete_transient( 'update_themes' );
 
 	// Force a theme update check
 	wp_update_themes();
@@ -141,7 +148,7 @@ function _wprp_supports_theme_upgrade() {
 }
 
 function _wpr_add_non_extend_theme_support_filter() {
-    add_filter( 'pre_set_site_transient_update_themes', '_wpr_add_non_extend_theme_support' );
+	add_filter( 'pre_set_site_transient_update_themes', '_wpr_add_non_extend_theme_support' );
 }
 
 function _wpr_add_non_extend_theme_support( $value ) {
@@ -149,7 +156,7 @@ function _wpr_add_non_extend_theme_support( $value ) {
     foreach( $non_extend_list = _wprp_get_non_extend_themes_data() as $key => $anon_function ) {
 
         if ( ( $returned = call_user_func( $non_extend_list[$key] ) ) )
-            $value->response[$returned->theme_location] = $returned;
+            $value->response[ $returned['Template'] ] = $returned;
     }
 
     return $value;
@@ -167,14 +174,25 @@ function _wprp_get_non_extend_themes_data() {
 
 function _wpr_get_pagelines_theme_data() {
 
-	if ( !class_exists('PageLinesUpdateCheck') || !defined('PL_CORE_VERSION') || !defined('PL_SETTINGS_SLUG') )
+	global $global_pagelines_settings;
+
+	if ( !class_exists( 'PageLinesUpdateCheck' ) )
 		return false;
 
-	$update_data = new PageLinesUpdateCheck( PL_CORE_VERSION );
+	if ( defined( 'PL_CORE_VERSION' ) )
+		$version = PL_CORE_VERSION;
+	elseif ( defined( 'CORE_VERSION' ) )
+		$version = CORE_VERSION;
+	else
+		return false;
 
-	if ( is_array($update_data) && isset($update_data['new_version']) ) {
-		$update_data['theme_location'] = PL_SETTINGS_SLUG;
-		return (object) $update_data;
+	$global_pagelines_settings['disable_updates'] = true; // prevent endless loop in PageLinesUpdateCheck::pagelines_theme_check_version()
+	$updater = new PageLinesUpdateCheck( $version );
+	$update_data = (array) maybe_unserialize( $updater->pagelines_theme_update_check() );
+
+	if ( $update_data && isset( $update_data['package'] ) && $update_data['package'] !== 'bad' ) {
+		$update_data['Template'] = 'pagelines'; // needed in _wpr_add_non_extend_theme_support()
+		return $update_data;
 	}
 
 	return false;
