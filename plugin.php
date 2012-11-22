@@ -78,6 +78,8 @@ if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 	remove_action( 'admin_init', 'hmbkp_setup_default_schedules' );
 	remove_filter( 'all_plugins', 'hmbkp_plugin_row', 10 );
 	remove_filter( 'plugin_action_links', 'hmbkp_plugin_action_link', 10, 2 );
+	remove_action( 'admin_head', 'hmbkp_admin_notices' );
+
 
 }
 
