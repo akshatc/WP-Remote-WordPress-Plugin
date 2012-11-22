@@ -14,28 +14,28 @@ class WPRP_Backups {
 
 	/**
 	 * Do a backup of the site
-	 * 
+	 *
 	 * @return true|WP_Error
 	 */
 	public function doBackup() {
 		@ignore_user_abort( true );
 
 		$schedule = $this->getManualBackupSchedule();
-		
-		$schedule->run();		
-		
+
+		$schedule->run();
+
 		$filepath = $schedule->get_archive_filepath();
 
 		if ( ! file_exists( $filepath ) ) {
 			return new WP_Error( 'backup-failed', implode(', ', $schedule->get_errors() ) );
 		}
-		
+
 		return true;
 	}
 
 	/**
 	 * Get the backup once it has run, will return status running as a WP Error
-	 * 
+	 *
 	 * @return WP_Error|string
 	 */
 	public function getBackup() {
@@ -65,14 +65,14 @@ class WPRP_Backups {
 	}
 
 	public function getEstimatedSize() {
-		
+
 		if ( $size = get_transient( 'hmbkp_schedule_manual_filesize' ) )
 			return size_format( $size, null, '%01u %s' );
 
 		// we dont know the size yet, fire off a remote request to get it for later
 		// it can take some time so we have a small timeout then return "Calculating"
-		wp_remote_get( 
-			$url = add_query_arg( array( 'action' => 'wprp_calculate_backup_size', 'backup_excludes' => $this->getManualBackupSchedule()->get_excludes() ), admin_url( 'admin-ajax.php' ) ), 
+		wp_remote_get(
+			$url = add_query_arg( array( 'action' => 'wprp_calculate_backup_size', 'backup_excludes' => $this->getManualBackupSchedule()->get_excludes() ), admin_url( 'admin-ajax.php' ) ),
 			array( 'timeout' => 0.1, 'sslverify' => false )
 		);
 
@@ -86,8 +86,8 @@ class WPRP_Backups {
 
 	/**
 	 * Enabled automatic backups for this install
-	 * 
-	 * @param  array  $options { 'id' => string, type' => 'complete|files|database', 'reoccurance' => 'daily|...', 'excludes' => array() } 
+	 *
+	 * @param  array  $options { 'id' => string, type' => 'complete|files|database', 'reoccurance' => 'daily|...', 'excludes' => array() }
 	 */
 	public function addSchedule( $options = array() ) {
 
@@ -111,7 +111,7 @@ class WPRP_Backups {
 
 	/**
 	 * Remove a schedule
-	 * 
+	 *
 	 * @param  int $id
 	 */
 	public function removeSchedule( $id ) {
@@ -125,7 +125,7 @@ class WPRP_Backups {
 
 	/**
 	 * Get an array of all the backup schedules
-	 * 
+	 *
 	 * @return array : array( 'id' => int, 'next_run_date' => int )
 	 */
 	public function getSchedules() {
@@ -151,7 +151,7 @@ class WPRP_Backups {
 
 		// Excludes
 		if ( ! empty( $_REQUEST['backup_excludes'] ) ) {
-			
+
 			$excludes = array_map( 'urldecode', (array) $_REQUEST['backup_excludes'] );
 			$schedule->set_excludes( $excludes, true );
 		}
@@ -161,7 +161,7 @@ class WPRP_Backups {
 }
 
 class WPRP_Backup_Service extends HMBKP_Service {
-	
+
 	/**
 	 * Fire the email notification on the hmbkp_backup_complete
 	 *
@@ -170,16 +170,17 @@ class WPRP_Backup_Service extends HMBKP_Service {
 	 * @return void
 	 */
 	public function action( $action ) {
-		
+
 		if ( $action == 'hmbkp_backup_complete' && strpos( $this->schedule->get_id(), 'wpremote' ) !== false ) {
 
 			$file = $this->schedule->get_archive_filepath();
 			$file_url = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $file );
 			$api_url = WPR_API_URL . 'backups/upload';
 
-			$args = array( 
 			if ( ( require_once( ABSPATH . '/wp-admin/includes/misc.php' ) ) && got_mod_rewrite() && defined( 'HMBKP_SECURE_KEY' ) && HMBKP_SECURE_KEY )
 				$file_url = add_query_arg( 'key', HMBKP_SECURE_KEY, $file_url );
+
+			$args = array(
 				'api_key' 	=> get_option( 'wpr_api_key' ),
 				'backup_url'=> $file_url,
 				'domain'	=> get_bloginfo( 'url' )
@@ -211,23 +212,23 @@ HMBKP_Services::register( __FILE__, 'WPRP_Backup_Service' );
 function _wprp_backups_api_call( $action ) {
 
 	switch( $action ) :
-		
+
 		// TODO in the future we should do some check here to make sure they do support backups
 		case 'supports_backups' :
 			return true;
-			
+
 		case 'do_backup' :
 
 			return WPRP_Backups::getInstance()->doBackup();
-					
+
 		case 'get_backup' :
-				
+
 			return WPRP_Backups::getInstance()->getBackup();
-										
+
 		case 'delete_backup' :
 
 			return WPRP_Backups::getInstance()->cleanBackup( $_GET['schedule_id']);
-		
+
 		case 'add_backup_schedule' :
 			return WPRP_Backups::getInstance()->addSchedule( $_GET );
 
