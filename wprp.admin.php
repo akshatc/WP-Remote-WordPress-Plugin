@@ -82,22 +82,24 @@ add_action( 'deactivate_' . WPRP_PLUGIN_SLUG . '/plugin.php', 'wprp_deactivate' 
 
 /**
  * Remove the BackUpWordPress menu from the Tools menu
- * 
+ *
  */
 function wprp_remove_backupwordpress_from_admin_menu() {
 
 	global $submenu;
 
-	// only remove BackUpWordPress if they didn't have it installed
-	$plugins = get_plugins();
+	// Only remove BackUpWordPress if there aren't any schedules
+	$additional_schedules = false;
 
-	$has_backupwordpress = false;
+	$schedules = new HMBKP_Schedules;
 
-	foreach ( $plugins as $plugin_info )
-		if ( $plugin_info['Name'] == 'BackUpWordPress')
-			$has_backupwordpress = true;
+	$schedules = $schedules->get_schedules();
 
-	if ( ! $has_backupwordpress &&  isset( $submenu['tools.php'][16] ) && $submenu['tools.php'][16][2] === 'backupwordpress' )
+	foreach ( $schedules as $schedule )
+		if ( strpos( $schedule->get_id(), 'wpremote' ) === false )
+			$additional_schedules = true;
+
+	if ( ! $additional_schedules && isset( $submenu['tools.php'][16] ) && $submenu['tools.php'][16][2] === 'backupwordpress' )
 		unset( $submenu['tools.php'][16] );
 }
 add_action( 'admin_menu', 'wprp_remove_backupwordpress_from_admin_menu', 11 );
