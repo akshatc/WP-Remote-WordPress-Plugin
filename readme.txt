@@ -31,9 +31,19 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### 2.4.7
+
+* Update to BackUpWordPress 2.1
+* Fix an issue that could cause backups to be run when they shouldn't have.
+* Only hide the backups menu item if the site doesn't have any non wpremote schedules.
+* Hide all BackUpWordPress admin notices.
+* Fix the button styles for the save API Key button in WordPress 3.5
+* Fix a possible warning in the WP_Filesystem integration, props @tillkruess (github).
+* Support for updating the Pagelines premium theme, props @tillkruess (github)
+
 #### 2.4.6
 
-* Support for updating BackupBuddy & Pagelines, props @tillkruess (github)
+* Support for updating the BackupBuddy premium plugin, props @tillkruess (github)
 
 #### 2.4.1 - 2.4.5
 
