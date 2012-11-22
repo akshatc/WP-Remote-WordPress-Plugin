@@ -178,6 +178,8 @@ class WPRP_Backup_Service extends HMBKP_Service {
 			$api_url = WPR_API_URL . 'backups/upload';
 
 			$args = array( 
+			if ( ( require_once( ABSPATH . '/wp-admin/includes/misc.php' ) ) && got_mod_rewrite() && defined( 'HMBKP_SECURE_KEY' ) && HMBKP_SECURE_KEY )
+				$file_url = add_query_arg( 'key', HMBKP_SECURE_KEY, $file_url );
 				'api_key' 	=> get_option( 'wpr_api_key' ),
 				'backup_url'=> $file_url,
 				'domain'	=> get_bloginfo( 'url' )
