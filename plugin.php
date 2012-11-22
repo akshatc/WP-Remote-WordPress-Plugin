@@ -260,7 +260,7 @@ function _wprp_upgrade_core()  {
 function _wpr_check_filesystem_access() {
 
 	ob_start();
-	$success = request_filesystem_credentials();
+	$success = request_filesystem_credentials( '' );
 	ob_end_clean();
 
 	return (bool) $success;
