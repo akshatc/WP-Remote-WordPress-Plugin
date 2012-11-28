@@ -52,8 +52,17 @@ class WPRP_Backups {
 		if ( file_exists( $backup ) ) {
 
 			// Append the secret key on apache servers
-			if ( $is_apache && defined( 'HMBKP_SECURE_KEY' ) && HMBKP_SECURE_KEY )
+			if ( $is_apache && defined( 'HMBKP_SECURE_KEY' ) && HMBKP_SECURE_KEY ) {
+
 				$backup = add_query_arg( 'key', HMBKP_SECURE_KEY, $backup );
+
+			    // Force the .htaccess to be rebuilt
+			    if ( file_exists( hmbkp_path() . '/.htaccess' ) )
+			        unlink( hmbkp_path() . '/.htaccess' );
+
+			    hmbkp_path();
+
+			}
 
 			return str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $backup );
 
@@ -188,8 +197,17 @@ class WPRP_Backup_Service extends HMBKP_Service {
 			$file_url = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $file );
 			$api_url = WPR_API_URL . 'backups/upload';
 
-			if ( $is_apache && defined( 'HMBKP_SECURE_KEY' ) && HMBKP_SECURE_KEY )
+			if ( $is_apache && defined( 'HMBKP_SECURE_KEY' ) && HMBKP_SECURE_KEY ) {
+
 				$file_url = add_query_arg( 'key', HMBKP_SECURE_KEY, $file_url );
+
+				// Force the .htaccess to be rebuilt
+			    if ( file_exists( hmbkp_path() . '/.htaccess' ) )
+			        unlink( hmbkp_path() . '/.htaccess' );
+
+			    hmbkp_path();
+
+			}
 
 			$args = array(
 				'api_key' 	=> get_option( 'wpr_api_key' ),
