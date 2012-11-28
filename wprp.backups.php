@@ -40,6 +40,8 @@ class WPRP_Backups {
 	 */
 	public function getBackup() {
 
+		global $is_apache;
+
 		$schedule = $this->getManualBackupSchedule();
 
 		if ( $status = $schedule->get_status() )
@@ -47,8 +49,15 @@ class WPRP_Backups {
 
 		$backup = reset( $schedule->get_backups() );
 
-		if ( file_exists( $backup ) )
+		if ( file_exists( $backup ) ) {
+
+			// Append the secret key on apache servers
+			if ( $is_apache && defined( 'HMBKP_SECURE_KEY' ) && HMBKP_SECURE_KEY )
+				$backup = add_query_arg( 'key', HMBKP_SECURE_KEY, $backup );
+
 			return str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $backup );
+
+		}
 
 		return new WP_Error( 'backup-failed', 'No backup was found' );
 	}
@@ -171,13 +180,15 @@ class WPRP_Backup_Service extends HMBKP_Service {
 	 */
 	public function action( $action ) {
 
+		global $is_apache;
+
 		if ( $action == 'hmbkp_backup_complete' && strpos( $this->schedule->get_id(), 'wpremote' ) !== false ) {
 
 			$file = $this->schedule->get_archive_filepath();
 			$file_url = str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $file );
 			$api_url = WPR_API_URL . 'backups/upload';
 
-			if ( ( require_once( ABSPATH . '/wp-admin/includes/misc.php' ) ) && got_mod_rewrite() && defined( 'HMBKP_SECURE_KEY' ) && HMBKP_SECURE_KEY )
+			if ( $is_apache && defined( 'HMBKP_SECURE_KEY' ) && HMBKP_SECURE_KEY )
 				$file_url = add_query_arg( 'key', HMBKP_SECURE_KEY, $file_url );
 
 			$args = array(
