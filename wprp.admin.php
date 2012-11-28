@@ -62,7 +62,7 @@ function wprp_api_key_added_admin_notice() {
 		return; ?>
 
 	<div id="wprp-message" class="updated">
-		<p><strong>WP Remote API Key successfully added</strong>, close this page to go back to <a href="https://wpremote.com/app/">WP Remote</a>.</p>
+		<p><strong>WP Remote API Key successfully added</strong>, close this window to go back to <a href="https://wpremote.com/app/">WP Remote</a>.</p>
 	</div>
 
 <?php }
