@@ -3,7 +3,7 @@
 /*
 Plugin Name: WP Remote
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>. <strong>Deactivate to clear your API Key.</strong>
-Version: 2.4.12
+Version: 2.4.13
 Author: Human Made Limited
 Author URI: http://hmn.md/
 */
@@ -69,6 +69,9 @@ if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 		define( 'HMBKP_PLUGIN_URL', trailingslashit( plugins_url( WPRP_PLUGIN_SLUG ) ) . 'backupwordpress' );
 
 		require( WPRP_PLUGIN_PATH . '/backupwordpress/plugin.php' );
+
+		// Set the correct path for the BackUpWordPress language files.
+		load_plugin_textdomain( 'hmbkp', false, '/wpremote/' . HMBKP_PLUGIN_SLUG . '/languages/' );
 
 		require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
 
