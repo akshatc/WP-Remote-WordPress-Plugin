@@ -5,7 +5,7 @@
  *
  * Singleton class for creating backups, all scheduling is handled by WP Remote
  */
-class WPRP_Backups {
+class WPRP_Backups extends HM_Backup {
 
 	/**
 	 * Contains the current instance
@@ -16,13 +16,6 @@ class WPRP_Backups {
 	private static $instance;
 
 	/**
-	 * Contains the instance of HM Backup
-	 *
-	 * @access private
-	 */
-	private $backup;
-
-	/**
 	 * Setup HM Backup
 	 *
 	 * @access publics
@@ -30,16 +23,14 @@ class WPRP_Backups {
 	 */
 	public function __construct() {
 
-		$this->backup = new HM_Backup();
-
 		// Set the backup path
-		$this->backup->set_path( $this->path() );
+		$this->set_path( $this->path() );
 
 		// Set the excludes
 		if ( ! empty( $_GET['backup_excludes'] ) )
-			$this->backup->set_excludes( $_GET['backup_excludes'] );
+			$this->set_excludes( $_GET['backup_excludes'] );
 
-		$this->filesize_transient = 'wprp_' . '_' . $this->backup->get_type() . '_' . md5( $this->backup->exclude_string() ) . '_filesize';
+		$this->filesize_transient = 'wprp_' . '_' . $this->get_type() . '_' . md5( $this->exclude_string() ) . '_filesize';
 
 	}
 
@@ -59,6 +50,196 @@ class WPRP_Backups {
 	}
 
 	/**
+	 * Perform a backup of the site
+	 *
+	 * @return true|WP_Error
+	 */
+	public function do_backup() {
+		
+		@ignore_user_abort( true );
+
+		$this->set_status( 'Starting backup...' );
+
+		$this->backup();
+
+		if ( ! file_exists( $this->get_archive_filepath() ) )
+			return new WP_Error( 'backup-failed', implode( ', ', $this->get_errors() ) );
+
+		return true;
+	
+	}
+
+	/**
+	 * Get the backup once it has run, will return status running as a WP Error
+	 *
+	 * @return WP_Error|string
+	 */
+	public function get_backup() {
+
+		global $is_apache;
+
+		if ( $status = $this->get_status() )
+			return new WP_Error( 'error-status', $status );
+
+		$backup = glob( $this->get_path() . '/*.zip' );
+		$backup = reset( $backup );
+
+		if ( file_exists( $backup ) ) {
+
+			// Append the secret key on apache servers
+			if ( $is_apache && $this->key() ) {
+
+				$backup = add_query_arg( 'key', $this->key(), $backup );
+
+			    // Force the .htaccess to be rebuilt
+			    if ( file_exists( $this->get_path() . '/.htaccess' ) )
+			        unlink( $this->get_path() . '/.htaccess' );
+
+			    $this->path();
+
+			}
+
+			return str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $backup );
+
+		}
+
+		return new WP_Error( 'backup-failed', 'No backup was found' );
+	
+	}
+
+	/**
+	 * Remove the backups directoy and everything it contains
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function cleanup() {
+
+		$zips = glob( $this->get_path() . '/*.zip' );
+
+		// Remove any .zip files
+		foreach ( $zips as $zip )
+			unlink( $zip );
+
+		if ( file_exists( trailingslashit( $this->get_path() ) . 'index.html' ) )
+			unlink( trailingslashit( $this->get_path() ) . 'index.html' );
+		
+		if ( file_exists( trailingslashit( $this->get_path() ) . '.htaccess' ) )
+			unlink( trailingslashit( $this->get_path() ) . '.htaccess' );
+
+		rmdir( $this->get_path() );
+
+		delete_option( 'wprp_backup_path' );
+	
+	}
+
+	/**
+	 * Get the estimated size of the sites files and database
+	 * 
+	 * If the size hasn't been calculated yet then it fires an API request
+	 * to calculate the size and returns string 'Calculating'
+	 *
+	 * @access public
+	 * @return string $size|Calculating
+	 */
+	public function get_estimate_size() {
+
+		if ( $size = get_transient( $this->filesize_transient ) )
+			return size_format( $size, null, '%01u %s' );
+
+		// we dont know the size yet, fire off a remote request to get it for later
+		// it can take some time so we have a small timeout then return "Calculating"
+		wp_remote_get( add_query_arg( array( 'action' => 'wprp_calculate_backup_size', 'backup_excludes' => $this->get_excludes() ), admin_url( 'admin-ajax.php' ) ), array( 'timeout' => 0.1, 'sslverify' => false ) );
+
+		return 'Calculating';
+
+	}
+
+	/**
+	 * Hook into the actions fired in HM Backup and set the status
+	 *
+	 * @return null
+	 */
+	protected function do_action( $action ) {
+
+		switch ( $action ) :
+
+	    	case 'hmbkp_mysqldump_started' :
+
+	    		$this->set_status( sprintf( 'Dumping Database %s', '(<code>' . $this->get_mysqldump_method() . '</code>)' ) );
+
+	    	break;
+
+	    	case 'hmbkp_mysqldump_verify_started' :
+
+	    		$this->set_status( sprintf( 'Verifying Database Dump %s', '(<code>' . $this->get_mysqldump_method() . '</code>)' ) );
+
+	    	break;
+
+			case 'hmbkp_archive_started' :
+
+	    		$this->set_status( sprintf( 'Creating zip archive %s', '(<code>' . $this->get_archive_method() . '</code>)' ) );
+
+	    	break;
+
+	    	case 'hmbkp_archive_verify_started' :
+
+	    		$this->set_status( sprintf( 'Verifying Zip Archive %s', '(<code>' . $this->get_archive_method() . '</code>)' ) );
+
+	    	break;
+
+	    	case 'hmbkp_backup_complete' :
+
+	    		if ( file_exists( $this->get_schedule_running_path() ) )
+	    			unlink( $this->get_schedule_running_path() );
+
+	    	break;
+
+	    	case 'hmbkp_error' :
+
+				if ( $this->get_errors() ) {
+
+			    	$file = $this->get_path() . '/.backup_errors';
+
+					if ( file_exists( $file ) )
+						unlink( $file );
+
+			    	if ( ! $handle = @fopen( $file, 'w' ) )
+			    		return;
+
+					fwrite( $handle, json_encode( $this->get_errors() ) );
+
+			    	fclose( $handle );
+
+			    }
+
+			break;
+
+			case 'hmbkp_warning' : 
+
+			    if ( $this->get_warnings() ) {
+
+					$file = $this->get_path() . '/.backup_warnings';
+
+					if ( file_exists( $file ) )
+			  			unlink( $file );
+
+					if ( ! $handle = @fopen( $file, 'w' ) )
+			  	  		return;
+
+			  		fwrite( $handle, json_encode( $this->get_warnings() ) );
+
+					fclose( $handle );
+
+				}
+
+	    	break;
+
+	    endswitch;
+
+	}
+	
+	/**
 	 * Get the path to the backups directory
 	 *
 	 * Will try to create it if it doesn't exist
@@ -73,19 +254,19 @@ class WPRP_Backups {
 
 		global $is_apache;
 
-		$path = get_option( 'wprp_path' );
+		$path = get_option( 'wprp_backup_path' );
+
+		// If the dir doesn't exist or isn't writable then use the default path instead instead
+		if ( ! $path || ( is_dir( $path ) && ! is_writable( $path ) ) || ( ! is_dir( $path ) && ! is_writable( dirname( $path ) ) ) )
+	    	$path = $this->path_default();
 
 		// Create the backups directory if it doesn't exist
 		if ( ! is_dir( $path ) && is_writable( dirname( $path ) ) )
 			mkdir( $path, 0755 );
 
-		// If the dir doesn't exist or isn't writable then use the default path instead instead
-		if ( ( ! $path || ( is_dir( $path ) && ! is_writable( $path ) ) || ( ! is_dir( $path ) && ! is_writable( dirname( $path ) ) ) ) && ( get_option( 'wprp_path' ) && get_option( 'wprp_path' ) !== get_option( 'wprp_default_path' ) ) )
-	    	$path = $this->path_default();
-
 		// If the path has changed then cache it
-		if ( get_option( 'wprp_path' ) !== $path )
-			update_option( 'wprp_path', $path );
+		if ( get_option( 'wprp_backup_path' ) !== $path )
+			update_option( 'wprp_backup_path', $path );
 
 		// Protect against directory browsing by including a index.html file
 		$index = $path . '/index.html';
@@ -123,26 +304,14 @@ class WPRP_Backups {
 	 */
 	private function path_default() {
 
-		$path = get_option( 'wprp_default_path' );
-
-		if ( empty( $path ) ) {
-
+		if ( empty( $path ) )
 			$path = HM_Backup::conform_dir( trailingslashit( WP_CONTENT_DIR ) . substr( $this->key(), 0, 10 ) . '-backups' );
-
-			update_option( 'wprp_default_path', $path );
-
-		}
 
 		$upload_dir = wp_upload_dir();
 
 		// If the backups dir can't be created in WP_CONTENT_DIR then fallback to uploads
-		if ( ( ( ! is_dir( $path ) && ! is_writable( dirname( $path ) ) ) || ( is_dir( $path ) && ! is_writable( $path ) ) ) && strpos( $path, $upload_dir['basedir'] ) === false ) {
-
+		if ( ( ( ! is_dir( $path ) && ! is_writable( dirname( $path ) ) ) || ( is_dir( $path ) && ! is_writable( $path ) ) ) && strpos( $path, $upload_dir['basedir'] ) === false )
 			$path = HM_Backup::conform_dir( trailingslashit( $upload_dir['basedir'] ) . substr( $this->key(), 0, 10 ) . '-backups' );
-
-			update_option( 'wprp_default_path', $path );
-
-		}
 
 		return $path;
 	}
@@ -155,7 +324,7 @@ class WPRP_Backups {
 	 */
 	private function key() {
 
-		if ( $this->key )
+		if ( ! empty( $this->key ) )
 			return $this->key;
 
 		$key = array( ABSPATH, time() );
@@ -169,101 +338,47 @@ class WPRP_Backups {
 	}
 
 	/**
-	 * Perform a backup of the site
-	 *
-	 * @return true|WP_Error
-	 */
-	public function do_backup() {
-		
-		@ignore_user_abort( true );
-
-		$this->backup->backup();
-
-		if ( ! file_exists( $this->backup->get_archive_filepath() ) )
-			return new WP_Error( 'backup-failed', implode( ', ', $this->backup->get_errors() ) );
-
-		return true;
-	
-	}
-
-	/**
-	 * Get the backup once it has run, will return status running as a WP Error
-	 *
-	 * @return WP_Error|string
-	 */
-	public function get_backup() {
-
-		global $is_apache;
-
-		$backup = glob( $this->backup->get_path() . '/*.zip' );
-		$backup = reset( $backup );
-
-		if ( file_exists( $backup ) ) {
-
-			// Append the secret key on apache servers
-			if ( $is_apache && $this->key() ) {
-
-				$backup = add_query_arg( 'key', $this->key(), $backup );
-
-			    // Force the .htaccess to be rebuilt
-			    if ( file_exists( $this->backup->get_path() . '/.htaccess' ) )
-			        unlink( $this->backup->get_path() . '/.htaccess' );
-
-			    $this->path();
-
-			}
-
-			return str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $backup );
-
-		}
-
-		return new WP_Error( 'backup-failed', 'No backup was found' );
-	
-	}
-
-	/**
-	 * Remove the backups directoy and everything it contains
+	 * Get the status of the running backup.
 	 *
 	 * @access public
+	 * @return string
+	 */
+	public function get_status() {
+
+		if ( ! file_exists( $this->get_schedule_running_path() ) )
+			return '';
+
+		$status = file_get_contents( $this->get_schedule_running_path() );
+
+		return $status;
+
+	}
+
+	/**
+	 * Get the path to the backup running file that stores the running backup status
+	 *
+	 * @access private
+	 * @return string
+	 */
+	private function get_schedule_running_path() {
+		return $this->get_path() . '/.backup-running';
+	}
+
+	/**
+	 * Set the status of the running backup
+	 *
+	 * @access public
+	 * @param string $message
 	 * @return void
 	 */
-	public function cleanup() {
+	public function set_status( $message ) {
 
-		$zips = glob( $this->backup->get_path() . '/*.zip' );
+		if ( ! $handle = fopen( $this->get_schedule_running_path(), 'w' ) )
+			return;
 
-		// Remove any .zip files
-		foreach ( $zips as $zip )
-			unlink( $zip );
+		fwrite( $handle, $message );
 
-		if ( file_exists( trailingslashit( $this->backup->get_path() ) . 'index.html' ) )
-			unlink( trailingslashit( $this->backup->get_path() ) . 'index.html' );
-		
-		if ( file_exists( trailingslashit( $this->backup->get_path() ) . '.htaccess' ) )
-			unlink( trailingslashit( $this->backup->get_path() ) . '.htaccess' );
-
-		rmdir( $this->backup->get_path() );
-	
-	}
-
-	/**
-	 * Get the estimated size of the sites files and database
-	 * 
-	 * If the size hasn't been calculated yet then it fires an API request
-	 * to calculate the size and returns string 'Calculating'
-	 *
-	 * @access public
-	 * @return string $size|Calculating
-	 */
-	public function get_estimate_size() {
-
-		if ( $size = get_transient( $this->filesize_transient ) )
-			return size_format( $size, null, '%01u %s' );
-
-		// we dont know the size yet, fire off a remote request to get it for later
-		// it can take some time so we have a small timeout then return "Calculating"
-		wp_remote_get( add_query_arg( array( 'action' => 'wprp_calculate_backup_size', 'backup_excludes' => $this->backup->get_excludes() ), admin_url( 'admin-ajax.php' ) ), array( 'timeout' => 0.1, 'sslverify' => false ) );
-
-		return 'Calculating';
+		fclose( $handle );
 
 	}
 
@@ -280,7 +395,7 @@ class WPRP_Backups {
 		$filesize = 0;
 
     	// Don't include database if file only
-		if ( $this->backup->get_type() != 'file' ) {
+		if ( $this->get_type() != 'file' ) {
 
     		global $wpdb;
 
@@ -292,14 +407,14 @@ class WPRP_Backups {
     	}
 
     	// Don't include files if database only
-   		if ( $this->backup->get_type() != 'database' ) {
+   		if ( $this->get_type() != 'database' ) {
 
     		// Get rid of any cached filesizes
     		clearstatcache();
 
-			$excludes = $this->backup->exclude_string( 'regex' );
+			$excludes = $this->exclude_string( 'regex' );
 
-			foreach ( $this->backup->get_files() as $file ) {
+			foreach ( $this->get_files() as $file ) {
 
 				// Skip dot files, they should only exist on versions of PHP between 5.2.11 -> 5.3
 				if ( method_exists( $file, 'isDot' ) && $file->isDot() )
@@ -309,7 +424,7 @@ class WPRP_Backups {
 					continue;
 
 			    // Excludes
-			    if ( $excludes && preg_match( '(' . $excludes . ')', str_ireplace( trailingslashit( $this->backup->get_root() ), '', HM_Backup::conform_dir( $file->getPathname() ) ) ) )
+			    if ( $excludes && preg_match( '(' . $excludes . ')', str_ireplace( trailingslashit( $this->get_root() ), '', HM_Backup::conform_dir( $file->getPathname() ) ) ) )
 			        continue;
 
 			    $filesize += (float) $file->getSize();
