@@ -256,8 +256,6 @@ class WPRP_Backups {
 	 */
 	public function get_estimate_size() {
 
-		error_log( get_transient( $this->filesize_transient ) );
-
 		if ( $size = get_transient( $this->filesize_transient ) )
 			return size_format( $size, null, '%01u %s' );
 
