@@ -2,20 +2,26 @@
 
 // Check the API Key
 if ( ! get_option( 'wpr_api_key' ) ) {
+
 	echo json_encode( 'blank-api-key' );
 	exit;
+
 } elseif ( ! isset( $_GET['wpr_api_key'] ) || urldecode( $_GET['wpr_api_key'] ) !== get_option( 'wpr_api_key' ) || ! isset( $_GET['actions'] ) ) {
+
 	echo json_encode( 'bad-api-key' );
 	exit;
+
 }
 
-$actions = explode( ',', $_GET['actions'] );
+$actions = explode( ',', sanitize_text_field( $_GET['actions'] ) );
 $actions = array_flip( $actions );
 
 // Disable error_reporting so they don't break the json request
-//error_reporting( 0 );
+if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG )
+	error_reporting( 0 );
 
 // Log in as admin
+// TODO what about if admin use doesn't exists?
 wp_set_current_user( 1 );
 
 foreach( $actions as $action => $value ) {
@@ -41,13 +47,13 @@ foreach( $actions as $action => $value ) {
 
 			$actions[$action] = array();
 
-			if ( extension_loaded('ftp') || extension_loaded('sockets') || function_exists('fsockopen') )
+			if ( extension_loaded( 'ftp' ) || extension_loaded( 'sockets' ) || function_exists( 'fsockopen' ) )
 				$actions[$action][] = 'ftp';
 
-			if ( extension_loaded('ftp') )
+			if ( extension_loaded( 'ftp' ) )
 				$actions[$action][] = 'ftps';
 
-			if ( extension_loaded('ssh2') && function_exists('stream_get_contents') )
+			if ( extension_loaded( 'ssh2' ) && function_exists( 'stream_get_contents' ) )
 				$actions[$action][] = 'ssh';
 
 		break;
@@ -74,13 +80,13 @@ foreach( $actions as $action => $value ) {
 
 		case 'upgrade_plugin' :
 
-			$actions[$action] = _wprp_upgrade_plugin( (string) $_GET['plugin'] );
+			$actions[$action] = _wprp_upgrade_plugin( (string) sanitize_text_field( $_GET['plugin'] ) );
 
 		break;
 
 		case 'activate_plugin' :
 
-			$actions[$action] = _wprp_activate_plugin( (string) $_GET['plugin'] );
+			$actions[$action] = _wprp_activate_plugin( (string) sanitize_text_field( $_GET['plugin'] ) );
 
 		break;
 
@@ -92,7 +98,7 @@ foreach( $actions as $action => $value ) {
 
 		case 'upgrade_theme' :
 
-			$actions[$action] = _wprp_upgrade_theme( (string) $_GET['theme'] );
+			$actions[$action] = _wprp_upgrade_theme( (string) sanitize_text_field( $_GET['theme'] ) );
 
 		break;
 
@@ -100,21 +106,17 @@ foreach( $actions as $action => $value ) {
 		case 'delete_backup' :
 		case 'supports_backups' :
 		case 'get_backup' :
-		case 'add_backup_schedule' :
-		case 'remove_backup_schedule' :
-		case 'get_backup_schedules' :
 			$actions[$action] = _wprp_backups_api_call( $action );
 
 		break;
 
-		// get site info
 		case 'get_site_info' :
 
 			$actions[$action] = array(
-				'site_url' => get_site_url(),
-				'home_url' => get_home_url(),
-				'admin_url' => get_admin_url(),
-				'backups' => _wprp_get_backups_info()
+				'site_url'	=> get_site_url(),
+				'home_url'	=> get_home_url(),
+				'admin_url'	=> get_admin_url(),
+				'backups'	=> _wprp_get_backups_info()
 			);
 
 		break;
@@ -130,4 +132,5 @@ foreach( $actions as $action => $value ) {
 }
 
 echo json_encode( $actions );
+
 exit;
