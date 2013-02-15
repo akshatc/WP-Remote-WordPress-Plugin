@@ -3,7 +3,7 @@
 /*
 Plugin Name: WP Remote
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>. <strong>Deactivate to clear your API Key.</strong>
-Version: 2.4.13
+Version: 2.5
 Author: Human Made Limited
 Author URI: http://hmn.md/
 */
@@ -24,6 +24,12 @@ Author URI: http://hmn.md/
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
+// TODO
+
+// Remove hmbkp options and schedules on update
+// Remove backupwordpress backup directory on update
+// Namespace HM Backup
 
 define( 'WPRP_PLUGIN_SLUG', 'wpremote' );
 define( 'WPRP_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
