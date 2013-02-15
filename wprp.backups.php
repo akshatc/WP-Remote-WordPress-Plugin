@@ -241,7 +241,7 @@ class WPRP_Backups {
 		if ( file_exists( trailingslashit( $this->backup->get_path() ) . '.htaccess' ) )
 			unlink( trailingslashit( $this->backup->get_path() ) . '.htaccess' );
 
-		unlink( $this->backup->get_path() );
+		rmdir( $this->backup->get_path() );
 	
 	}
 
