@@ -5,7 +5,7 @@
  *
  * Singleton class for creating backups, all scheduling is handled by WP Remote
  */
-class WPRP_Backups extends HM_Backup {
+class WPRP_Backups extends WPRP_HM_Backup {
 
 	/**
 	 * Contains the current instance
@@ -292,7 +292,7 @@ class WPRP_Backups extends HM_Backup {
 
 		}
 
-	    return HM_Backup::conform_dir( $path );
+	    return parent::conform_dir( $path );
 
 	}
 
@@ -305,13 +305,13 @@ class WPRP_Backups extends HM_Backup {
 	private function path_default() {
 
 		if ( empty( $path ) )
-			$path = HM_Backup::conform_dir( trailingslashit( WP_CONTENT_DIR ) . substr( $this->key(), 0, 10 ) . '-backups' );
+			$path = parent::conform_dir( trailingslashit( WP_CONTENT_DIR ) . substr( $this->key(), 0, 10 ) . '-backups' );
 
 		$upload_dir = wp_upload_dir();
 
 		// If the backups dir can't be created in WP_CONTENT_DIR then fallback to uploads
 		if ( ( ( ! is_dir( $path ) && ! is_writable( dirname( $path ) ) ) || ( is_dir( $path ) && ! is_writable( $path ) ) ) && strpos( $path, $upload_dir['basedir'] ) === false )
-			$path = HM_Backup::conform_dir( trailingslashit( $upload_dir['basedir'] ) . substr( $this->key(), 0, 10 ) . '-backups' );
+			$path = parent::conform_dir( trailingslashit( $upload_dir['basedir'] ) . substr( $this->key(), 0, 10 ) . '-backups' );
 
 		return $path;
 	}
@@ -424,7 +424,7 @@ class WPRP_Backups extends HM_Backup {
 					continue;
 
 			    // Excludes
-			    if ( $excludes && preg_match( '(' . $excludes . ')', str_ireplace( trailingslashit( $this->get_root() ), '', HM_Backup::conform_dir( $file->getPathname() ) ) ) )
+			    if ( $excludes && preg_match( '(' . $excludes . ')', str_ireplace( trailingslashit( $this->get_root() ), '', parent::conform_dir( $file->getPathname() ) ) ) )
 			        continue;
 
 			    $filesize += (float) $file->getSize();
@@ -473,7 +473,7 @@ function _wprp_backups_api_call( $action ) {
  */
 function _wprp_get_backups_info() {
 
-	$hm_backup = new HM_Backup();
+	$hm_backup = new WPRP_HM_Backup();
 
 	return array(
 		'mysqldump_path' 	=> $hm_backup->get_mysqldump_command_path(),

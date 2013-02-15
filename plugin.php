@@ -29,7 +29,10 @@ Author URI: http://hmn.md/
 
 // Remove hmbkp options and schedules on update
 // Remove backupwordpress backup directory on update
-// Namespace HM Backup
+// Check it works with BackUpWordPress
+// Check update from old version
+// Test automatic updates
+// Test backup cleanup
 
 define( 'WPRP_PLUGIN_SLUG', 'wpremote' );
 define( 'WPRP_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
@@ -54,7 +57,7 @@ require_once( WPRP_PLUGIN_PATH . '/wprp.compatability.php' );
 // Backups require 3.1
 if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 
-	require_once( WPRP_PLUGIN_PATH . '/hm-backup/hm-backup.php' );
+	require_once( WPRP_PLUGIN_PATH . '/wprp.hm.backup.php' );
 	require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
 
 }
