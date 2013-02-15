@@ -229,7 +229,7 @@ class WPRP_Backups {
 	 */
 	public function cleanup() {
 
-		$zips = $glob( $this->backup->get_path() . '/*.zip' );
+		$zips = glob( $this->backup->get_path() . '/*.zip' );
 
 		// Remove any .zip files
 		foreach ( $zips as $zip )
