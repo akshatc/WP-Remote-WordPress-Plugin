@@ -27,11 +27,9 @@ Author URI: http://hmn.md/
 
 // TODO
 
-// Remove hmbkp options and schedules on update
-// Remove backupwordpress backup directory on update
+// On upgrade set wprp_backup_path to hmbkp_path
+// Delete manual backups after one hour
 // Check update from old version
-// Test automatic updates
-// Test backup cleanup
 
 define( 'WPRP_PLUGIN_SLUG', 'wpremote' );
 define( 'WPRP_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
