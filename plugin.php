@@ -48,8 +48,41 @@ require_once( WPRP_PLUGIN_PATH . '/wprp.compatability.php' );
 // Backups require 3.1
 if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 
-	require_once( WPRP_PLUGIN_PATH . '/hm-backup/hm-backup.php' );
-	require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
+	// deactivate backupwordpress
+	if ( defined( 'HMBKP_PLUGIN_PATH' ) ) {
+
+		$plugin_file = dirname( plugin_dir_path( HMBKP_PLUGIN_PATH ) ) . 'plugin.php';
+
+		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		deactivate_plugins( array( 'backupwordpress/plugin.php' ), true );
+
+		function wprp_backupwordpress_deactivated_notice() {
+
+			echo '<div class="updated fade"><p><strong>The BackUpWordPress Plugin has been de-activated</strong> The WP Remote Plugin includes BackUpWordPress.</p></div>';
+
+		}
+		add_action( 'admin_notices', 'wprp_backupwordpress_deactivated_notice' );
+
+	} else {
+
+		define( 'HMBKP_PLUGIN_PATH', trailingslashit( WPRP_PLUGIN_PATH ) . 'backupwordpress' );
+		define( 'HMBKP_PLUGIN_URL', trailingslashit( plugins_url( WPRP_PLUGIN_SLUG ) ) . 'backupwordpress' );
+
+		require( WPRP_PLUGIN_PATH . '/backupwordpress/plugin.php' );
+
+		// Set the correct path for the BackUpWordPress language files.
+		load_plugin_textdomain( 'hmbkp', false, '/wpremote/' . HMBKP_PLUGIN_SLUG . '/languages/' );
+
+		require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
+
+	}
+
+	// unhook default schedules from being created
+	remove_action( 'admin_init', 'hmbkp_setup_default_schedules' );
+	remove_filter( 'all_plugins', 'hmbkp_plugin_row', 10 );
+	remove_filter( 'plugin_action_links', 'hmbkp_plugin_action_link', 10, 2 );
+	remove_action( 'admin_head', 'hmbkp_admin_notices' );
+
 
 }
 
@@ -258,3 +291,12 @@ function _wpr_set_filesystem_credentials( $credentials ) {
 	return $_credentials;
 }
 add_filter( 'request_filesystem_credentials', '_wpr_set_filesystem_credentials' );
+
+// we need the calculate filesize to work on no priv too
+add_action( 'wp_ajax_nopriv_wprp_calculate_backup_size', 'wprp_ajax_calculate_backup_size' );
+
+function wprp_ajax_calculate_backup_size() {
+	require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
+	WPRP_Backups::getInstance()->calculateEstimatedSize();
+	exit;
+}
