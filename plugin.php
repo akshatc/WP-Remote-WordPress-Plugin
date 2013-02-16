@@ -29,7 +29,6 @@ Author URI: http://hmn.md/
 
 // Remove hmbkp options and schedules on update
 // Remove backupwordpress backup directory on update
-// Check it works with BackUpWordPress
 // Check update from old version
 // Test automatic updates
 // Test backup cleanup
