@@ -178,7 +178,7 @@ function wprp_update() {
 
 	$old_wpremote_dir = trailingslashit( $uploads_dir['basedir'] ) . '_wpremote_backups';
 
-	if ( file_exists( $old_wpremote_dir ) && function_exists( 'hmbkp_rmdirtree' ) )
+	if ( file_exists( $old_wpremote_dir ) )
 		WPRP_Backups::rmdir_recursive( $old_wpremote_dir );
 
 	// If BackUpWordPress isn't installed then lets just delete the whole backups directory
