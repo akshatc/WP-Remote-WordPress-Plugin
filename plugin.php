@@ -25,12 +25,6 @@ Author URI: http://hmn.md/
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-// TODO
-
-// On upgrade set wprp_backup_path to hmbkp_path
-// Delete manual backups after one hour
-// Check update from old version
-
 define( 'WPRP_PLUGIN_SLUG', 'wpremote' );
 define( 'WPRP_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
