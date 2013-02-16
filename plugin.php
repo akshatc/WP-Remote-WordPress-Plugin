@@ -185,7 +185,18 @@ function wprp_update() {
 	$old_wpremote_dir = trailingslashit( $uploads_dir['basedir'] ) . '_wpremote_backups';
 
 	if ( file_exists( $old_wpremote_dir ) && function_exists( 'hmbkp_rmdirtree' ) )
-		hmbkp_rmdirtree( $old_wpremote_dir );
+		WPRP_Backups::rmdir_recursive( $old_wpremote_dir );
+
+	// If BackUpWordPress isn't installed then lets just delete the whole backups directory
+	if ( ! defined( 'HMBKP_PLUGIN_PATH' ) && $path = get_option( 'hmbkp_path' ) ) {
+		
+		WPRP_Backups::rmdir_recursive( $path );
+
+		delete_option( 'hmbkp_path' );
+		delete_option( 'hmbkp_default_path' );
+		delete_option( 'hmbkp_plugin_version' );
+
+	}
 
 	// Update the version stored in the db
 	if ( get_option( 'wprp_plugin_version' ) !== WPRP_VERSION )

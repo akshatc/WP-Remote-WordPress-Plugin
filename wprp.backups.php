@@ -16,6 +16,53 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	private static $instance;
 
 	/**
+	 * Return the current instance of WPRP_Backups
+	 *
+	 * @static
+	 * @access public
+	 */
+	public static function get_instance() {
+
+		if ( empty( self::$instance ) )
+			self::$instance = new WPRP_Backups();
+
+		return self::$instance;
+	
+	}
+
+	/**
+	 * Recursively delete a directory including
+	 * all the files and sub-directories.
+	 *
+	 * @param string $dir
+	 * @static
+	 * @access public
+	 */
+	public static function rmdir_recursive( $dir ) {
+
+		if ( is_file( $dir ) )
+			@unlink( $dir );
+
+	    if ( ! is_dir( $dir ) )
+	    	return false;
+
+	    $files = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $dir ), RecursiveIteratorIterator::CHILD_FIRST, RecursiveIteratorIterator::CATCH_GET_CHILD );
+
+		foreach ( $files as $file ) {
+
+			if ( $file->isDir() )
+				@rmdir( $file->getPathname() );
+
+			else
+				@unlink( $file->getPathname() );
+
+		}
+
+		@rmdir( $dir );
+
+	}
+	
+	/**
 	 * Setup HM Backup
 	 *
 	 * @access publics
@@ -32,21 +79,6 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		$this->filesize_transient = 'wprp_' . '_' . $this->get_type() . '_' . md5( $this->exclude_string() ) . '_filesize';
 
-	}
-
-	/**
-	 * Return the current instance of WPRP_Backups
-	 *
-	 * @static
-	 * @access public
-	 */
-	public static function get_instance() {
-
-		if ( empty( self::$instance ) )
-			self::$instance = new WPRP_Backups();
-
-		return self::$instance;
-	
 	}
 
 	/**
@@ -353,7 +385,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 * @access public
 	 * @return string
 	 */
-	public function get_status() {
+	private function get_status() {
 
 		if ( ! file_exists( $this->get_schedule_running_path() ) )
 			return '';
@@ -381,7 +413,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 * @param string $message
 	 * @return void
 	 */
-	public function set_status( $message ) {
+	private function set_status( $message ) {
 
 		if ( ! $handle = fopen( $this->get_schedule_running_path(), 'w' ) )
 			return;
