@@ -144,8 +144,18 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 */
 	public function get_estimate_size() {
 
-		if ( $size = get_transient( $this->filesize_transient ) )
-			return size_format( $size, null, '%01u %s' );
+		// Check the cache
+		if ( $size = get_transient( $this->filesize_transient ) ) {
+			
+			// If we have a number, format it and return
+			if ( is_numeric( $size ) )
+				return size_format( $size, null, '%01u %s' );
+
+			// Otherwise the filesize must still be calculating
+			else
+				return 'Calculating';
+
+		}
 
 		// we dont know the size yet, fire off a remote request to get it for later
 		// it can take some time so we have a small timeout then return "Calculating"
@@ -393,6 +403,9 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	public function get_filesize() {
 
 		$filesize = 0;
+
+		// Only try to calculate once per hour
+		set_transient( $this->filesize_transient, 'Calculating', time() + 60 * 60 );
 
     	// Don't include database if file only
 		if ( $this->get_type() != 'file' ) {
