@@ -50,7 +50,7 @@ function wprp_security_admin_notice() {
 
 				The plugin <strong><?php echo esc_attr( $plugin_name ); ?></strong> may cause issues with WP Remote.
 
-				<a href="https://wpremote.com/faq/#<?php echo esc_attr( $plugin_name ); ?>" alt="WPRemote FAQ"> Click here for instructions on how to resolve this issue </a>
+				<a href="https://wpremote.com/support-center/troubleshooting/my-site-is-showing-up-as-red/#<?php echo esc_attr( $plugin_name ); ?>" alt="WPRemote Support Center"> Click here for instructions on how to resolve this issue </a>
 
 			</p>
 
