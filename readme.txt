@@ -31,6 +31,12 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### 2.5
+
+* Remove BackUpWordPress, backups are now handled by the `HM Backup` class.
+* BackUpWordPress can now be used alongside WP Remote without issues.
+* Exclude `.git` and `.svn` folders from backups automatically.
+
 #### 2.4.12 & 2.4.13
 
 * Upgrade bundled BackUpWordPress to 2.1.3.

@@ -79,27 +79,3 @@ function wprp_deactivate() {
 // Plugin activation and deactivation
 add_action( 'activate_' . WPRP_PLUGIN_SLUG . '/plugin.php', 'wprp_deactivate' );
 add_action( 'deactivate_' . WPRP_PLUGIN_SLUG . '/plugin.php', 'wprp_deactivate' );
-
-/**
- * Remove the BackUpWordPress menu from the Tools menu
- *
- */
-function wprp_remove_backupwordpress_from_admin_menu() {
-
-	global $submenu;
-
-	// Only remove BackUpWordPress if there aren't any schedules
-	$additional_schedules = false;
-
-	$schedules = new HMBKP_Schedules;
-
-	$schedules = $schedules->get_schedules();
-
-	foreach ( $schedules as $schedule )
-		if ( strpos( $schedule->get_id(), 'wpremote' ) === false )
-			$additional_schedules = true;
-
-	if ( ! $additional_schedules && isset( $submenu['tools.php'][16] ) && $submenu['tools.php'][16][2] === 'backupwordpress' )
-		unset( $submenu['tools.php'][16] );
-}
-add_action( 'admin_menu', 'wprp_remove_backupwordpress_from_admin_menu', 11 );

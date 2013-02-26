@@ -3,7 +3,7 @@
 /*
 Plugin Name: WP Remote
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>. <strong>Deactivate to clear your API Key.</strong>
-Version: 2.4.13
+Version: 2.5
 Author: Human Made Limited
 Author URI: http://hmn.md/
 */
@@ -48,41 +48,8 @@ require_once( WPRP_PLUGIN_PATH . '/wprp.compatability.php' );
 // Backups require 3.1
 if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 
-	// deactivate backupwordpress
-	if ( defined( 'HMBKP_PLUGIN_PATH' ) ) {
-
-		$plugin_file = dirname( plugin_dir_path( HMBKP_PLUGIN_PATH ) ) . 'plugin.php';
-
-		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		deactivate_plugins( array( 'backupwordpress/plugin.php' ), true );
-
-		function wprp_backupwordpress_deactivated_notice() {
-
-			echo '<div class="updated fade"><p><strong>The BackUpWordPress Plugin has been de-activated</strong> The WP Remote Plugin includes BackUpWordPress.</p></div>';
-
-		}
-		add_action( 'admin_notices', 'wprp_backupwordpress_deactivated_notice' );
-
-	} else {
-
-		define( 'HMBKP_PLUGIN_PATH', trailingslashit( WPRP_PLUGIN_PATH ) . 'backupwordpress' );
-		define( 'HMBKP_PLUGIN_URL', trailingslashit( plugins_url( WPRP_PLUGIN_SLUG ) ) . 'backupwordpress' );
-
-		require( WPRP_PLUGIN_PATH . '/backupwordpress/plugin.php' );
-
-		// Set the correct path for the BackUpWordPress language files.
-		load_plugin_textdomain( 'hmbkp', false, '/wpremote/' . HMBKP_PLUGIN_SLUG . '/languages/' );
-
-		require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
-
-	}
-
-	// unhook default schedules from being created
-	remove_action( 'admin_init', 'hmbkp_setup_default_schedules' );
-	remove_filter( 'all_plugins', 'hmbkp_plugin_row', 10 );
-	remove_filter( 'plugin_action_links', 'hmbkp_plugin_action_link', 10, 2 );
-	remove_action( 'admin_head', 'hmbkp_admin_notices' );
-
+	require_once( WPRP_PLUGIN_PATH . '/wprp.hm.backup.php' );
+	require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
 
 }
 
@@ -211,8 +178,19 @@ function wprp_update() {
 
 	$old_wpremote_dir = trailingslashit( $uploads_dir['basedir'] ) . '_wpremote_backups';
 
-	if ( file_exists( $old_wpremote_dir ) && function_exists( 'hmbkp_rmdirtree' ) )
-		hmbkp_rmdirtree( $old_wpremote_dir );
+	if ( file_exists( $old_wpremote_dir ) )
+		WPRP_Backups::rmdir_recursive( $old_wpremote_dir );
+
+	// If BackUpWordPress isn't installed then lets just delete the whole backups directory
+	if ( ! defined( 'HMBKP_PLUGIN_PATH' ) && $path = get_option( 'hmbkp_path' ) ) {
+		
+		WPRP_Backups::rmdir_recursive( $path );
+
+		delete_option( 'hmbkp_path' );
+		delete_option( 'hmbkp_default_path' );
+		delete_option( 'hmbkp_plugin_version' );
+
+	}
 
 	// Update the version stored in the db
 	if ( get_option( 'wprp_plugin_version' ) !== WPRP_VERSION )
@@ -291,12 +269,3 @@ function _wpr_set_filesystem_credentials( $credentials ) {
 	return $_credentials;
 }
 add_filter( 'request_filesystem_credentials', '_wpr_set_filesystem_credentials' );
-
-// we need the calculate filesize to work on no priv too
-add_action( 'wp_ajax_nopriv_wprp_calculate_backup_size', 'wprp_ajax_calculate_backup_size' );
-
-function wprp_ajax_calculate_backup_size() {
-	require_once( WPRP_PLUGIN_PATH . '/wprp.backups.php' );
-	WPRP_Backups::getInstance()->calculateEstimatedSize();
-	exit;
-}
