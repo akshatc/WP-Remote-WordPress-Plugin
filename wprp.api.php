@@ -25,7 +25,7 @@ class WPR_API_Request {
 				exit;
 			}
 
-			if ( (int) $_POST['timestamp'] > time() + 360 || (int) $_POST['timestamp'] > time() < 360 ) {
+			if ( (int) $_POST['timestamp'] > time() + 360 || (int) $_POST['timestamp'] < time() - 360 ) {
 				echo json_encode( 'bad-timstamp' );
 				exit;	
 			}
