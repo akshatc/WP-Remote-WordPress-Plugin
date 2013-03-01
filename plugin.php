@@ -3,7 +3,7 @@
 /*
 Plugin Name: WP Remote
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>. <strong>Deactivate to clear your API Key.</strong>
-Version: 2.5
+Version: 2.5.1
 Author: Human Made Limited
 Author URI: http://hmn.md/
 */
@@ -136,7 +136,7 @@ endif;
  */
 function wprp_catch_api_call() {
 
-	if ( empty( $_GET['wpr_api_key'] ) || ! urldecode( $_GET['wpr_api_key'] ) || ! isset( $_GET['actions'] ) )
+	if ( empty( $_POST['wpr_verify_key'] ) )
 		return;
 
 	require_once( WPRP_PLUGIN_PATH . '/wprp.plugins.php' );

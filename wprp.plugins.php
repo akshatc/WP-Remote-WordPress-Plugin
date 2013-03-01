@@ -114,20 +114,19 @@ function _wprp_upgrade_plugin( $plugin ) {
 			return array( 'status' => 'success' );
 		}
 
+		// we do a remote request to activate, as we don't want to kill any installs
+		$data = array( 'actions' => array( 'activate_plugin' ), 'plugin' => $plugin, 'timestamp' => (string) time() );
+		$data['wpr_verify_key'] = WPR_API_Request::generate_hash( $data );
 
-		// we do a remote request to activate, as we don;t want to kill any installs
-		$url = add_query_arg( 'wpr_api_key', $_GET['wpr_api_key'], get_bloginfo( 'url' ) );
-		$url = add_query_arg( 'actions', 'activate_plugin', $url );
-		$url = add_query_arg( 'plugin', $plugin, $url );
+		$args = array( 'body' => $data );
 
-		$request = wp_remote_get( $url );
+		$request = wp_remote_post( get_bloginfo( 'url' ), $args );
 
 		if ( is_wp_error( $request ) ) {
 			return array( 'status' => 'error', 'error' => $request->get_error_code() );
 		}
 
 		$body = wp_remote_retrieve_body( $request );
-
 
 		if ( ! $json = @json_decode( $body ) )
 			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate.' );
