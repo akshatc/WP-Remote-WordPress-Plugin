@@ -156,7 +156,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		case 'delete_backup' :
 		case 'supports_backups' :
 		case 'get_backup' :
-			$actions[$action] = _wprp_backups_api_call( $action );
+			$actions[$action] = function_exists( '_wprp_get_backups_info' ) ? _wprp_backups_api_call( $action ) : 'not-implemented';
 
 		break;
 
@@ -166,7 +166,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 				'site_url'	=> get_site_url(),
 				'home_url'	=> get_home_url(),
 				'admin_url'	=> get_admin_url(),
-				'backups'	=> _wprp_get_backups_info()
+				'backups'	=> function_exists( '_wprp_get_backups_info' ) ? _wprp_get_backups_info() : array()
 			);
 
 		break;
