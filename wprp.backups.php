@@ -74,8 +74,10 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		$this->set_path( $this->path() );
 
 		// Set the excludes
-		if ( WPR_API_Request::get_arg( 'backup_excludes' ) )
+		if ( class_exists( 'WPR_API_Request' ) &&  WPR_API_Request::get_arg( 'backup_excludes' ) )
 			$this->set_excludes( WPR_API_Request::get_arg( 'backup_excludes' ) );
+		else if ( isset( $_GET['backup_excludes'] ) )
+			$this->set_excludes( $_GET['backup_excludes'] );
 
 		$this->filesize_transient = 'wprp_' . '_' . $this->get_type() . '_' . substr( md5( $this->exclude_string() ), 20 ) . '_filesize';
 
