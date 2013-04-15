@@ -15,6 +15,7 @@ php:
 # WP_MULTISITE = whether to test multisite (use either "0" or "1")
 env:
   - WP_VERSION=3.5.1 WP_MULTISITE=0
+  - WP_VERSION=3.5 WP_MULTISITE=0
 
 # Grab the setup script and execute
 before_script:
