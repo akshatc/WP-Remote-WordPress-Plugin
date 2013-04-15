@@ -19,8 +19,6 @@ env:
   - WP_VERSION=3.4 WP_MULTISITE=0
   - WP_VERSION=3.3 WP_MULTISITE=0
   - WP_VERSION=3.2 WP_MULTISITE=0
-  - WP_VERSION=3.1 WP_MULTISITE=0
-  - WP_VERSION=3.0 WP_MULTISITE=0
 
 # Grab the setup script and execute
 before_script:
