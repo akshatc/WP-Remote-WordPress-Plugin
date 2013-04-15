@@ -12,7 +12,7 @@
  */
 
 $GLOBALS['wp_tests_options'] = array(
-	'active_plugins' => array( 'wpremote/plugin.php' ),
+	'active_plugins' => array( 'WP-Remote-WordPress-Plugin/plugin.php' ),
 );
 
 require dirname( __FILE__ ) . '/lib/bootstrap.php';
