@@ -5,11 +5,19 @@
  *
  * @return null
  */
-function wprp_setup_admin() {
-	register_setting( 'wpr-settings', 'wpr_api_key' );
+ 
+function wprp_admin_page() {
+  include( 'wprp.admin.page.php' );
 }
 
-add_action( 'admin_menu', 'wprp_setup_admin' );
+function wprp_admin_actions() {
+	register_setting( 'wpr-settings', 'wpr_api_key' );
+  register_setting( 'wpr-settings', 'wpr_api_keychain' );
+  add_options_page( 'WP Remote Settings', 'WP Remote', 'activate_plugins', 'wprp_admin', 'wprp_admin_page');
+}
+
+add_action( 'admin_menu', 'wprp_admin_actions' );
+
 
 /**
  * Add API Key form
@@ -48,7 +56,7 @@ function wprp_add_api_key_admin_notice() { ?>
 
 <?php }
 
-if ( ! get_option( 'wpr_api_key' ) )
+if ( ! get_option( 'wpr_api_key' ) && ! get_option( 'wpr_api_keychain' ) )
 	add_action( 'admin_notices', 'wprp_add_api_key_admin_notice' );
 
 /**
