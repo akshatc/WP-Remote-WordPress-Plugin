@@ -21,7 +21,7 @@ class WPR_API_Request {
 
 			if ( (int) $_POST['timestamp'] > time() + 360 || (int) $_POST['timestamp'] < time() - 360 ) {
 				echo json_encode( 'bad-timstamp' );
-				exit;	
+				exit;
 			}
 
 			self::$actions = $_POST['actions'];
@@ -38,34 +38,25 @@ class WPR_API_Request {
 
 	static function generate_hash( $vars , $api_key=false ) {
 
-		$hash = hash_hmac( 'sha256', serialize( $vars ), ( $api_key ? $api_key : get_option( 'wpr_api_key' ) ) );
-		return $hash;
+		return hash_hmac( 'sha256', serialize( $vars ), ( $api_key ? $api_key : get_option( 'wpr_api_key' ) ) );
 
 	}
-  
-  static function test_hash(){
-  
-    $apiKey = false;
 
-    if( !( $apiKey = get_option( 'wpr_api_key' ) ) && ( $keychain = get_option( 'wpr_api_keychain' ) ) ){
-    
-      $domain = $_SERVER['HTTP_HOST'];
-    
-      foreach( $keychain as $k => $v ){
-      
-        if( $v['pattern']==$domain || ( substr( $v['pattern'] , 0 , 1 )=='/' && @preg_match( $v['pattern'] , $domain ) ) ){
-          $apiKey = $v['apikey'];
-          break;
-        }
-      
-      }
-    
-    }
+  static function test_hash(){
+
+    $keychain = get_option( 'wpr_api_keychain' , array() );
 
     $verify = $_POST['wpr_verify_key'];
     unset( $_POST['wpr_verify_key'] );
 
-    return ( $verify == self::generate_hash( $_POST , $apiKey ) );
+    foreach( $keychain as $key ){
+
+      if( $verify == self::generate_hash( $_POST , $key ) )
+        return true;
+
+    }
+
+    return false;
 
   }
 
