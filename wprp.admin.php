@@ -1,15 +1,22 @@
 <?php
 
 /**
- * Register the wpr_api_key settings
+ * Register the wpr_api_keychain settings
  *
  * @return null
  */
-function wprp_setup_admin() {
-	register_setting( 'wpr-settings', 'wpr_api_key' );
+ 
+function wprp_admin_page() {
+  include( 'wprp.admin.page.php' );
 }
 
-add_action( 'admin_menu', 'wprp_setup_admin' );
+function wprp_admin_actions() {
+  register_setting( 'wpr-settings', 'wpr_api_keychain' );
+  add_options_page( 'WP Remote Settings', 'WP Remote', 'activate_plugins', 'wprp_admin', 'wprp_admin_page');
+}
+
+add_action( 'admin_menu', 'wprp_admin_actions' );
+
 
 /**
  * Add API Key form
@@ -21,34 +28,12 @@ add_action( 'admin_menu', 'wprp_setup_admin' );
 function wprp_add_api_key_admin_notice() { ?>
 
 	<div id="wprp-message" class="updated">
-
-		<form method="post" action="options.php">
-
-			<p>
-
-				<strong>WP Remote is almost ready</strong>, <label style="vertical-align: baseline;" for="wpr_api_key">enter your API Key to continue</label>
-
-				<input type="text" style="margin-left: 5px; margin-right: 5px; " class="code regular-text" id="wpr_api_key" name="wpr_api_key" />
-
-				<input type="submit" value="Save API Key" class="button-primary" />
-
-			</p>
-
-			<style>#message { display : none; }</style>
-
-			<?php settings_fields( 'wpr-settings' );
-
-			// Output any sections defined for page sl-settings
-			do_settings_sections( 'wpr-settings' ); ?>
-
-		</form>
-
+    <p><strong>WP Remote is almost ready</strong>, go to the <a href="options-general.php?page=wprp_admin">WP Remote Settings Page</a> to enter your API Key(s)</p>
 	</div>
-
 
 <?php }
 
-if ( ! get_option( 'wpr_api_key' ) )
+if ( ! get_option( 'wpr_api_keychain' ) )
 	add_action( 'admin_notices', 'wprp_add_api_key_admin_notice' );
 
 /**
@@ -67,15 +52,3 @@ function wprp_api_key_added_admin_notice() {
 
 <?php }
 add_action( 'admin_notices', 'wprp_api_key_added_admin_notice' );
-
-/**
- * Delete the API key on activate and deactivate
- *
- * @return null
- */
-function wprp_deactivate() {
-	delete_option( 'wpr_api_key' );
-}
-// Plugin activation and deactivation
-add_action( 'activate_' . WPRP_PLUGIN_SLUG . '/plugin.php', 'wprp_deactivate' );
-add_action( 'deactivate_' . WPRP_PLUGIN_SLUG . '/plugin.php', 'wprp_deactivate' );

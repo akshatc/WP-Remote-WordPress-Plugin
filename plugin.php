@@ -2,7 +2,7 @@
 
 /*
 Plugin Name: WP Remote
-Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>. <strong>Deactivate to clear your API Key.</strong>
+Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
 Version: 2.6
 Author: Human Made Limited
 Author URI: http://hmn.md/
@@ -41,6 +41,14 @@ if ( version_compare( phpversion(), '5.2.4', '<' ) ) {
 		die( __( 'WP Remote requires PHP version 5.2.4 or greater.', 'wpremote' ) );
 
 }
+
+function plugin_add_settings_link( $links ) {
+  $settings_link = '<a href="options-general.php?page=wprp_admin">Settings</a>';
+  array_push( $links , $settings_link );
+  return $links;
+}
+$plugin = plugin_basename( __FILE__ );
+add_filter( "plugin_action_links_$plugin", 'plugin_add_settings_link' );
 
 require_once( WPRP_PLUGIN_PATH . '/wprp.admin.php' );
 require_once( WPRP_PLUGIN_PATH . '/wprp.compatability.php' );

@@ -1,5 +1,4 @@
 <?php
-
 class WPR_API_Request {
 
 	static $actions = array();
@@ -8,26 +7,21 @@ class WPR_API_Request {
 	static function verify_request() {
 
 		// Check the API Key
-		if ( ! get_option( 'wpr_api_key' ) ) {
+		if ( ! get_option( 'wpr_api_key' ) && ! get_option( 'wpr_api_keychain' ) ) {
 
 			echo json_encode( 'blank-api-key' );
 			exit;
 
 		} elseif ( isset( $_POST['wpr_verify_key'] ) ) {
 
-			$verify = $_POST['wpr_verify_key'];
-			unset( $_POST['wpr_verify_key'] );
-
-			$hash = self::generate_hash( $_POST );
-
-			if ( $hash !== $verify ) {
+			if ( !self::test_hash() ) {
 				echo json_encode( 'bad-verify-key' );
 				exit;
 			}
 
 			if ( (int) $_POST['timestamp'] > time() + 360 || (int) $_POST['timestamp'] < time() - 360 ) {
 				echo json_encode( 'bad-timstamp' );
-				exit;	
+				exit;
 			}
 
 			self::$actions = $_POST['actions'];
@@ -42,12 +36,29 @@ class WPR_API_Request {
 
 	}
 
-	static function generate_hash( $vars ) {
+	static function generate_hash( $vars , $api_key=false ) {
 
-		$hash = hash_hmac( 'sha256', serialize( $vars ), get_option( 'wpr_api_key' ) );
-		return $hash;
+		return hash_hmac( 'sha256', serialize( $vars ), ( $api_key ? $api_key : get_option( 'wpr_api_key' ) ) );
 
 	}
+
+  static function test_hash(){
+
+    $keychain = get_option( 'wpr_api_keychain' , array() );
+
+    $verify = $_POST['wpr_verify_key'];
+    unset( $_POST['wpr_verify_key'] );
+
+    foreach( $keychain as $key ){
+
+      if( $verify == self::generate_hash( $_POST , $key ) )
+        return true;
+
+    }
+
+    return false;
+
+  }
 
 	static function get_actions() {
 		return self::$actions;
@@ -156,6 +167,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		case 'delete_backup' :
 		case 'supports_backups' :
 		case 'get_backup' :
+
 			$actions[$action] = function_exists( '_wprp_get_backups_info' ) ? _wprp_backups_api_call( $action ) : 'not-implemented';
 
 		break;
