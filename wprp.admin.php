@@ -34,6 +34,12 @@ function wprp_add_api_key_admin_notice() { ?>
 
 			</p>
 
+			<p>
+
+				<strong>Don't have a WP Remote account yet?</strong> <a href="http://wpremote.dev/register/" target="_blank">Sign up</a>, register your site, and report back once you've grabbed your API key.
+
+			</p>
+
 			<style>#message { display : none; }</style>
 
 			<?php settings_fields( 'wpr-settings' );
