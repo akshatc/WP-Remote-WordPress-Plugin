@@ -16,8 +16,6 @@ function wprp_get_incompatible_plugins() {
 	$active_plugins = get_option( 'active_plugins', array() );
 	$dismissed_plugins = get_option( 'dismissed-plugins', array() );
 
-	//update_option( 'dismissed-plugins', array() );
-
 	$plugin_matches = array();
 
 	// foreach through activated plugins and split the string to have one name to check results against.
