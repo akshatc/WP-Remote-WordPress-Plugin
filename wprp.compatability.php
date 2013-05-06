@@ -36,6 +36,9 @@ function wprp_get_incompatible_plugins() {
  */
 function wprp_security_admin_notice() {
 
+	if ( ! current_user_can( 'install_plugins' ) )
+		return;
+
 	foreach ( wprp_get_incompatible_plugins() as $plugin_path => $plugin_name ) :
 
 		?>
@@ -65,16 +68,16 @@ add_action( 'admin_notices', 'wprp_security_admin_notice' );
  */
 function wprp_dismissed_plugin_notice_check() {
 
-	if ( ! empty( $_GET['wpr_dismiss_plugin_warning'] ) ) {
+	if ( current_user_can( 'install_plugins' ) && ! empty( $_GET['wpr_dismiss_plugin_warning'] ) ) {
 
 		$dismissed = get_option( 'dismissed-plugins', array() );
-		$dismissed[] = $_GET['wpr_dismiss_plugin_warning'];
+		$dismissed[] = sanitize_text_field( $_GET['wpr_dismiss_plugin_warning'] );
 
 		update_option( 'dismissed-plugins', $dismissed );
 
-		wp_redirect( remove_query_arg( 'wpr_dismiss_plugin_warning' ) );
+		wp_safe_redirect( remove_query_arg( 'wpr_dismiss_plugin_warning' ) );
 		exit;
 
 	}
 }
-add_action( 'init', 'wprp_dismissed_plugin_notice_check' );
+add_action( 'admin_init', 'wprp_dismissed_plugin_notice_check' );
