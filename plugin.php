@@ -28,6 +28,9 @@ Author URI: http://hmn.md/
 define( 'WPRP_PLUGIN_SLUG', 'wpremote' );
 define( 'WPRP_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
+if ( ! defined( 'WPR_URL' ) )
+	define( 'WPR_URL', 'https://wpremote.com/' );
+
 if ( ! defined( 'WPR_API_URL' ) )
 	define( 'WPR_API_URL', 'https://wpremote.com/api/json/' );
 
@@ -128,6 +131,22 @@ if ( empty( $_GET['action'] ) || $_GET['action'] != 'do-core-upgrade' ) :
 	}
 
 endif;
+
+/**
+ * Get a needed URL on the WP Remote site
+ *
+ * @param string      $uri     URI for the URL (optional)
+ * @return string     $url     Fully-qualified URL to WP Remote
+ */
+function wprp_get_wpr_url( $uri = '' ) {
+
+	if ( empty( $uri ) )
+		return WPR_URL;
+
+	$url = rtrim( WPR_URL, '/' );
+	$uri = trim( $uri, '/' );
+	return $url . '/' . $uri . '/';
+}
 
 /**
  * Catch the API calls and load the API
