@@ -36,7 +36,7 @@ function wprp_add_api_key_admin_notice() { ?>
 
 			<p>
 
-				<strong>Don't have a WP Remote account yet?</strong> <a href="http://wpremote.dev/register/" target="_blank">Sign up</a>, register your site, and report back once you've grabbed your API key.
+				<strong>Don't have a WP Remote account yet?</strong> <a href="<?php echo esc_url( wprp_get_wpr_url( '/register/' ) ); ?>" target="_blank">Sign up</a>, register your site, and report back once you've grabbed your API key.
 
 			</p>
 
@@ -68,7 +68,7 @@ function wprp_api_key_added_admin_notice() {
 		return; ?>
 
 	<div id="wprp-message" class="updated">
-		<p><strong>WP Remote API Key successfully added</strong>, close this window to go back to <a href="https://wpremote.com/app/">WP Remote</a>.</p>
+		<p><strong>WP Remote API Key successfully added</strong>, close this window to go back to <a href="<?php echo esc_url( wprp_get_wpr_url( '/app/' ) ); ?>">WP Remote</a>.</p>
 	</div>
 
 <?php }
