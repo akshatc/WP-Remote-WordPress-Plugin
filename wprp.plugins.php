@@ -200,6 +200,47 @@ function _wprp_deactivate_plugin( $plugin ) {
 }
 
 /**
+ * Delete a plugin on this site.
+ */
+function _wprp_delete_plugin( $plugin ) {
+	global $wp_filesystem;
+
+	include_once ABSPATH . 'wp-admin/includes/admin.php';
+	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	include_once ABSPATH . 'wp-includes/update.php';
+
+	if ( ! _wpr_check_filesystem_access() || ! WP_Filesystem() )
+		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );
+
+	$plugins_dir = $wp_filesystem->wp_plugins_dir();
+	if ( empty( $plugins_dir ) )
+		return array( 'status' => 'error', 'error' => 'Unable to locate WordPress Plugin directory.' );
+
+	$plugins_dir = trailingslashit( $plugins_dir );
+
+	if ( is_uninstallable_plugin( $plugin ) )
+		uninstall_plugin( $plugin );
+
+	$this_plugin_dir = trailingslashit( dirname( $plugins_dir . $plugin ) );
+	// If plugin is in its own directory, recursively delete the directory.
+	if ( strpos( $plugin, '/' ) && $this_plugin_dir != $plugins_dir ) //base check on if plugin includes directory separator AND that it's not the root plugin folder
+		$deleted = $wp_filesystem->delete( $this_plugin_dir, true );
+	else
+		$deleted = $wp_filesystem->delete( $plugins_dir . $plugin );
+
+	if ( $deleted ) {
+		if ( $current = get_site_transient('update_plugins') ) {
+			unset( $current->response[$plugin] );
+			set_site_transient('update_plugins', $current);
+		}
+		return array( 'status' => 'success' );
+	} else {
+		return array( 'status' => 'error', 'error' => 'Plugin uninstalled, but not deleted.' );
+	}
+
+}
+
+/**
  * Check if the site can support plugin upgrades
  *
  * @todo should probably check if we have direct filesystem access
