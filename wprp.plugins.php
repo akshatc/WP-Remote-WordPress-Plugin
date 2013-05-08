@@ -143,6 +143,35 @@ function _wprp_upgrade_plugin( $plugin ) {
 	return array( 'status' => 'success' );
 }
 
+/**
+ * Install a plugin on this site
+ */
+function _wprp_install_plugin( $plugin ) {
+
+	include_once ABSPATH . 'wp-admin/includes/admin.php';
+	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	include_once ABSPATH . 'wp-includes/update.php';
+
+	// Access the plugins_api() helper function
+	include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+	$api_args = array(
+		'slug' => $plugin,
+		'fields' => array( 'sections' => false )
+		);
+	$api = plugins_api( 'plugin_information', $api_args );
+
+	if ( is_wp_error( $api ) )
+		return array( 'status' => 'error', 'error' => $api->get_error_code() );
+
+	$skin = new WPRP_Plugin_Upgrader_Skin();
+	$upgrader = new Plugin_Upgrader( $skin );
+	$result = $upgrader->install( $api->download_link );
+	if ( is_wp_error( $result ) )
+		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+
+	return array( 'status' => 'success' );
+}
+
 function _wprp_activate_plugin( $plugin ) {
 
 	include_once ABSPATH . 'wp-admin/includes/plugin.php';
