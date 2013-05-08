@@ -59,9 +59,9 @@ if ( empty( $_GET['action'] ) || $_GET['action'] != 'do-core-upgrade' ) :
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
 	// Custom upgrader skins
-	require_once WPRP_PLUGIN_PATH . '/inc/class-wprp-plugin-upgrader-skin.php';
-	require_once WPRP_PLUGIN_PATH . '/inc/class-wprp-theme-upgrader-skin.php';
-	require_once WPRP_PLUGIN_PATH . '/inc/class-wprp-core-upgrader-skin.php';
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-plugin-upgrader-skin.php';
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-theme-upgrader-skin.php';
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-core-upgrader-skin.php';
 
 endif;
 
