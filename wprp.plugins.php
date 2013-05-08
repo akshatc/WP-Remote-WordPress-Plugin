@@ -156,6 +156,21 @@ function _wprp_activate_plugin( $plugin ) {
 }
 
 /**
+ * Deactivate a plugin on this site.
+ */
+function _wprp_deactivate_plugin( $plugin ) {
+
+	include_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+	$result = deactivate_plugins( $plugin );
+
+	if ( is_wp_error( $result ) )
+		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+
+	return array( 'status' => 'success' );
+}
+
+/**
  * Check if the site can support plugin upgrades
  *
  * @todo should probably check if we have direct filesystem access

@@ -140,6 +140,12 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'deactivate_plugin' :
+
+			$actions[$action] = _wprp_deactivate_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+
+		break;
+
 		case 'get_themes' :
 
 			$actions[$action] = _wprp_supports_theme_upgrade() ? _wprp_get_themes() : 'not-implemented';
