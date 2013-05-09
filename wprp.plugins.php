@@ -174,6 +174,8 @@ function _wprp_install_plugin( $plugin, $args = array() ) {
 	$result = $upgrader->install( $api->download_link );
 	if ( is_wp_error( $result ) )
 		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+	else if ( ! $result )
+		return array( 'status' => 'error', 'error' => 'Unknown error installing plugin.' );
 
 	return array( 'status' => 'success' );
 }
