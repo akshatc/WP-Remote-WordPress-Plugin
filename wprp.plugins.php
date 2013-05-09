@@ -146,7 +146,7 @@ function _wprp_upgrade_plugin( $plugin ) {
 /**
  * Install a plugin on this site
  */
-function _wprp_install_plugin( $plugin ) {
+function _wprp_install_plugin( $plugin, $args = array() ) {
 
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -165,6 +165,12 @@ function _wprp_install_plugin( $plugin ) {
 
 	$skin = new WPRP_Plugin_Upgrader_Skin();
 	$upgrader = new Plugin_Upgrader( $skin );
+
+	// The best way to get a download link for a specific version :(
+	// Fortunately, we can depend on a relatively consistent naming pattern
+	if ( ! empty( $args['version'] ) && 'stable' != $args['version'] )
+		$api->download_link = str_replace( $api->version . '.zip', $args['version'] . '.zip', $api->download_link );
+
 	$result = $upgrader->install( $api->download_link );
 	if ( is_wp_error( $result ) )
 		return array( 'status' => 'error', 'error' => $result->get_error_code() );
