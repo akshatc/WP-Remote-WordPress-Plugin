@@ -70,7 +70,7 @@ function _wprp_get_plugins() {
  * @param mixed $plugin
  * @return array
  */
-function _wprp_upgrade_plugin( $plugin ) {
+function _wprp_update_plugin( $plugin ) {
 
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 

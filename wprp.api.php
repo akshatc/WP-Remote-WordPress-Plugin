@@ -128,9 +128,10 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'update_plugin' :
 		case 'upgrade_plugin' :
 
-			$actions[$action] = _wprp_upgrade_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+			$actions[$action] = _wprp_update_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
 
 		break;
 
