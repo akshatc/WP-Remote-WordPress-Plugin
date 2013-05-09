@@ -137,7 +137,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		case 'install_plugin' :
 
 			$api_args = array(
-					'version'      => sanitize_text_field( (string)$version ),
+					'version'      => sanitize_text_field( (string)WPR_API_Request::get_arg( 'version' ) ),
 				);
 			$actions[$action] = _wprp_install_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ), $api_args );
 
