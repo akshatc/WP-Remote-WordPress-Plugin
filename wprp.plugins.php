@@ -208,9 +208,9 @@ function _wprp_deactivate_plugin( $plugin ) {
 }
 
 /**
- * Delete a plugin on this site.
+ * Uninstall a plugin on this site.
  */
-function _wprp_delete_plugin( $plugin ) {
+function _wprp_uninstall_plugin( $plugin ) {
 	global $wp_filesystem;
 
 	include_once ABSPATH . 'wp-admin/includes/admin.php';

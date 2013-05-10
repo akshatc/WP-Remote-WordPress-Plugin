@@ -156,9 +156,9 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
-		case 'delete_plugin' :
+		case 'uninstall_plugin' :
 
-			$actions[$action] = _wprp_delete_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+			$actions[$action] = _wprp_uninstall_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
 
 		break;
 
