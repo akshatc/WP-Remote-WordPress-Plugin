@@ -128,15 +128,37 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'update_plugin' :
 		case 'upgrade_plugin' :
 
-			$actions[$action] = _wprp_upgrade_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+			$actions[$action] = _wprp_update_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+
+		break;
+
+		case 'install_plugin' :
+
+			$api_args = array(
+					'version'      => sanitize_text_field( (string)WPR_API_Request::get_arg( 'version' ) ),
+				);
+			$actions[$action] = _wprp_install_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ), $api_args );
 
 		break;
 
 		case 'activate_plugin' :
 
 			$actions[$action] = _wprp_activate_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+
+		break;
+
+		case 'deactivate_plugin' :
+
+			$actions[$action] = _wprp_deactivate_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+
+		break;
+
+		case 'uninstall_plugin' :
+
+			$actions[$action] = _wprp_uninstall_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
 
 		break;
 

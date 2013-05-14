@@ -61,74 +61,10 @@ if ( empty( $_GET['action'] ) || $_GET['action'] != 'do-core-upgrade' ) :
 
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
-	class WPRP_Plugin_Upgrader_Skin extends Plugin_Installer_Skin {
-
-		var $feedback;
-		var $error;
-
-		function error( $error ) {
-			$this->error = $error;
-		}
-
-		function feedback( $feedback ) {
-			$this->feedback = $feedback;
-		}
-
-		function before() { }
-
-		function after() { }
-
-		function header() { }
-
-		function footer() { }
-
-	}
-
-	class WPRP_Theme_Upgrader_Skin extends Theme_Installer_Skin {
-
-		var $feedback;
-		var $error;
-
-		function error( $error ) {
-			$this->error = $error;
-		}
-
-		function feedback( $feedback ) {
-			$this->feedback = $feedback;
-		}
-
-		function before() { }
-
-		function after() { }
-
-		function header() { }
-
-		function footer() { }
-
-	}
-
-	class WPRP_Core_Upgrader_Skin extends WP_Upgrader_Skin {
-
-		var $feedback;
-		var $error;
-
-		function error( $error ) {
-			$this->error = $error;
-		}
-
-		function feedback( $feedback ) {
-			$this->feedback = $feedback;
-		}
-
-		function before() { }
-
-		function after() { }
-
-		function header() { }
-
-		function footer() { }
-
-	}
+	// Custom upgrader skins
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-plugin-upgrader-skin.php';
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-theme-upgrader-skin.php';
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-core-upgrader-skin.php';
 
 endif;
 
