@@ -25,7 +25,7 @@ Author URI: http://hmn.md/
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-define( 'WPRP_PLUGIN_SLUG', 'wpremote' );
+define( 'WPRP_PLUGIN_SLUG', basename( dirname( __FILE__ ) ) );
 define( 'WPRP_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
 if ( ! defined( 'WPR_URL' ) )

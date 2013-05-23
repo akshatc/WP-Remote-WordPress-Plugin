@@ -25,18 +25,16 @@ function wprp_add_api_key_admin_notice() { ?>
 		<form method="post" action="options.php">
 
 			<p>
-
-				<strong>WP Remote is almost ready</strong>, <label style="vertical-align: baseline;" for="wpr_api_key">enter your API Key to continue</label>
+				<?php printf( __( '<strong>%s</strong>', 'wpremote' ), 'WP Remote is almost ready' ); ?>, <?php printf( __( '<label style="vertical-align: baseline;" for="wpr_api_key">%s</label>', 'wpremote' ), 'enter your API Key to continue' ); ?>
 
 				<input type="text" style="margin-left: 5px; margin-right: 5px; " class="code regular-text" id="wpr_api_key" name="wpr_api_key" />
 
-				<input type="submit" value="Save API Key" class="button-primary" />
+				<input type="submit" value="<?php esc_attr_e( 'Save API Key', 'wpremote' ); ?>" class="button-primary" />
 
 			</p>
 
 			<p>
-
-				<strong>Don't have a WP Remote account yet?</strong> <a href="<?php echo esc_url( wprp_get_wpr_url( '/register/' ) ); ?>" target="_blank">Sign up</a>, register your site, and report back once you've grabbed your API key.
+				<?php printf( __( '<strong>%s</strong>', 'wpremote' ), 'Don\'t have a WP Remote account yet?' ); ?> <a href="<?php echo esc_url( wprp_get_wpr_url( '/register/' ) ); ?>" target="_blank"><?php _e( 'Sign up', 'wpremote' ); ?></a><?php _e(', register your site, and report back once you\'ve grabbed your API key.', 'wpremote'); ?>
 
 			</p>
 
@@ -68,7 +66,11 @@ function wprp_api_key_added_admin_notice() {
 		return; ?>
 
 	<div id="wprp-message" class="updated">
-		<p><strong>WP Remote API Key successfully added</strong>, close this window to go back to <a href="<?php echo esc_url( wprp_get_wpr_url( '/app/' ) ); ?>">WP Remote</a>.</p>
+		<p></p>
+		<p>
+			<?php printf( __( '<strong>%s</strong> , %2$s ', 'wpremote' ),'WP Remote API Key successfully added', 'close this window to go back to' ); ?>
+			<?php printf( __( '<a href="%1$s">%2$s</a>.', 'wpremote' ), esc_url( wprp_get_wpr_url( '/app/' ) ), 'WP Remote' ); ?>
+		</p>
 	</div>
 
 <?php }
