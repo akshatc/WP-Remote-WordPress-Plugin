@@ -47,6 +47,7 @@ function wprp_add_api_key_admin_notice() { ?>
 			// Output any sections defined for page sl-settings
 			do_settings_sections( 'wpr-settings' ); ?>
 
+			<?php wp_nonce_field( 'wpremote-submit', 'nonce' ); ?>
 		</form>
 
 	</div>
@@ -64,7 +65,7 @@ if ( ! get_option( 'wpr_api_key' ) )
  */
 function wprp_api_key_added_admin_notice() {
 
-	if ( function_exists( 'get_current_screen' ) && get_current_screen()->base != 'plugins' || empty( $_GET['settings-updated'] ) || ! get_option( 'wpr_api_key' ) )
+	if ( function_exists( 'get_current_screen' ) && get_current_screen()->base != 'plugins' || empty( $_GET['settings-updated'] ) || ! get_option( 'wpr_api_key' ) || ! wp_verify_nonce('nonce', 'wpremote-submit') )
 		return; ?>
 
 	<div id="wprp-message" class="updated">
