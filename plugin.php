@@ -104,6 +104,15 @@ function wprp_catch_api_call() {
 }
 add_action( 'init', 'wprp_catch_api_call', 1 );
 
+/**
+ * Get the stored WPR API key
+ *
+ * @return mixed
+ */
+function wprp_get_api_key() {
+	return apply_filters( 'wpr_api_key', get_option( 'wpr_api_key' ) );
+}
+
 function wprp_plugin_update_check() {
 
 	$plugin_data = get_plugin_data( __FILE__ );

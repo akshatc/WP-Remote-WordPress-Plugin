@@ -8,7 +8,7 @@ class WPR_API_Request {
 	static function verify_request() {
 
 		// Check the API Key
-		if ( ! get_option( 'wpr_api_key' ) ) {
+		if ( ! wprp_get_api_key() ) {
 
 			echo json_encode( 'blank-api-key' );
 			exit;
@@ -44,7 +44,7 @@ class WPR_API_Request {
 
 	static function generate_hash( $vars ) {
 
-		$api_key = apply_filters( 'wpr_api_key', get_option( 'wpr_api_key' ) );
+		$api_key = wprp_get_api_key();
 		if ( ! $api_key )
 			return false;
 
