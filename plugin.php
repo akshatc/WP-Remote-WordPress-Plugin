@@ -109,8 +109,12 @@ add_action( 'init', 'wprp_catch_api_call', 1 );
  *
  * @return mixed
  */
-function wprp_get_api_key() {
-	return apply_filters( 'wpr_api_key', get_option( 'wpr_api_key' ) );
+function wprp_get_api_keys() {
+	$keys = apply_filters( 'wpr_api_keys', get_option( 'wpr_api_key' ) );
+	if ( ! empty( $keys ) )
+		return (array)$keys;
+	else
+		return array();
 }
 
 function wprp_plugin_update_check() {
