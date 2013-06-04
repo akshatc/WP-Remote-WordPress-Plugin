@@ -18,7 +18,7 @@ class WPR_API_Request {
 			$verify = $_POST['wpr_verify_key'];
 			unset( $_POST['wpr_verify_key'] );
 
-			$hash = self::generate_hash( $_POST );
+			$hash = self::generate_hashes( $_POST );
 
 			if ( ! in_array( $verify, $hash, true ) ) {
 				echo json_encode( 'bad-verify-key' );
@@ -42,7 +42,7 @@ class WPR_API_Request {
 
 	}
 
-	static function generate_hash( $vars ) {
+	static function generate_hashes( $vars ) {
 
 		$api_key = wprp_get_api_keys();
 		if ( ! $api_key )
