@@ -20,7 +20,7 @@ class WPR_API_Request {
 
 			$hash = self::generate_hash( $_POST );
 
-			if ( $hash !== $verify ) {
+			if ( ! in_array( $verify, $hash, true ) ) {
 				echo json_encode( 'bad-verify-key' );
 				exit;
 			}
@@ -44,8 +44,18 @@ class WPR_API_Request {
 
 	static function generate_hash( $vars ) {
 
-		$hash = hash_hmac( 'sha256', serialize( $vars ), get_option( 'wpr_api_key' ) );
-		return $hash;
+		$api_key = apply_filters( 'wpr_api_key', get_option( 'wpr_api_key' ) );
+		if ( ! $api_key )
+			return false;
+
+		if ( is_string( $api_key ) )
+			$api_key = array( $api_key );
+
+		$hashes = array();
+		foreach( $api_key as $key ) {
+			$hashes[] = hash_hmac( 'sha256', serialize( $vars ), $key );			
+		}
+		return $hashes;
 
 	}
 
