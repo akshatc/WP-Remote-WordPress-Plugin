@@ -41,7 +41,7 @@ function _wprp_get_themes() {
 	else
 		$current = get_option( 'update_themes' );
 
-	foreach ( (array) $themes as $theme ) {
+	foreach ( (array) $themes as $key => $theme ) {
 
 		// WordPress 3.4+
 		if ( is_object( $theme ) && is_a( $theme, 'WP_Theme' ) ) {
@@ -63,26 +63,26 @@ function _wprp_get_themes() {
 				'ThemeURI'	=> $theme->get( 'ThemeURI' )
 			);
 
-			$themes[$theme['Name']] = $theme_array;
+			$themes[$key] = $theme_array;
 
 		} else {
 
 			$new_version = isset( $current->response[$theme['Template']] ) ? $current->response[$theme['Template']]['new_version'] : null;
 
 			if ( $active == $theme['Name'] )
-				$themes[$theme['Name']]['active'] = true;
+				$themes[$key]['active'] = true;
 
 			else
-				$themes[$theme['Name']]['active'] = false;
+				$themes[$key]['active'] = false;
 
 			if ( $new_version ) {
 
-				$themes[$theme['Name']]['latest_version'] = $new_version;
-				$themes[$theme['Name']]['latest_package'] = $current->response[$theme['Template']]['package'];
+				$themes[$key]['latest_version'] = $new_version;
+				$themes[$key]['latest_package'] = $current->response[$theme['Template']]['package'];
 
 			} else {
 
-				$themes[$theme['Name']]['latest_version'] = $theme['Version'];
+				$themes[$key]['latest_version'] = $theme['Version'];
 
 			}
 		}
