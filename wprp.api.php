@@ -58,7 +58,7 @@ class WPR_API_Request {
 	}
 
 	static function get_arg( $arg ) {
-		return self::$args[$arg];
+		return ( isset( self::$args[$arg] ) ) ? self::$args[$arg] : '';
 	}
 }
 
