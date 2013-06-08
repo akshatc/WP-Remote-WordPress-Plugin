@@ -46,7 +46,7 @@ class WPR_API_Request {
 
 		$api_key = wprp_get_api_keys();
 		if ( ! $api_key )
-			return false;
+			return array();
 
 		$hashes = array();
 		foreach( $api_key as $key ) {
