@@ -10,8 +10,7 @@ class WPR_API_Request {
 		// Check the API Key
 		if ( ! get_option( 'wpr_api_key' ) ) {
 
-			echo json_encode( 'blank-api-key' );
-			exit;
+			return new WP_Error( 'blank-api-key' );
 
 		} elseif ( isset( $_POST['wpr_verify_key'] ) ) {
 
@@ -21,21 +20,18 @@ class WPR_API_Request {
 			$hash = self::generate_hash( $_POST );
 
 			if ( $hash !== $verify ) {
-				echo json_encode( 'bad-verify-key' );
-				exit;
+				return new WP_Error( 'bad-verify-key' );
 			}
 
 			if ( (int) $_POST['timestamp'] > time() + 360 || (int) $_POST['timestamp'] < time() - 360 ) {
-				echo json_encode( 'bad-timstamp' );
-				exit;	
+				return new WP_Error( 'bad-timestamp' );
 			}
 
 			self::$actions = $_POST['actions'];
 			self::$args = $_POST;
 
-
 		} else {
-			exit;
+			return new WP_Error( 'payload-not-present' );
 		}
 
 		return true;
@@ -60,149 +56,53 @@ class WPR_API_Request {
 	static function get_arg( $arg ) {
 		return ( isset( self::$args[$arg] ) ) ? self::$args[$arg] : '';
 	}
-}
 
-WPR_API_Request::verify_request();
+	static function handle_request() {
 
-// Disable error_reporting so they don't break the json request
-if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG )
-	error_reporting( 0 );
+		// Disable error_reporting so they don't break the json request
+		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG )
+			error_reporting( 0 );
 
-// Log in as admin
-// TODO what about if admin use doesn't exists?
-wp_set_current_user( 1 );
+		// Log in as admin
+		// TODO what about if admin use doesn't exists?
+		wp_set_current_user( 1 );
 
-$actions = array();
+		if ( is_wp_error( $error = self::verify_request() ) ) {
+			echo json_encode( $error->get_error_code() );
+			exit;
+		}
 
-foreach( WPR_API_Request::get_actions() as $action ) {
+		$response = array();
 
-	// TODO Instead should just fire actions which we hook into.
-	// TODO should namespace api methods?
-	switch( $action ) {
+		foreach ( self::get_actions() as $action ) {
 
-		// TODO should be dynamic
-		case 'get_plugin_version' :
+			$response[$action] = apply_filters( 'wpr_api_' . $action, 'not-implemented', self::get_args() );
 
-			$actions[$action] = '1.1';
+		}
 
-		break;
-
-		case 'get_filesystem_method' :
-
-			$actions[$action] = get_filesystem_method();
-
-		break;
-
-		case 'get_supported_filesystem_methods' :
-
-			$actions[$action] = array();
-
-			if ( extension_loaded( 'ftp' ) || extension_loaded( 'sockets' ) || function_exists( 'fsockopen' ) )
-				$actions[$action][] = 'ftp';
-
-			if ( extension_loaded( 'ftp' ) )
-				$actions[$action][] = 'ftps';
-
-			if ( extension_loaded( 'ssh2' ) && function_exists( 'stream_get_contents' ) )
-				$actions[$action][] = 'ssh';
-
-		break;
-
-		case 'get_wp_version' :
-
-			global $wp_version;
-
-			$actions[$action] = (string) $wp_version;
-
-		break;
-
-		case 'upgrade_core' :
-
-			$actions[$action] = _wprp_upgrade_core();
-
-		break;
-
-		case 'get_plugins' :
-
-			$actions[$action] = _wprp_supports_plugin_upgrade() ? _wprp_get_plugins() : 'not-implemented';
-
-		break;
-
-		case 'update_plugin' :
-		case 'upgrade_plugin' :
-
-			$actions[$action] = _wprp_update_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
-
-		break;
-
-		case 'install_plugin' :
-
-			$api_args = array(
-					'version'      => sanitize_text_field( (string)WPR_API_Request::get_arg( 'version' ) ),
-				);
-			$actions[$action] = _wprp_install_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ), $api_args );
-
-		break;
-
-		case 'activate_plugin' :
-
-			$actions[$action] = _wprp_activate_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
-
-		break;
-
-		case 'deactivate_plugin' :
-
-			$actions[$action] = _wprp_deactivate_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
-
-		break;
-
-		case 'uninstall_plugin' :
-
-			$actions[$action] = _wprp_uninstall_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
-
-		break;
-
-		case 'get_themes' :
-
-			$actions[$action] = _wprp_supports_theme_upgrade() ? _wprp_get_themes() : 'not-implemented';
-
-		break;
-
-		case 'upgrade_theme' :
-
-			$actions[$action] = _wprp_upgrade_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
-
-		break;
-
-		case 'do_backup' :
-		case 'delete_backup' :
-		case 'supports_backups' :
-		case 'get_backup' :
-			$actions[$action] = function_exists( '_wprp_get_backups_info' ) ? _wprp_backups_api_call( $action ) : 'not-implemented';
-
-		break;
-
-		case 'get_site_info' :
-
-			$actions[$action] = array(
-				'site_url'	=> get_site_url(),
-				'home_url'	=> get_home_url(),
-				'admin_url'	=> get_admin_url(),
-				'backups'	=> function_exists( '_wprp_get_backups_info' ) ? _wprp_get_backups_info() : array()
-			);
-
-		break;
-
-		default :
-
-			$actions[$action] = 'not-implemented';
-
-		break;
+		echo json_encode( $actions );
+		exit;
 
 	}
-
 }
 
-echo json_encode( $actions );
-
-exit;
+add_filter( 'wpr_api_upgrade_core', 		'_wprp_upgrade_core' );
+add_filter( 'wpr_api_get_site_info', 		'_wprp_get_site_info' );
+add_filter( 'wpr_api_get_plugin_version', 	'_wprp_get_plugin_version' );
+add_filter( 'wpr_api_get_filesystem_method','_wprp_get_filesystem_method' );
+add_filter( 'wpr_api_get_supported_filesystem_methods', '_wprp_get_supported_filesystem_methods' );
+add_filter( 'wpr_api_get_wp_version', 		'_wprp_get_wp_version' );
+add_filter( 'wpr_api_get_plugins', 			'_wprp_get_plugins' );
+add_filter( 'wpr_api_upgrade_plugin', 		'_wprp_update_plugin' );
+add_filter( 'wpr_api_update_plugin', 		'_wprp_update_plugin' );
+add_filter( 'wpr_api_install_plugin', 		'_wprp_install_plugin' );
+add_filter( 'wpr_api_activate_plugin', 		'_wprp_activate_plugin' );
+add_filter( 'wpr_api_deactivate_plugin', 	'_wprp_deactivate_plugin' );
+add_filter( 'wpr_api_uninstall_plugin', 	'_wprp_uninstall_plugin' );
+add_filter( 'wpr_api_get_themes',		 	'_wprp_get_themes' );
+add_filter( 'wpr_api_upgrade_theme',		'_wprp_upgrade_theme' );
+add_filter( 'wpr_api_do_backup',			'_wprp_do_backup' );
+add_filter( 'wpr_api_delete_backup',		'_wprp_delete_backup' );
+add_filter( 'wpr_api_supports_backups',		'_wprp_supports_backups' );
+add_filter( 'wpr_api_get_backup',			'_wprp_get_backup' );
+add_filter( 'wpr_api_upgrade_theme',		'_wprp_upgrade_theme' );
