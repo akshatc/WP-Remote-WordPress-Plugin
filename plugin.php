@@ -223,3 +223,60 @@ function _wpr_set_filesystem_credentials( $credentials ) {
 	return $_credentials;
 }
 add_filter( 'request_filesystem_credentials', '_wpr_set_filesystem_credentials' );
+
+/**
+ * Get the site info
+ */
+function _wprp_get_site_info( $response = null ) {
+
+	return array(
+		'site_url'	=> get_site_url(),
+		'home_url'	=> get_home_url(),
+		'admin_url'	=> get_admin_url(),
+		'backups'	=> function_exists( '_wprp_get_backups_info' ) ? _wprp_get_backups_info() : array()
+	);
+}
+
+/**
+ * Get the wp remote plugin version
+ */
+function _wprp_get_plugin_version( $response = null ) {
+
+	// TODO should be dynamic
+	return '1.1';
+}
+
+/**
+ * Get the file system method version
+ */
+function _wprp_get_filesystem_method( $response = null ) {
+
+	return get_filesystem_method();
+}
+
+/**
+ * Get the file supported system methods
+ */
+function _wprp_get_supported_filesystem_methods( $response = null ) {
+
+	$response = array();
+
+	if ( extension_loaded( 'ftp' ) || extension_loaded( 'sockets' ) || function_exists( 'fsockopen' ) )
+		$response[] = 'ftp';
+
+	if ( extension_loaded( 'ftp' ) )
+		$response[] = 'ftps';
+
+	if ( extension_loaded( 'ssh2' ) && function_exists( 'stream_get_contents' ) )
+		$response[] = 'ssh';
+
+	return $response;
+}
+
+/**
+ * Get the wp remote wp version
+ */
+function _wprp_get_wp_version( $response = null ) {
+	global $wp_version;
+	return (string) $wp_version;
+}
