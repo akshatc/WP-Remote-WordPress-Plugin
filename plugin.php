@@ -99,8 +99,7 @@ function wprp_catch_api_call() {
 
 	require_once( WPRP_PLUGIN_PATH . '/wprp.api.php' );
 
-	exit;
-
+	WPR_API_Request::handle_request();
 }
 add_action( 'init', 'wprp_catch_api_call', 1 );
 
