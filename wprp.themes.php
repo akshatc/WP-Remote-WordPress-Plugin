@@ -97,7 +97,9 @@ function _wprp_get_themes() {
  * @param mixed $theme
  * @return array
  */
-function _wprp_upgrade_theme( $theme ) {
+function _wprp_upgrade_theme( $response, $args ) {
+
+	$theme = $args['theme'];
 
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 

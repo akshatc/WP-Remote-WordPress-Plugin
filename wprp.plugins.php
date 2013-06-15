@@ -67,10 +67,13 @@ function _wprp_get_plugins() {
  * Update a plugin
  *
  * @access private
+ * @param $response - reponse object for the api
  * @param mixed $plugin
  * @return array
  */
-function _wprp_update_plugin( $plugin ) {
+function _wprp_update_plugin( $response, $args ) {
+
+	$plugin = $args['plugin'];
 
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 
@@ -146,7 +149,9 @@ function _wprp_update_plugin( $plugin ) {
 /**
  * Install a plugin on this site
  */
-function _wprp_install_plugin( $plugin, $args = array() ) {
+function _wprp_install_plugin( $response, $args = array() ) {
+
+	$plugin = $args['plugin'];
 
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -180,7 +185,9 @@ function _wprp_install_plugin( $plugin, $args = array() ) {
 	return array( 'status' => 'success' );
 }
 
-function _wprp_activate_plugin( $plugin ) {
+function _wprp_activate_plugin( $response, $args ) {
+
+	$plugin = $args['plugin'];
 
 	include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
@@ -195,8 +202,10 @@ function _wprp_activate_plugin( $plugin ) {
 /**
  * Deactivate a plugin on this site.
  */
-function _wprp_deactivate_plugin( $plugin ) {
+function _wprp_deactivate_plugin( $response, $args ) {
 
+	$plugin = $args['plugin'];
+	_wprp_uninstall_plugin
 	include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 	$result = deactivate_plugins( $plugin );
@@ -210,7 +219,10 @@ function _wprp_deactivate_plugin( $plugin ) {
 /**
  * Uninstall a plugin on this site.
  */
-function _wprp_uninstall_plugin( $plugin ) {
+function _wprp_uninstall_plugin( $response, $args ) {
+
+	$plugin = $args['plugin'];
+	
 	global $wp_filesystem;
 
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
