@@ -10,8 +10,7 @@ class WPR_API_Request {
 		// Check the API Key
 		if ( ! get_option( 'wpr_api_key' ) ) {
 
-			echo json_encode( 'blank-api-key' );
-			exit;
+			return new WP_Error( 'blank-api-key' );
 
 		} elseif ( isset( $_POST['wpr_verify_key'] ) ) {
 
@@ -21,21 +20,18 @@ class WPR_API_Request {
 			$hash = self::generate_hash( $_POST );
 
 			if ( $hash !== $verify ) {
-				echo json_encode( 'bad-verify-key' );
-				exit;
+				return new WP_Error( 'bad-verify-key' );
 			}
 
 			if ( (int) $_POST['timestamp'] > time() + 360 || (int) $_POST['timestamp'] < time() - 360 ) {
-				echo json_encode( 'bad-timstamp' );
-				exit;	
+				return new WP_Error( 'bad-timestamp' );
 			}
 
 			self::$actions = $_POST['actions'];
 			self::$args = $_POST;
 
-
 		} else {
-			exit;
+			return new WP_Error( 'payload-not-present' );
 		}
 
 		return true;
