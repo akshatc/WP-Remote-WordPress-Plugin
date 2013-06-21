@@ -3,7 +3,7 @@
 /**
  * Generic file and database backup class
  *
- * @version 2.2
+ * @version 2.3
  */
 class WPRP_HM_Backup {
 
@@ -197,7 +197,7 @@ class WPRP_HM_Backup {
 
 		// If site_url contains home_url and they differ then assume WordPress is installed in a sub directory
 		if ( $home_url !== $site_url && strpos( $site_url, $home_url ) === 0 )
-			$home_path = trailingslashit( substr( ABSPATH, 0, strrpos( ABSPATH, str_replace( $home_url, '', $site_url ) ) ) );
+			$home_path = trailingslashit( substr( self::conform_dir( ABSPATH ), 0, strrpos( self::conform_dir( ABSPATH ), str_replace( $home_url, '', $site_url ) ) ) );
 
 		return self::conform_dir( $home_path );
 
@@ -660,7 +660,7 @@ class WPRP_HM_Backup {
 		$cmd .= ' --no-create-db';
 
 		// Allow lock-tables to be overridden
-		if ( defined( 'HMBKP_MYSQLDUMP_SINGLE_TRANSACTION' ) && HMBKP_MYSQLDUMP_SINGLE_TRANSACTION )
+		if ( ! defined( 'HMBKP_MYSQLDUMP_SINGLE_TRANSACTION' ) || HMBKP_MYSQLDUMP_SINGLE_TRANSACTION !== false )
 			$cmd .= ' --single-transaction';
 
 		// Make sure binary data is exported properly
@@ -692,8 +692,14 @@ class WPRP_HM_Backup {
 		// Store any returned data in an error
 		$stderr = shell_exec( $cmd );
 
-		if ( $stderr )
+		// Skip the new password warning that is output in mysql > 5.6 (@see http://bugs.mysql.com/bug.php?id=66546)
+		if ( trim( $stderr ) === 'Warning: Using a password on the command line interface can be insecure.' ) {
+			$stderr = '';
+		}
+
+		if ( $stderr ) {
 			$this->error( $this->get_mysqldump_method(), $stderr );
+		}
 
 		$this->verify_mysqldump();
 
@@ -712,7 +718,7 @@ class WPRP_HM_Backup {
 
 		$this->do_action( 'hmbkp_mysqldump_started' );
 
-	    $this->db = mysql_pconnect( DB_HOST, DB_USER, DB_PASSWORD );
+	    $this->db = @mysql_pconnect( DB_HOST, DB_USER, DB_PASSWORD );
 
 	    if ( ! $this->db )
 	    	$this->db = mysql_connect( DB_HOST, DB_USER, DB_PASSWORD );
@@ -721,7 +727,9 @@ class WPRP_HM_Backup {
 	    	return;
 
 	    mysql_select_db( DB_NAME, $this->db );
-	    mysql_set_charset( DB_CHARSET, $this->db );
+
+	    if ( function_exists( 'mysql_set_charset') )
+	    	mysql_set_charset( DB_CHARSET, $this->db );
 
 	    // Begin new backup of MySql
 	    $tables = mysql_query( 'SHOW TABLES' );
@@ -982,11 +990,22 @@ class WPRP_HM_Backup {
 
 		$this->files = array();
 
-		if ( defined( 'RecursiveDirectoryIterator::FOLLOW_SYMLINKS' ) )
+		// We only want to use the RecursiveDirectoryIterator if the FOLLOW_SYMLINKS flag is available
+		if ( defined( 'RecursiveDirectoryIterator::FOLLOW_SYMLINKS' ) ) {
+
 			$this->files = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $this->get_root(), RecursiveDirectoryIterator::FOLLOW_SYMLINKS ), RecursiveIteratorIterator::SELF_FIRST, RecursiveIteratorIterator::CATCH_GET_CHILD );
 
-		else
+			// Skip dot files if the SKIP_Dots flag is available
+			if ( defined( 'RecursiveDirectoryIterator::SKIP_DOTS' ) )
+				$this->files->setFlags( RecursiveDirectoryIterator::SKIP_DOTS + RecursiveDirectoryIterator::FOLLOW_SYMLINKS );
+
+
+		// If RecursiveDirectoryIterator::FOLLOW_SYMLINKS isn't available then fallback to a less memory efficient method
+		} else {
+
 			$this->files = $this->get_files_fallback( $this->get_root() );
+
+		}
 
 		return $this->files;
 
