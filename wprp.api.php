@@ -8,7 +8,7 @@ class WPR_API_Request {
 	static function verify_request() {
 
 		// Check the API Key
-		if ( ! get_option( 'wpr_api_key' ) ) {
+		if ( ! wprp_get_api_keys() ) {
 
 			echo json_encode( 'blank-api-key' );
 			exit;
@@ -18,9 +18,9 @@ class WPR_API_Request {
 			$verify = $_POST['wpr_verify_key'];
 			unset( $_POST['wpr_verify_key'] );
 
-			$hash = self::generate_hash( $_POST );
+			$hash = self::generate_hashes( $_POST );
 
-			if ( $hash !== $verify ) {
+			if ( ! in_array( $verify, $hash, true ) ) {
 				echo json_encode( 'bad-verify-key' );
 				exit;
 			}
@@ -42,10 +42,17 @@ class WPR_API_Request {
 
 	}
 
-	static function generate_hash( $vars ) {
+	static function generate_hashes( $vars ) {
 
-		$hash = hash_hmac( 'sha256', serialize( $vars ), get_option( 'wpr_api_key' ) );
-		return $hash;
+		$api_key = wprp_get_api_keys();
+		if ( ! $api_key )
+			return array();
+
+		$hashes = array();
+		foreach( $api_key as $key ) {
+			$hashes[] = hash_hmac( 'sha256', serialize( $vars ), $key );			
+		}
+		return $hashes;
 
 	}
 

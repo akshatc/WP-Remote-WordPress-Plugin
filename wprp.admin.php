@@ -54,7 +54,7 @@ function wprp_add_api_key_admin_notice() { ?>
 
 <?php }
 
-if ( ! get_option( 'wpr_api_key' ) )
+if ( ! wprp_get_api_keys() )
 	add_action( 'admin_notices', 'wprp_add_api_key_admin_notice' );
 
 /**
@@ -64,7 +64,7 @@ if ( ! get_option( 'wpr_api_key' ) )
  */
 function wprp_api_key_added_admin_notice() {
 
-	if ( function_exists( 'get_current_screen' ) && get_current_screen()->base != 'plugins' || empty( $_GET['settings-updated'] ) || ! get_option( 'wpr_api_key' ) )
+	if ( function_exists( 'get_current_screen' ) && get_current_screen()->base != 'plugins' || empty( $_GET['settings-updated'] ) || ! wprp_get_api_keys() )
 		return; ?>
 
 	<div id="wprp-message" class="updated">
