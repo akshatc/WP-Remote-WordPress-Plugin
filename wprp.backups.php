@@ -133,7 +133,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 			}
 
-			return str_replace( WP_CONTENT_DIR, WP_CONTENT_URL, $backup );
+			return str_replace( parent::conform_dir( WP_CONTENT_DIR ), WP_CONTENT_URL, $backup );
 
 		}
 
