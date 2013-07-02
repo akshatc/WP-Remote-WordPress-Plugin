@@ -31,6 +31,10 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### 2.6.1
+
+* Update `HM Backup` to v2.3
+
 #### 2.6
 
 * Change to using better hmac style authentication
