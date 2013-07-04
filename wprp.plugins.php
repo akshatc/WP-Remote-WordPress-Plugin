@@ -134,10 +134,10 @@ function _wprp_update_plugin( $plugin ) {
 		$json = $json->activate_plugin;
 
 		if ( empty( $json->status ) )
-			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate. The activation reuest returned no response' );
+			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate. The activation request returned no response' );
 
 		if ( $json->status != 'success' )
-			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate. The activation reuest returned response: ' . $json->status );
+			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate. The activation request returned response: ' . $json->status );
 	}
 
 	return array( 'status' => 'success' );
