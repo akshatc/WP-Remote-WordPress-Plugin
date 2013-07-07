@@ -136,9 +136,20 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		break;
 
 		case 'update_plugin' :
+		case 'update_plugin_multi':
 		case 'upgrade_plugin' : // 'upgrade' is deprecated language
 
-			$actions[$action] = _wprp_update_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+			if ( in_array( $action, array( 'update_plugin', 'upgrade_plugin' ) ) )
+				$plugins = array( WPR_API_Request::get_arg( 'plugin' ) );
+			else
+				$plugins = WPR_API_Request::get_arg( 'plugin' );
+
+			$results = array();
+			foreach( $plugins as $plugin ) {
+				$results[] = _wprp_update_plugin( (string) sanitize_text_field( $plugin ) );
+			}
+
+			$actions[$action] = wprp_get_singular_result( $results );
 
 		break;
 

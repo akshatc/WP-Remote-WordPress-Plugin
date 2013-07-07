@@ -47,6 +47,7 @@ if ( version_compare( phpversion(), '5.2.4', '<' ) ) {
 
 require_once( WPRP_PLUGIN_PATH . '/wprp.admin.php' );
 require_once( WPRP_PLUGIN_PATH . '/wprp.compatability.php' );
+require_once( WPRP_PLUGIN_PATH . '/wprp.utils.php' );
 
 // Backups require 3.1
 if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
