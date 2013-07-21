@@ -175,6 +175,12 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'delete_theme':
+
+			$actions[$action] = _wprp_delete_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
+
+		break;
+
 		case 'upgrade_theme' :
 
 			$actions[$action] = _wprp_upgrade_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );

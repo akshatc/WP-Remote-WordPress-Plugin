@@ -133,6 +133,39 @@ function _wprp_upgrade_theme( $theme ) {
 }
 
 /**
+ * Delete a theme.
+ *
+ * @param mixed $theme
+ * @return array
+ */
+function _wprp_delete_theme( $theme ) {
+	global $wp_filesystem;
+
+	include_once ABSPATH . 'wp-admin/includes/admin.php';
+	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	include_once ABSPATH . 'wp-includes/update.php';
+
+	if ( ! _wpr_check_filesystem_access() || ! WP_Filesystem() )
+		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );
+
+	$themes_dir = $wp_filesystem->wp_themes_dir();
+	if ( empty( $themes_dir ) )
+		return array( 'status' => 'error', 'error' => 'Unable to locate WordPress theme directory.' );
+
+	$themes_dir = trailingslashit( $themes_dir );
+	$theme_dir = trailingslashit( $themes_dir . $theme );
+	$deleted = $wp_filesystem->delete( $theme_dir, true );
+
+	if ( ! $deleted )
+		return array( 'status' => 'error', 'error' => sprintf( 'Could not fully delete the theme: %s.', $theme ) );
+
+	// Force refresh of theme update information
+	delete_site_transient('update_themes');
+
+	return array( 'status' => 'success' );
+}
+
+/**
  * Check if the site can support theme upgrades
  *
  * @todo should probably check if we have direct filesystem access
