@@ -92,6 +92,46 @@ function _wprp_get_themes() {
 }
 
 /**
+ * Install a theme
+ *
+ * @param mixed $theme
+ * @return array
+ */
+function _wprp_install_theme( $theme, $args = array() ) {
+
+	include_once ABSPATH . 'wp-admin/includes/admin.php';
+	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	include_once ABSPATH . 'wp-includes/update.php';
+
+	// Access the themes_api() helper function
+	include_once ABSPATH . 'wp-admin/includes/theme-install.php';
+	$api_args = array(
+		'slug' => $theme,
+		'fields' => array( 'sections' => false )
+		);
+	$api = themes_api( 'theme_information', $api_args );
+
+	if ( is_wp_error( $api ) )
+		return array( 'status' => 'error', 'error' => $api->get_error_code() );
+
+	$skin = new WPRP_Theme_Upgrader_Skin();
+	$upgrader = new Theme_Upgrader( $skin );
+
+	// The best way to get a download link for a specific version :(
+	// Fortunately, we can depend on a relatively consistent naming pattern
+	if ( ! empty( $args['version'] ) && 'stable' != $args['version'] )
+		$api->download_link = str_replace( $api->version . '.zip', $args['version'] . '.zip', $api->download_link );
+
+	$result = $upgrader->install( $api->download_link );
+	if ( is_wp_error( $result ) )
+		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+	else if ( ! $result )
+		return array( 'status' => 'error', 'error' => 'Unknown error installing theme.' );
+
+	return array( 'status' => 'success' );
+}
+
+/**
  * Update a theme
  *
  * @param mixed $theme

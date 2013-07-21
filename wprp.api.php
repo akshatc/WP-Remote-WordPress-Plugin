@@ -175,15 +175,24 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
-		case 'delete_theme':
+		case 'install_theme':
 
-			$actions[$action] = _wprp_delete_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
+			$api_args = array(
+					'version'      => sanitize_text_field( (string)WPR_API_Request::get_arg( 'version' ) ),
+				);
+			$actions[$action] = _wprp_install_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ), $api_args );
 
 		break;
 
 		case 'upgrade_theme' :
 
 			$actions[$action] = _wprp_upgrade_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
+
+		break;
+
+		case 'delete_theme':
+
+			$actions[$action] = _wprp_delete_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
 
 		break;
 
