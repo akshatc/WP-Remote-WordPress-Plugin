@@ -135,6 +135,21 @@ function _wprp_install_theme( $theme, $args = array() ) {
 }
 
 /**
+ * Activate a theme
+ *
+ * @param mixed $theme
+ * @return array
+ */
+function _wprp_activate_theme( $theme ) {
+
+	if ( ! wp_get_theme( $theme )->exists() )
+		return array( 'status' => 'error', 'error' => 'Theme is not installed.' );
+
+	switch_theme( $theme );
+	return array( 'status' => 'success' );
+}
+
+/**
  * Update a theme
  *
  * @param mixed $theme
