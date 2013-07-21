@@ -155,7 +155,7 @@ function _wprp_activate_theme( $theme ) {
  * @param mixed $theme
  * @return array
  */
-function _wprp_upgrade_theme( $theme ) {
+function _wprp_update_theme( $theme ) {
 
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 

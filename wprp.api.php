@@ -190,9 +190,10 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
-		case 'upgrade_theme' :
+		case 'update_theme' :
+		case 'upgrade_theme' : // 'upgrade' is deprecated
 
-			$actions[$action] = _wprp_upgrade_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
+			$actions[$action] = _wprp_update_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
 
 		break;
 
