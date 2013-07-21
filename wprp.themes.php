@@ -99,6 +99,9 @@ function _wprp_get_themes() {
  */
 function _wprp_install_theme( $theme, $args = array() ) {
 
+	if ( wp_get_theme( $theme )->exists() )
+		return array( 'status' => 'error', 'error' => 'Theme is already installed.' );
+
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	include_once ABSPATH . 'wp-includes/update.php';
@@ -180,6 +183,9 @@ function _wprp_upgrade_theme( $theme ) {
  */
 function _wprp_delete_theme( $theme ) {
 	global $wp_filesystem;
+
+	if ( ! wp_get_theme( $theme )->exists() )
+		return array( 'status' => 'error', 'error' => 'Theme is not installed.' );
 
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
