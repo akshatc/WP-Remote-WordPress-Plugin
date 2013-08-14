@@ -296,7 +296,8 @@ function _wpr_get_gravity_form_plugin_data() {
         return false;
 
     $version_data  = GFCommon::get_version_info();
-    $plugin_data   = reset( RGForms::premium_update_push( array() ) );
+    $gravity_forms_update = RGForms::premium_update_push( array() );
+    $plugin_data   = reset( $gravity_forms_update );
 
     if ( empty( $version_data['url'] ) || empty( $version_data['is_valid_key'] ) || empty( $plugin_data['new_version'] ) || empty( $plugin_data['PluginURI'] ) || empty( $plugin_data['slug'] ) )
         return false;
