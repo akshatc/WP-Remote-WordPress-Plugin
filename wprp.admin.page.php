@@ -1,7 +1,7 @@
 		<style>
-    #wprp_form input[type="text"] { width:100% }
+    #wprp_form input[type="text"] { width:100%;-webkit-box-shadow:0px 0px 5px 1px rgba(128,128,255,1);box-shadow:0px 0px 5px 1px rgba(128,128,255,1); }
     #wprp_form .widefat tbody th.check-column { padding-bottom:9px }
-    #wprp_form tr.matched { background:#CDF9CD }
+    #wprp_form input.error { -webkit-box-shadow:0px 0px 5px 1px rgba(255,64,64,1);box-shadow:0px 0px 5px 1px rgba(255,64,64,1); }
     </style>
 <?php
 
@@ -79,9 +79,11 @@ foreach( $wprp as $k => $v ){
 $k = count( $wprp );
 ?>
             <tr>
-              <th scope="row">&nbsp;</th>
+              <th scope="row" class="check-column">
+                <input type="checkbox" name="wprp_select[]" value="1" />
+              </th>
               <td>
-                <label for="wprp_apikey[<?php echo $k; ?>]"><input type="text" name="wprp_apikey[<?php echo $k; ?>]" id="wprp_apikey_<?php echo $k; ?>" value="" /></label>
+                <label for="wprp_apikey[]"><input type="text" name="wprp_apikey[]" value="" /></label>
               </td>
             </tr>
           </tbody>
@@ -91,4 +93,37 @@ $k = count( $wprp );
 				</p>
 			</form>
 		</div>
+    <script type="text/javascript">
+    var $wprp ,
+        $wprp_newrow ,
+        $wprp_fields ,
+        $wprp_last;
+    jQuery(document).ready(function($){
+    
+      $wprp         = $('#the-list');
+      $wprp_newrow  = $('tr:last',$wprp).clone();
+      $wprp_fields  = $('input[type="text"]',$wprp);
+      $wprp_last    = $('tr:last input[type="text"]',$wprp)
+
+      $wprp
+        .on('blur','input[type="text"]',function(){
+          var $t = $(this) ,
+              $tr = $t.closest('tr');
+          console.log( ( $tr.index()+1 ) , $('tr',$wprp).length );
+          if( ( $tr.index()+1 )!=$('tr',$wprp).length && !$t.val() )
+            $tr
+              .slideUp('normal',function(){
+                $(this).remove();
+              });
+        });
+      $('#the-list tr:last input[type="text"]')
+        .on('keydown change',function(){
+          var $t = $(this) ,
+              $input = $('input[type="text"]',$t);
+          if( $input.val() )
+            $('#the-list').append($wprp_newrow);
+        });
+    
+    });
+    </script>
 	
