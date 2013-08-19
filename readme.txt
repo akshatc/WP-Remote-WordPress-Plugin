@@ -35,6 +35,7 @@ You can email us at support@wpremote.com for support.
 
 * Add multiple API keys to your WP Remote plugin with a `wpr_api_keys` filter if you'd like to use more than WP Remote account with the site.
 * Update `HM Backup` to v2.3
+* Bug fix: Properly handle timestamp values in database backups.
 
 #### 2.6
 
