@@ -127,7 +127,7 @@ function _wprp_install_theme( $theme, $args = array() ) {
 
 	$result = $upgrader->install( $api->download_link );
 	if ( is_wp_error( $result ) )
-		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+		return $result;
 	else if ( ! $result )
 		return array( 'status' => 'error', 'error' => 'Unknown error installing theme.' );
 
