@@ -7,10 +7,10 @@ function wprp_get_incompatible_plugins() {
 
 	// Plugins to check for.
 	$security_plugins = array(
-		'BulletProof Security',
-		'Wordfence Security',
-		'Better WP Security',
-		'Wordpress Firewall 2'
+		__( 'BulletProof Security', 'wpremote' ),
+		__( 'Wordfence Security', 'wpremote' ),
+		__( 'Better WP Security', 'wpremote' ),
+		__( 'Wordpress Firewall 2', 'wpremote' )
 	);
 
 	$active_plugins = get_option( 'active_plugins', array() );
@@ -45,13 +45,13 @@ function wprp_security_admin_notice() {
 
 		<div class="error">
 
-			<a class="close-button button" style="float: right; margin-top: 4px; color: inherit; text-decoration: none; " href="<?php echo add_query_arg( 'wpr_dismiss_plugin_warning', $plugin_path ); ?>">Don't show again</a>
+			<a class="close-button button" style="float: right; margin-top: 4px; color: inherit; text-decoration: none; " href="<?php echo add_query_arg( 'wpr_dismiss_plugin_warning', $plugin_path ); ?>"><?php _e( 'Don\'t show again','wpremote' ); ?></a>
 
 			<p>
 
-				The plugin <strong><?php echo esc_attr( $plugin_name ); ?></strong> may cause issues with WP Remote.
+				<?php _e( 'The plugin', 'wpremote' );?> <strong><?php echo esc_attr( $plugin_name ); ?></strong> <?php _e( 'may cause issues with WP Remote.', 'wpremote' ); ?>
 
-				<a href="https://wpremote.com/support-center/troubleshooting/my-site-is-showing-up-as-red/#<?php echo esc_attr( $plugin_name ); ?>" alt="WPRemote Support Center"> Click here for instructions on how to resolve this issue </a>
+				<a href="https://wpremote.com/support-center/troubleshooting/my-site-is-showing-up-as-red/#<?php echo esc_attr( $plugin_name ); ?>" alt="WPRemote Support Center"> <?php _e( 'Click here for instructions on how to resolve this issue', 'wpremote' ); ?> </a>
 
 			</p>
 

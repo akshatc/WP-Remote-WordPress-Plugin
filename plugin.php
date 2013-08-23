@@ -34,6 +34,9 @@ if ( ! defined( 'WPR_URL' ) )
 if ( ! defined( 'WPR_API_URL' ) )
 	define( 'WPR_API_URL', 'https://wpremote.com/api/json/' );
 
+if ( ! defined( 'WPR_LANG_DIR' ) )
+	define( 'WPR_LANG_DIR', apply_filters( 'wpr_filter_lang_dir', trailingslashit( WPRP_PLUGIN_PATH ) . trailingslashit( 'languages' ) ) );
+
 // Don't activate on anything less than PHP 5.2.4
 if ( version_compare( phpversion(), '5.2.4', '<' ) ) {
 
@@ -174,7 +177,7 @@ function _wprp_upgrade_core()  {
 
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
-		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );
+		return array( 'status' => 'error', 'error' => __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
 	// force refresh
 	wp_version_check();
@@ -237,3 +240,31 @@ function _wpr_set_filesystem_credentials( $credentials ) {
 	return $_credentials;
 }
 add_filter( 'request_filesystem_credentials', '_wpr_set_filesystem_credentials' );
+
+/**
+ *
+ */
+function wprp_translations_init() {
+
+	if ( is_admin() ) {
+
+		/** Set unique textdomain string */
+		$wprp_textdomain = 'wpremote';
+
+		/** The 'plugin_locale' filter is also used by default in load_plugin_textdomain() */
+		$plugin_locale = apply_filters( 'plugin_locale', get_locale(), $wprp_textdomain );
+
+		/** Set filter for WordPress languages directory */
+		$wprp_wp_lang_dir = apply_filters(
+			'wprp_filter_wp_lang_dir',
+				trailingslashit( WP_LANG_DIR ) . trailingslashit( 'genesis-layout-extras' ) . $wprp_textdomain . '-' . $plugin_locale . '.mo'
+		);
+
+		/** Translations: First, look in WordPress' "languages" folder = custom & update-secure! */
+		load_textdomain( $wprp_textdomain, $wprp_wp_lang_dir );
+
+		/** Translations: Secondly, look in plugin's "languages" folder = default */
+		load_plugin_textdomain( $wprp_textdomain, FALSE, WPR_LANG_DIR );
+	}
+}
+add_action( 'plugins_loaded', 'wprp_translations_init' );
