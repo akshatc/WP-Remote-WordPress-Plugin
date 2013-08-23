@@ -49,18 +49,17 @@ function _wprp_get_themes() {
 			$new_version = isset( $current->response[$theme['Template']] ) ? $current->response[$theme['Template']]['new_version'] : null;
 
 			$theme_array = array(
-				'Name' 		=> $theme->get( 'Name' ),
-				'Template' 	=> $theme->get( 'Template' ),
-				'active'	=> $active == $theme->get( 'Name' ),
-				'Stylesheet' => $theme->get( 'Stylesheet' ),
-				'Template' 	=> $theme->get_template(),
-				'Stylesheet'=> $theme->get_stylesheet(),
-				'Screenshot'=> $theme->get_screenshot(),
-				'AuthorURI'=> $theme->get( 'AuthorURI' ),
-				'Author'	=> $theme->get( 'Author' ),
+				'Name'           => $theme->get( 'Name' ),
+				'Template'       => $theme->get( 'Template' ),
+				'active'         => $active == $theme->get( 'Name' ),
+				'Template'       => $theme->get_template(),
+				'Stylesheet'     => $theme->get_stylesheet(),
+				'Screenshot'     => $theme->get_screenshot(),
+				'AuthorURI'      => $theme->get( 'AuthorURI' ),
+				'Author'         => $theme->get( 'Author' ),
 				'latest_version' => $new_version ? $new_version : $theme->get( 'Version' ),
-				'Version'	=> $theme->get( 'Version' ),
-				'ThemeURI'	=> $theme->get( 'ThemeURI' )
+				'Version'        => $theme->get( 'Version' ),
+				'ThemeURI'       => $theme->get( 'ThemeURI' )
 			);
 
 			$themes[$key] = $theme_array;
