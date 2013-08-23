@@ -92,12 +92,70 @@ function _wprp_get_themes() {
 }
 
 /**
+ * Install a theme
+ *
+ * @param mixed $theme
+ * @return array
+ */
+function _wprp_install_theme( $theme, $args = array() ) {
+
+	if ( wp_get_theme( $theme )->exists() )
+		return array( 'status' => 'error', 'error' => 'Theme is already installed.' );
+
+	include_once ABSPATH . 'wp-admin/includes/admin.php';
+	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	include_once ABSPATH . 'wp-includes/update.php';
+
+	// Access the themes_api() helper function
+	include_once ABSPATH . 'wp-admin/includes/theme-install.php';
+	$api_args = array(
+		'slug' => $theme,
+		'fields' => array( 'sections' => false )
+		);
+	$api = themes_api( 'theme_information', $api_args );
+
+	if ( is_wp_error( $api ) )
+		return array( 'status' => 'error', 'error' => $api->get_error_code() );
+
+	$skin = new WPRP_Theme_Upgrader_Skin();
+	$upgrader = new Theme_Upgrader( $skin );
+
+	// The best way to get a download link for a specific version :(
+	// Fortunately, we can depend on a relatively consistent naming pattern
+	if ( ! empty( $args['version'] ) && 'stable' != $args['version'] )
+		$api->download_link = str_replace( $api->version . '.zip', $args['version'] . '.zip', $api->download_link );
+
+	$result = $upgrader->install( $api->download_link );
+	if ( is_wp_error( $result ) )
+		return $result;
+	else if ( ! $result )
+		return array( 'status' => 'error', 'error' => 'Unknown error installing theme.' );
+
+	return array( 'status' => 'success' );
+}
+
+/**
+ * Activate a theme
+ *
+ * @param mixed $theme
+ * @return array
+ */
+function _wprp_activate_theme( $theme ) {
+
+	if ( ! wp_get_theme( $theme )->exists() )
+		return array( 'status' => 'error', 'error' => 'Theme is not installed.' );
+
+	switch_theme( $theme );
+	return array( 'status' => 'success' );
+}
+
+/**
  * Update a theme
  *
  * @param mixed $theme
  * @return array
  */
-function _wprp_upgrade_theme( $theme ) {
+function _wprp_update_theme( $theme ) {
 
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 
@@ -130,6 +188,42 @@ function _wprp_upgrade_theme( $theme ) {
 
 	return array( 'status' => 'success' );
 
+}
+
+/**
+ * Delete a theme.
+ *
+ * @param mixed $theme
+ * @return array
+ */
+function _wprp_delete_theme( $theme ) {
+	global $wp_filesystem;
+
+	if ( ! wp_get_theme( $theme )->exists() )
+		return array( 'status' => 'error', 'error' => 'Theme is not installed.' );
+
+	include_once ABSPATH . 'wp-admin/includes/admin.php';
+	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	include_once ABSPATH . 'wp-includes/update.php';
+
+	if ( ! _wpr_check_filesystem_access() || ! WP_Filesystem() )
+		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );
+
+	$themes_dir = $wp_filesystem->wp_themes_dir();
+	if ( empty( $themes_dir ) )
+		return array( 'status' => 'error', 'error' => 'Unable to locate WordPress theme directory.' );
+
+	$themes_dir = trailingslashit( $themes_dir );
+	$theme_dir = trailingslashit( $themes_dir . $theme );
+	$deleted = $wp_filesystem->delete( $theme_dir, true );
+
+	if ( ! $deleted )
+		return array( 'status' => 'error', 'error' => sprintf( 'Could not fully delete the theme: %s.', $theme ) );
+
+	// Force refresh of theme update information
+	delete_site_transient('update_themes');
+
+	return array( 'status' => 'success' );
 }
 
 /**
