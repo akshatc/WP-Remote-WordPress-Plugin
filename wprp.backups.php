@@ -85,8 +85,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 	/**
 	 * Perform a backup of the site
-	 *
-	 * @return true|WP_Error
+	 * @return bool|WP_Error
 	 */
 	public function do_backup() {
 
