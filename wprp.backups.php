@@ -202,7 +202,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	/**
 	 * Hook into the actions fired in HM Backup and set the status
 	 *
-	 * @return null
+	 * @param $action
 	 */
 	protected function do_action( $action ) {
 
@@ -492,8 +492,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 /**
  * Handle the backups API calls
  *
- * @param string $call
- * @return mixed
+ * @param string $action
+ * @return bool|string|true|void|WP_Error
  */
 function _wprp_backups_api_call( $action ) {
 
