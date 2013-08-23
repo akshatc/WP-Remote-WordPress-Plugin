@@ -1,5 +1,5 @@
 === The WP Remote WordPress Plugin ===
-Contributors: humanmade, joehoyle, mattheu, tcrsavage, willmot
+Contributors: humanmade, willmot, joehoyle, danielbachhuber, mattheu, pauldewouters, cuvelier, tcrsavage
 Tags: wpremote, remote administration, multiple wordpress
 Requires at least: 2.9
 Tested up to: 3.5
