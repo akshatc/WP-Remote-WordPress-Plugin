@@ -375,9 +375,11 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		foreach ( array( 'AUTH_KEY', 'SECURE_AUTH_KEY', 'LOGGED_IN_KEY', 'NONCE_KEY', 'AUTH_SALT', 'SECURE_AUTH_SALT', 'LOGGED_IN_SALT', 'NONCE_SALT', 'SECRET_KEY' ) as $constant )
 			if ( defined( $constant ) )
-				$key[] = $constant;
+				$key[] = constant( $constant );
 
- 		return md5( shuffle( $key ) );
+		shuffle( $key );
+
+ 		return md5( serialize( $key ) );
 
 	}
 
