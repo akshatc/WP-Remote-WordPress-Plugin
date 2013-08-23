@@ -1,0 +1,148 @@
+# Copyright (C) 2013 Human Made Limited
+# This file is distributed under the same license as the WP Remote plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Remote 2.6.1-alpha\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-remote-wordpress-plugin\n"
+"POT-Creation-Date: 2013-08-23 17:33:58+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2013-08-23 14:36-0300\n"
+"Last-Translator: Human Made Limited <hello@hmn.md>\n"
+"Language-Team: Human Made Limited <hello@hmn.md>\n"
+"X-Generator: Poedit 1.5.7\n"
+
+#: plugin.php:47
+msgid "WP Remote requires PHP version 5.2.4 or greater."
+msgstr ""
+
+#: plugin.php:180
+msgid "The filesystem is not writable with the supplied credentials"
+msgstr ""
+
+#: wprp.admin.php:29
+msgid "WP Remote is almost ready"
+msgstr ""
+
+#: wprp.admin.php:29
+msgid "enter your API key to continue"
+msgstr ""
+
+#: wprp.admin.php:33
+msgid "Save API Key"
+msgstr ""
+
+#: wprp.admin.php:39
+msgid "Don't have a WP Remote account yet?"
+msgstr ""
+
+#: wprp.admin.php:39
+msgid "Sign up"
+msgstr ""
+
+#: wprp.admin.php:39
+msgid "register your site, and report back once you've grabbed your API key."
+msgstr ""
+
+#: wprp.admin.php:71
+msgid "WP Remote API Key successfully added"
+msgstr ""
+
+#: wprp.admin.php:71
+msgid "WP Remote"
+msgstr ""
+
+#: wprp.backups.php:140
+msgid "No backup was found"
+msgstr ""
+
+#: wprp.backups.php:190 wprp.backups.php:198
+msgid "Calculating"
+msgstr ""
+
+#: wprp.backups.php:213
+msgid "Dumping Database %s"
+msgstr ""
+
+#: wprp.backups.php:219
+msgid "Verifying Database Dump %s"
+msgstr ""
+
+#: wprp.backups.php:225
+msgid "Creating zip archive %s"
+msgstr ""
+
+#: wprp.backups.php:231
+msgid "Verifying Zip Archive %s"
+msgstr ""
+
+#: wprp.backups.php:326
+msgid ""
+"This %s file ensures that other people cannot download your backup files."
+msgstr ""
+
+#: wprp.backups.php:335
+msgid "WP Remote Backup"
+msgstr ""
+
+#: wprp.compatability.php:10
+msgid "BulletProof Security"
+msgstr ""
+
+#: wprp.compatability.php:11
+msgid "Wordfence Security"
+msgstr ""
+
+#: wprp.compatability.php:12
+msgid "Better WP Security"
+msgstr ""
+
+#: wprp.compatability.php:13
+msgid "Wordpress Firewall 2"
+msgstr ""
+
+#: wprp.compatability.php:48
+msgid "Don't show again"
+msgstr ""
+
+#: wprp.compatability.php:52
+msgid "The plugin"
+msgstr ""
+
+#: wprp.compatability.php:52
+msgid "may cause issues with WP Remote."
+msgstr ""
+
+#: wprp.compatability.php:54
+msgid "Click here for instructions on how to resolve this issue"
+msgstr ""
+
+#: wprp.hm.backup.php:289
+msgid "archive filename must be a non empty string"
+msgstr ""
+
+#: wprp.hm.backup.php:292
+msgid "invalid file extension for archive filename"
+msgstr ""
+
+#: wprp.hm.backup.php:334
+msgid "database dump filename must be a non empty string"
+msgstr ""
+
+#: wprp.hm.backup.php:337
+msgid "invalid file extension for database dump filename"
+msgstr ""
+
+#: wprp.hm.backup.php:370
+msgid "Invalid root path %s must be a valid directory path"
+msgstr ""
+
+#: wprp.hm.backup.php:401
+msgid "Invalid backup path %s must be a non empty (string)"
+msgstr ""
+
+#: wprp.hm.backup.php:456
+msgid ""
+"Invalid backup type %s must be one of (string) file, database or complete"
+msgstr ""
