@@ -141,8 +141,7 @@ class WPRP_HM_Backup {
 	/**
 	 * Check whether safe mode is active or not
 	 *
-	 * @access public
-	 * @static
+	 * @param string $ini_get_callback
 	 * @return bool
 	 */
 	public static function is_safe_mode_active( $ini_get_callback = 'ini_get' ) {
@@ -206,10 +205,8 @@ class WPRP_HM_Backup {
 	/**
 	 * Sanitize a directory path
 	 *
-	 * @access public
-	 * @static
 	 * @param string $dir
-	 * @param bool $rel. (default: false)
+	 * @param bool   $recursive (default: false)
 	 * @return string $dir
 	 */
 	public static function conform_dir( $dir, $recursive = false ) {
@@ -820,9 +817,6 @@ class WPRP_HM_Backup {
 	/**
 	 * Fallback for creating zip archives if zip command is
 	 * unavailable.
-	 *
-	 * @access public
-	 * @param string $path
 	 */
 	public function zip_archive() {
 
@@ -891,9 +885,6 @@ class WPRP_HM_Backup {
 	 * unavailable.
 	 *
 	 * Uses the PclZip library that ships with WordPress
-	 *
-	 * @access public
-	 * @param string $path
 	 */
 	public function pcl_zip() {
 
@@ -1703,11 +1694,8 @@ class WPRP_HM_Backup {
 	/**
 	 * Custom error handler for catching php errors
 	 *
-	 * @access private
 	 * @param string $type
-	 * @param string $message
-	 * @param string $file
-	 * @param string $line
+	 * @return bool
 	 */
 	public function error_handler( $type ) {
 

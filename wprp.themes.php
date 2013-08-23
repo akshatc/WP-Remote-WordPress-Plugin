@@ -93,8 +93,9 @@ function _wprp_get_themes() {
 /**
  * Install a theme
  *
- * @param mixed $theme
- * @return array
+ * @param  mixed $theme
+ * @param array $args
+ * @return array|bool
  */
 function _wprp_install_theme( $theme, $args = array() ) {
 
