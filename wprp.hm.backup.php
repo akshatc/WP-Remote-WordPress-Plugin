@@ -286,10 +286,10 @@ class WPRP_HM_Backup {
 	public function set_archive_filename( $filename ) {
 
 		if ( empty( $filename ) || ! is_string( $filename ) )
-			throw new Exception( 'archive filename must be a non empty string' );
+			throw new Exception( __( 'archive filename must be a non empty string', 'wpremote' ) );
 
 		if ( pathinfo( $filename, PATHINFO_EXTENSION ) !== 'zip' )
-			throw new Exception( 'invalid file extension for archive filename <code>' . $filename . '</code>' );
+			throw new Exception( __( 'invalid file extension for archive filename', 'wpremote' ) .  '<code>' . $filename . '</code>' );
 
 		$this->archive_filename = strtolower( sanitize_file_name( remove_accents( $filename ) ) );
 
@@ -331,10 +331,10 @@ class WPRP_HM_Backup {
 	public function set_database_dump_filename( $filename ) {
 
 		if ( empty( $filename ) || ! is_string( $filename ) )
-			throw new Exception( 'database dump filename must be a non empty string' );
+			throw new Exception( __( 'database dump filename must be a non empty string', 'wpremote' ) );
 
 		if ( pathinfo( $filename, PATHINFO_EXTENSION ) !== 'sql' )
-			throw new Exception( 'invalid file extension for database dump filename <code>' . $filename . '</code>' );
+			throw new Exception( __( 'invalid file extension for database dump filename', 'wpremote' ) . '<code>' . $filename . '</code>' );
 
 		$this->database_dump_filename = strtolower( sanitize_file_name( remove_accents( $filename ) ) );
 
@@ -367,7 +367,7 @@ class WPRP_HM_Backup {
     public function set_root( $path ) {
 
     	if ( empty( $path ) || ! is_string( $path ) || ! is_dir ( $path ) )
-    		throw new Exception( 'Invalid root path <code>' . $path . '</code> must be a valid directory path' );
+    		throw new Exception( sprintf( __( 'Invalid root path %s must be a valid directory path', 'wpremote' ), '<code>' . $path . '</code>' ) );
 
     	$this->root = self::conform_dir( $path );
 
@@ -398,7 +398,7 @@ class WPRP_HM_Backup {
     public function set_path( $path ) {
 
     	if ( empty( $path ) || ! is_string( $path ) )
-    		throw new Exception( 'Invalid backup path <code>' . $path . '</code> must be a non empty (string)' );
+    		throw new Exception( sptrinf( __( 'Invalid backup path %s must be a non empty (string)', wpremote ), '<code>' . $path . '</code>' ) );
 
     	$this->path = self::conform_dir( $path );
 
@@ -453,7 +453,7 @@ class WPRP_HM_Backup {
 	public function set_type( $type ) {
 
 		if ( ! is_string( $type ) || ! in_array( $type, array( 'file', 'database', 'complete' ) ) )
-			throw new Exception( 'Invalid backup type <code>' . $type . '</code> must be one of (string) file, database or complete' );
+			throw new Exception( sprintf( __( 'Invalid backup type %s must be one of (string) file, database or complete', 'wpremote' ), '<code>' . $type . '</code>' ) );
 
 		$this->type = $type;
 

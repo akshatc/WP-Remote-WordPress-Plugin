@@ -137,7 +137,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		}
 
-		return new WP_Error( 'backup-failed', 'No backup was found' );
+		return new WP_Error( 'backup-failed', __( 'No backup was found', 'wpremote' ) );
 
 	}
 
@@ -187,7 +187,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 			// Otherwise the filesize must still be calculating
 			else
-				return 'Calculating';
+				return __( 'Calculating', 'wpremote' );
 
 		}
 
@@ -195,7 +195,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		// it can take some time so we have a small timeout then return "Calculating"
 		wp_remote_get( add_query_arg( array( 'action' => 'wprp_calculate_backup_size', 'backup_excludes' => $this->get_excludes() ), admin_url( 'admin-ajax.php' ) ), array( 'timeout' => 0.1, 'sslverify' => false ) );
 
-		return 'Calculating';
+		return __( 'Calculating', 'wpremote' );
 
 	}
 
@@ -210,25 +210,25 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 	    	case 'hmbkp_mysqldump_started' :
 
-	    		$this->set_status( sprintf( 'Dumping Database %s', '(<code>' . $this->get_mysqldump_method() . '</code>)' ) );
+	    		$this->set_status( sprintf( __( 'Dumping Database %s', 'wpremote' ), '(<code>' . $this->get_mysqldump_method() . '</code>)' ) );
 
 	    	break;
 
 	    	case 'hmbkp_mysqldump_verify_started' :
 
-	    		$this->set_status( sprintf( 'Verifying Database Dump %s', '(<code>' . $this->get_mysqldump_method() . '</code>)' ) );
+	    		$this->set_status( sprintf( __( 'Verifying Database Dump %s', 'wpremote' ), '(<code>' . $this->get_mysqldump_method() . '</code>)' ) );
 
 	    	break;
 
 			case 'hmbkp_archive_started' :
 
-	    		$this->set_status( sprintf( 'Creating zip archive %s', '(<code>' . $this->get_archive_method() . '</code>)' ) );
+	    		$this->set_status( sprintf( __( 'Creating zip archive %s', 'wpremote' ), '(<code>' . $this->get_archive_method() . '</code>)' ) );
 
 	    	break;
 
 	    	case 'hmbkp_archive_verify_started' :
 
-	    		$this->set_status( sprintf( 'Verifying Zip Archive %s', '(<code>' . $this->get_archive_method() . '</code>)' ) );
+	    		$this->set_status( sprintf( __( 'Verifying Zip Archive %s', 'wpremote' ), '(<code>' . $this->get_archive_method() . '</code>)' ) );
 
 	    	break;
 
@@ -323,7 +323,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		// Protect the directory with a .htaccess file on Apache servers
 		if ( $is_apache && function_exists( 'insert_with_markers' ) && ! file_exists( $htaccess ) && is_writable( $path ) ) {
 
-			$contents[]	= '# ' . sprintf( __( 'This %s file ensures that other people cannot download your backup files.', 'wprp' ), '.htaccess' );
+			$contents[]	= '# ' . sprintf( __( 'This %s file ensures that other people cannot download your backup files.', 'wpremote' ), '.htaccess' );
 			$contents[] = '';
 			$contents[] = '<IfModule mod_rewrite.c>';
 			$contents[] = 'RewriteEngine On';
@@ -332,7 +332,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 			$contents[] = '</IfModule>';
 			$contents[] = '';
 
-			insert_with_markers( $htaccess, 'WP Remote Backup', $contents );
+			insert_with_markers( $htaccess, __( 'WP Remote Backup', 'wpremote' ), $contents );
 
 		}
 

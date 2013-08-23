@@ -174,7 +174,7 @@ function _wprp_upgrade_core()  {
 
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
-		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );
+		return array( 'status' => 'error', 'error' => __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
 	// force refresh
 	wp_version_check();
