@@ -1,8 +1,8 @@
 === The WP Remote WordPress Plugin ===
 Contributors: humanmade, willmot, joehoyle, danielbachhuber, mattheu, pauldewouters, cuvelier, tcrsavage
 Tags: wpremote, remote administration, multiple wordpress
-Requires at least: 2.9
-Tested up to: 3.5
+Requires at least: 3.0
+Tested up to: 3.6
 Stable tag: 2.6
 
 WP Remote is a free web app that enables you to easily manage all of your WordPress powered sites from one place.
