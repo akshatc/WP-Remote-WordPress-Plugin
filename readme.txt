@@ -3,7 +3,7 @@ Contributors: humanmade, willmot, joehoyle, danielbachhuber, mattheu, pauldewout
 Tags: wpremote, remote administration, multiple wordpress
 Requires at least: 3.0
 Tested up to: 3.6
-Stable tag: 2.6
+Stable tag: 2.6.1
 
 WP Remote is a free web app that enables you to easily manage all of your WordPress powered sites from one place.
 
@@ -31,7 +31,7 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
-#### 2.6.1
+#### 2.6.1 (26 August 2013)
 
 * Add multiple API keys to your WP Remote plugin with a `wpr_api_keys` filter if you'd like to use more than WP Remote account with the site.
 * Plugin now supports localization. Please feel free to [submit your translation](http://translate.hmn.md/projects).
