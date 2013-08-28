@@ -1,0 +1,357 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'install', '-g', 'html-inspector' ]
+2 info using npm@1.2.32
+3 info using node@v0.10.12
+4 verbose read json /usr/local/lib/package.json
+5 verbose read json /usr/local/lib/package.json
+6 verbose cache add [ 'html-inspector', null ]
+7 verbose cache add name=undefined spec="html-inspector" args=["html-inspector",null]
+8 verbose parsed url { protocol: null,
+8 verbose parsed url   slashes: null,
+8 verbose parsed url   auth: null,
+8 verbose parsed url   host: null,
+8 verbose parsed url   port: null,
+8 verbose parsed url   hostname: null,
+8 verbose parsed url   hash: null,
+8 verbose parsed url   search: null,
+8 verbose parsed url   query: null,
+8 verbose parsed url   pathname: 'html-inspector',
+8 verbose parsed url   path: 'html-inspector',
+8 verbose parsed url   href: 'html-inspector' }
+9 silly lockFile c6122561-html-inspector html-inspector
+10 verbose lock html-inspector /Users/pauldewouters/.npm/c6122561-html-inspector.lock
+11 silly lockFile c6122561-html-inspector html-inspector
+12 silly lockFile c6122561-html-inspector html-inspector
+13 verbose addNamed [ 'html-inspector', '' ]
+14 verbose addNamed [ null, '' ]
+15 silly lockFile 7880ca5a-html-inspector html-inspector@
+16 verbose lock html-inspector@ /Users/pauldewouters/.npm/7880ca5a-html-inspector.lock
+17 silly addNameRange { name: 'html-inspector', range: '', hasData: false }
+18 verbose url raw html-inspector
+19 verbose url resolving [ 'https://registry.npmjs.org/', './html-inspector' ]
+20 verbose url resolved https://registry.npmjs.org/html-inspector
+21 info trying registry request attempt 1 at 08:16:07
+22 verbose etag "ED2LR8TSB61MPOLDD9WDU0DXG"
+23 http GET https://registry.npmjs.org/html-inspector
+24 http 304 https://registry.npmjs.org/html-inspector
+25 silly registry.get cb [ 304,
+25 silly registry.get   { server: 'CouchDB/1.3.1 (Erlang OTP/R15B03)',
+25 silly registry.get     etag: '"ED2LR8TSB61MPOLDD9WDU0DXG"',
+25 silly registry.get     date: 'Sat, 24 Aug 2013 11:16:08 GMT',
+25 silly registry.get     'content-length': '0' } ]
+26 verbose etag html-inspector from cache
+27 silly addNameRange number 2 { name: 'html-inspector', range: '', hasData: true }
+28 silly addNameRange versions [ 'html-inspector', [ '0.4.1' ] ]
+29 verbose addNamed [ 'html-inspector', '0.4.1' ]
+30 verbose addNamed [ '0.4.1', '0.4.1' ]
+31 silly lockFile 54d269a0-html-inspector-0-4-1 html-inspector@0.4.1
+32 verbose lock html-inspector@0.4.1 /Users/pauldewouters/.npm/54d269a0-html-inspector-0-4-1.lock
+33 verbose read json /Users/pauldewouters/.npm/html-inspector/0.4.1/package/package.json
+34 silly lockFile 54d269a0-html-inspector-0-4-1 html-inspector@0.4.1
+35 silly lockFile 54d269a0-html-inspector-0-4-1 html-inspector@0.4.1
+36 silly lockFile 7880ca5a-html-inspector html-inspector@
+37 silly lockFile 7880ca5a-html-inspector html-inspector@
+38 silly resolved [ { name: 'html-inspector',
+38 silly resolved     title: 'HTML Inspector',
+38 silly resolved     version: '0.4.1',
+38 silly resolved     description: 'HTML Inspector is a code quality tool to help you and your team write better markup. It\'s written in JavaScript and runs in the browser, so testing your HTML has never been easier.',
+38 silly resolved     license: 'MIT',
+38 silly resolved     author: { name: 'Philip Walton', url: 'http://philipwalton.com' },
+38 silly resolved     scripts: { test: 'grunt test' },
+38 silly resolved     repository:
+38 silly resolved      { type: 'git',
+38 silly resolved        url: 'git@github.com:philipwalton/html-inspector.git' },
+38 silly resolved     bugs: { url: 'https://github.com/philipwalton/html-inspector/issues' },
+38 silly resolved     bin: { htmlinspector: 'bin/html-inspector' },
+38 silly resolved     dependencies: { commander: '*' },
+38 silly resolved     devDependencies:
+38 silly resolved      { grunt: '*',
+38 silly resolved        'grunt-contrib-concat': '*',
+38 silly resolved        'grunt-contrib-uglify': '*',
+38 silly resolved        'grunt-contrib-watch': '*',
+38 silly resolved        'grunt-contrib-jshint': '*',
+38 silly resolved        'grunt-browserify': '*',
+38 silly resolved        'grunt-mocha-phantomjs': '*',
+38 silly resolved        'grunt-mocha-cli': '*',
+38 silly resolved        chai: '*',
+38 silly resolved        mocha: '*',
+38 silly resolved        sinon: '*',
+38 silly resolved        mout: '*',
+38 silly resolved        'dom-utils': '*',
+38 silly resolved        shelljs: '*',
+38 silly resolved        semver: '*',
+38 silly resolved        colors: '*',
+38 silly resolved        moment: '*' },
+38 silly resolved     readme: '# HTML Inspector\n\n[![Build Status](https://secure.travis-ci.org/philipwalton/html-inspector.png)](http://travis-ci.org/philipwalton/html-inspector)\n\n1. [Getting Started](#getting-started)\n2. [Configuring HTML Inspector](#configuring-html-inspector)\n3. [Built-in Rules](#built-in-rules)\n4. [Writing Your Own Rules](#writing-your-own-rules)\n5. [Overriding Rules Configurations](#overriding-rule-configurations)\n6. [Custom Builds](#custom-builds)\n7. [Browser Support](#browser-support)\n8. [Running the Tests](#running-the-tests)\n9. [Contributing](#contributing)\n10. [FAQs](#faqs)\n\nHTML Inspector is a highly-customizable, code quality tool to help you (and your team) write better markup. It aims to find a balance between the uncompromisingly strict W3C validator and having absolutely no rules at all (the unfortunate reality for most of us).\n\nHTML Inspector is opinionated, but every rule is completely customizable, so you can take what you like and change what you don\'t. It\'s also easy to extend, allowing teams to write their own rules to enforce their chosen conventions.\n\nFor a more formal introduction, please refer to [this blog post](http://philipwalton.com/articles/introducing-html-inspector/) which goes into more detail as to why HTML Inspector was created and why you should consider using it.\n\n## Getting Started\n\nThe easiest way to try out HTML Inspector is to link to the source file hosted on [CDNJS](http://cdnjs.com/):\n\n```html\n<script src="http://cdnjs.cloudflare.com/ajax/libs/html-inspector/0.4.1/html-inspector.js"></script>\n```\n\nAlternatively, [Bower](https://github.com/bower/bower) users can install HTML Inspector with the following command:\n\n```sh\nbower install html-inspector\n```\n\nIf you clone the Github repo, just use the file at `dist/html-inspector.js`.\n\nOnce HTML Inspector is added, you can run `HTMLInspector.inspect()` to see the results. Calling `inspect` with no options will load all rules and run them with their default configuration options.\n\n```html\n<script src="path/to/html-inspector.js"></script>\n<script> HTMLInspector.inspect() </script>\n```\nAfter the script runs, any errors will be reported to the console (unless you change this behavior). Here\'s an example of what you might see:\n\n![Sample HTML Inspector Output](https://raw.github.com/philipwalton/html-inspector/master/img/html-inspector-console.png)\n\n**Make sure you call `inspect` after any other DOM altering scripts have finished running or those alterations won\'t get inspected.**\n\n## Configuring HTML Inspector\n\nBy default, HTML Inspector runs all added rules, starts traversing from the `<html>` element, and logs errors to the console when complete, but all of this can be customized.\n\nThe `inspect` method takes a config object to allow you to change any of this behavior. Here are the config options:\n\n- **useRules**: (Array) a list of rule names to run when inspecting\n- **domRoot**: (selector | element) the DOM element to start traversing from\n- **exclude**: (selector | element | Array) any DOM element that matches the selector, element, or list of selectors/elements will be excluded from traversal (note: its descendants will still be traversed).\n- **excludeSubTree**: (selector } element | Array) the descendants of any DOM element that matches the selector, element, or list of selectors/elements will be excluded from traversal.\n- **onComplete**: (Function) the callback to be invoked when the inspection is finished. The function is passed an array of errors that were reported by individual rules.\n\nHere are the default configuration values:\n\n```js\nconfig: {\n  useRules: null,\n  domRoot: "html",\n  exclude: "svg",\n  excludeSubTree: ["svg", "iframe"],\n  onComplete: function(errors) {\n    errors.forEach(function(error) {\n      console.warn(error.message, error.context)\n    })\n  }\n}\n```\n\nHere is how you might override the default configurations:\n\n```js\nHTMLInspector.inspect({\n  useRules: ["some-rule-name", "some-other-rule-name"],\n  domRoot: "body",\n  exclude: "iframe",\n  excludeSubTree: ["svg", "template"],\n  onComplete: function(errors) {\n    errors.forEach(function(error) {\n      // report errors to external service...\n    }\n  }\n})\n```\n\nFor convenience, some of the config options may be passed as single arguments. If `.inspect()` receives an argument that is an array it is assume to be the `useRules` option, if it\'s an string or DOM element it\'s assumed to be the `domRoot` option, and if its a function it\'s assumed to be the `onComplete` callback.\n\n```js\n// only set the useRules options\nHTMLInspector.inspect(["some-rule-name", "some-other-rule-name"])\n\n// only set the domRoot\nHTMLInspector.inspect("#content")\n\n// only set the onComplete callback\nHTMLInspector.inspect(function(errors) {\n  errors.forEach(function(error) {\n    // report errors to an external service...\n  }\n})\n```\n\n## Built-in Rules ##\n\nHTML Inspector ships with a set of built-in rules which fall into one of three main categories: validation, best-practices, and convention.\n\n### Validation\n\nHTML Inspector is different than a markup validator. Validators parse static markup, while HTML Inspector runs on a live DOM. This makes it a lot more powerful, but there are some drawbacks as well. Because HTML Inspector runs after the browser has parsed your HTML, any mistakes the browser has forgiven will not be seen by HTML Inspector.\n\nAs a result HTML Inspector should not be seen as a replacement for validation. It\'s simply another tool in the toolbox. That being said, there is still a lot that it can do (and does) to validate your markup.\n\nHere are the validation rules that ship with HTML Inspector. (Expect this list to get more comprehensive in the future.)\n\n- **Validate Elements**: Inspect each element in the DOM and reports any elements that are invalid or obsolete. This will catch simple things like misspelled tags (`<il>` instead of `<li>`), and it will inform you of deprecated tags (like `<center>`, `<font>`, and more recently `<hgroup>`). Any element you don\'t want to be warned about can be whitelisted.\n\n- **Validate Element Location**: Make sure that elements don\'t appear as children of parents they\'re not allowed to descend from. An example of this is a block element like `<div>` appearing as the child of an inline elements like `<span>`.\n\n- **Validate Attributes**: Like validating elements, this rule will let you know if you\'re using attributes that don\'t belong on a particular element or perhaps don\'t belong on any element. If your project uses custom attributes (like `ng-*` in AngularJS) they can be whitelisted.\n\n- **Duplicate IDs**: Warn if non-unique IDs are found on the same page.\n\n- **Unique Elements**: Warn if elements that should be unique (like `<title>` and `<main>`) appear more than once in the document.\n\n### Best Practices\n\nSome markup may be perfectly valid but use practices that are commonly considered to be poor or outdated. The following rules check for these types of things. (Note that everything in this list is subjective and optional.)\n\n- **Inline Event Handlers**: Warn if inline event handlers, like `onclick="return false"` are found in the document. Inline event handlers are hard to manage, hard to debug, and completely non-reusable.\n\n- **Script Placement**: Warn if script elements appear anywhere other than right before the closing `</body>` tag. Because JavaScript is blocking, adding `<script>` elements anywhere other than the end of the document may delay the loading of the page. If a script must appear somewhere other than the end of the document, it can be whitelisted.\n\n- **Unused Classes**: Sometimes you\'ll remove a CSS rule from your stylesheet but forget to remove the class from the HTML. The "unused-classes" rule compares all the class selectors in the CSS to the classes in the HTML and reports any that aren\'t being used.\n\n  Classes that are in the HTML as JavaScript hooks can be ignored via a whitelist. By default, any class prefixed with `js-`, `language-`, or `supports-` is whitelisted. More information on the rationale behind this rule can be found [here](http://philipwalton.com/articles/css-architecture/).\n\n- **Unnecessary Elements**: Anytime you have a plain `<div>` or `<span>` element in the HTML with no class, ID or any other attribute, it\'s probably unnecessary or a mark of poor design.\n\n  Elements with no semantic meaning should only be used for presentation. If the element has no attributes but is used for styling, it must be done through a rule like `.some-class > div { }` which is just asking for trouble. Again, more information can be found [here](http://philipwalton.com/articles/css-architecture/).\n\n### Convention\n\nThe real power of HTML Inspector lies in its ability to enforce your team\'s chosen conventions. If you\'ve decided that all groups of links should be contained in a `<nav>` element, or all `<section>` elements must contain a heading, you can write those rules, and an error will be thrown when someone breaks them.\n\nBecause convention is usually specific to individual teams, there\'s only one built-in rule in this category, but hopefully it\'ll get you thinking about rules your team could use.\n\n- **BEM**: The increasingly popular [BEM](http://bem.info/) (block, element, modifier) methodology is a CSS naming convention that is very helpful for large projects. The problem is that using it correctly in the CSS is only half the battle. If it\'s not used correctly in the HTML it doesn\'t work either.\n\n  This rule throws an error when an element class name is used but that element isn\'t a descendant of a block by the same name. It also errors when a modifier is used on a block or element without the unmodified class there too.\n\n  *(Note: there are a few different BEM naming conventions out there. HTML Inspector support the [three most common](https://github.com/philipwalton/html-inspector/blob/master/src/rules/convention/bem-conventions.js#L3-L29))*\n\n## Writing Your Own Rules\n\nRules are the bread and butter of HTML Inspector. They are where you check for problems and report errors.\n\nHere\'s how you add new rules:\n\n```js\nHTMLInspector.rules.add(name, [config], func)\n```\n\n- **name**: (String) The `name` parameter is a string used to identify the rule. It must be unique.\n- **config** *optional* (Object) The `config` parameter stores configuration data that is used by the rule. Anything that users of your rule might want to customize themselves should be set in the `config` object.\n- **func**: (Function) The `func` parameter is an initialization function that is invoked as soon as you call `HTMLInspector.inspect()`. The function is passed three arguments `listener`, `reporter`, and `config`. The `listener` object is used to subscribe to events that are triggered as HTML Inspector is traversing the DOM. When problems are found, they can be reported to the `reporter` object. The `config` object is the same `config` that was passed to `HTMLInspector.rules.add`, though its properties may have been customized by other users between then and now.\n\n### Events\n\nThe `listener` object can subscribe to events via the `on` method. Like with many other event binding libraries, `on` takes two parameters: the event name, and a callback function:\n\n```js\nlistener.on(event, callback)\n```\n\n- **event**: (String) The name of the event. See below for a complete list of events.\n- **callback**: (Function) A function to be invoked when the event occurs. The function will be passed certain arguments depending on the event type. See the event list below for argument details.\n\nHere is a an example of binding a function to the "class" event:\n\n```js\nlistener.on("class", function(className, domElement) {\n  if (className == "foo" and element.nodeName.toLowerCase() == "bar") {\n    // report the error\n  }\n})\n```\n\nBelow is a complete list of events along with the arguments that are passed to their respective handlers. For events that occur on a DOM element, that element is passed as the final argument. It is also bound to the `this` context.\n\n- **beforeInspect** : domRoot\n- **element** : elementName, domElement\n- **id**: idName, domElement\n- **class**: className, domElement\n- **attribute**: attrName, attrValue, domElement\n- **afterInspect** : domRoot\n\n### Reporting Errors\n\nWhen you find something in the HTML that you to want warn about, you simply call the `warn` method on the `reporter` object.\n\n```js\nreporter.warn(rule, message, context)\n```\n\n- **rule**: (String) The rule name identifier.\n- **message**: (String) The warning to report.\n- **context**: (mixed) The context in which the rule was broken. This is usually a DOM element or collection of DOM elements, but doesn\'t have to be. It can be anything that helps the user track down where the error occurred.\n\nHere\'s an example from the [validate-elements](https://github.com/philipwalton/html-inspector/blob/master/src/rules/validation/validate-elements.js) rule:\n\n```js\nreporter.warn(\n  "validate-elements",\n  "The <" + name + "> element is not a valid HTML element.",\n  element\n)\n```\n\n### An Example Rule\n\nImagine your team previously used the custom data attributes `data-foo-*` and `data-bar-*`, but now the convention is to use something else. Here\'s a rule that would warn users when they\'re using the old convention:\n\n```js\nHTMLInspector.rules.add(\n  "deprecated-data-prefixes",\n  {\n    deprecated: ["foo", "bar"]\n  },\n  function(listener, reporter, config) {\n\n    // register a handler for the `attribute` event\n    listener.on(\'attribute\', function(name, value, element) {\n\n      var prefix = /data-([a-z]+)/.test(name) && RegExp.$1\n\n      // return if there\'s no data prefix\n      if (!prefix) return\n\n      // loop through each of the deprecated names from the\n      // config array and compare them to the prefix.\n      // Warn if they\'re the same\n      config.deprecated.forEach(function(item) {\n        if (item === prefix) {\n          reporter.warn(\n            "deprecated-data-prefixes",\n            "The \'data-" + item + "\' prefix is deprecated.",\n            element\n          )\n        }\n      })\n    }\n  )\n})\n```\n\n## Overriding Rule Configurations\n\nIndividual rules may or may not do exactly what you need, which is why most rules come with a configurations object that users can customize. A rule\'s configuration can be changed to meet your needs via the `extend` method of the `HTMLInspector.rules` object.\n\n```js\nHTMLInspector.rules.extend(rule, overrides)\n```\n\n- **rule**: (String) The rule name identifier.\n- **overrides**: (Object | Function) An object (or function that returns an object) to be merged with the rule\'s config object. If `overrides` is a function, it will be passed the rule\'s config object as its first argument.\n\nHere are two examples overriding the "deprecated-data-prefixes" rule defined above. The first example passes an object and the second passes a function:\n\n```js\n// using an object\nHTMLInspector.rules.extend("deprecated-data-prefixes", {\n  deprecated: ["fizz", "buzz"]\n})\n\n// using a function\nHTMLInspector.rules.extend("deprecated-data-prefixes", function(config) {\n  return {\n    deprecated: config.deprecated.concat(["bazz"])\n  }\n})\n```\n\nHere are a few more examples. The following override the defaults of a few of the built-in rules.\n\n\n```js\n// use the `inuit.css` BEM naming convention\nHTMLInspector.rules.extend("bem-conventions", {\n  methodology: "inuit"\n})\n\n// add Twitter generated classes to the whitelist\nHTMLInspector.rules.extend("unused-classes", {\n  whitelist: /^js\\-|^tweet\\-/\n})\n```\n\n## Custom Builds\n\nHTML Inspector comes with a number of pre-built options to use directly in your projects.\n\n- **html-inspector.js**: The full HTML Inspector code with all built-in rules prepackaged.\n- **html-inspector.core.js**: The core library with none of the rules.\n- **html-inspector.validation.js**: A package containing only the validation rules\n- **html-inspector.best-practices.js**: A package containing only the best practice rules\n- **html-inspector.convention.js**: A package containing only the convention rules\n\nIf the full version of HTML Inspector and all the built-in rules is too much, you can mix and match the core library with any combination of the packaged rule libraries as well as your own rules.\n\nThe build options for each of these is as follows:\n\n```sh\n# build everything\ngrunt\n\n# build the core library\ngrunt dist:core\n\n# build the validation ruleset\ngrunt dist:validation\n\n# build the best-practices ruleset\ngrunt dist:best-practices\n\n# build the convention ruleset\ngrunt dist:convention\n```\n\nTo alter the custom builds, simply add or remove files from the directories inside of `src/rules`. But keep in mind that rules can be excluded both at build time and at runtime. In other words, you don\'t need a custom build to exclude certain rules. You also don\'t need a custom build to add new rules. It\'s perfectly OK to add new rules directly to the HTML source as separate files.\n\nHTML Inspector uses [Grunt](http://gruntjs.com) which runs on [Node](http://nodejs.org/) to build and lint its source files as well as to run the [Jasmine](http://pivotal.github.io/jasmine/) tests.\n\nIf you don\'t have Node, NPM, and Grunt installed, refer to their documentation for installation instructions. Once they\'re installed, you can install the rest of the dependencies with the following commands:\n\n```sh\n# Install Node packages\nnpm install\n\n# Install script dependencies\nbower install\n```\n\n## Browser Support\n\nHTML Inspector has been tested and known to work in the latest versions of all modern browsers including Chrome, Firefox, Safari, Opera, and Internet Explorer. It will not work in older browsers that do not support ES5 methods, the CSS Object Model, or `console.warn()`. Since HTML Inspector is primarily a development tool, it is not intended to work in browsers that aren\'t typically used for development and don\'t support modern Web standards.\n\nIf you need to test your site in older versions of IE and don\'t want to see JavaScript errors, simply wrap all your HTML Inspector code inside a conditional comment, so it is ignored by IE9 and below. Here is an example:\n\n```html\n<!--[if gt IE 9]><!-->\n  <script src="path/to/html-inspector.js"></script>\n  <script>HTMLInspector.inspect()</script>\n<!--<![endif]-->\n```\n\n## Running the Tests\n\nIf Grunt and all the dependencies are installed, you can run the Jasmine tests with the following command.\n\n```sh\ngrunt test\n```\n\nThis creates a `spec-runner.html` file in the root directory and uses [PhantomJS](http://phantomjs.org/) to run the tests. If you prefer to run the tests in the browser, you can always fire up a local server and load `spec-runner.html` in the browser manually.\n\n## Contributing\n\nI\'m always open to feedback and suggestions for how to make HTML Inspector better. All feedback from bug reports to API design is quite welcome.\n\nIf you\'re submitting a bug report, please search the issues to make sure there isn\'t one already filed.\n\nIf you\'re submitting a pull request please read [CONTRIBUTING.md](https://github.com/philipwalton/html-inspector/blob/master/CONTRIBUTING.md) before submitting.\n\n## FAQs\n\nThe FAQs section has grown rather large, so it has been moved to its own page. You can find the [full FAQs here](https://github.com/philipwalton/html-inspector/blob/master/FAQs.md).',
+38 silly resolved     readmeFilename: 'README.md',
+38 silly resolved     _id: 'html-inspector@0.4.1',
+38 silly resolved     _from: 'html-inspector@' } ]
+39 info install html-inspector@0.4.1 into /usr/local/lib
+40 info installOne html-inspector@0.4.1
+41 verbose from cache /Users/pauldewouters/.npm/html-inspector/0.4.1/package/package.json
+42 info /usr/local/lib/node_modules/html-inspector unbuild
+43 verbose read json /usr/local/lib/node_modules/html-inspector/package.json
+44 verbose tar unpack /Users/pauldewouters/.npm/html-inspector/0.4.1/package.tgz
+45 silly lockFile 0ddc434f--lib-node-modules-html-inspector tar:///usr/local/lib/node_modules/html-inspector
+46 verbose lock tar:///usr/local/lib/node_modules/html-inspector /Users/pauldewouters/.npm/0ddc434f--lib-node-modules-html-inspector.lock
+47 silly lockFile 7eed206e-html-inspector-0-4-1-package-tgz tar:///Users/pauldewouters/.npm/html-inspector/0.4.1/package.tgz
+48 verbose lock tar:///Users/pauldewouters/.npm/html-inspector/0.4.1/package.tgz /Users/pauldewouters/.npm/7eed206e-html-inspector-0-4-1-package-tgz.lock
+49 silly gunzTarPerm modes [ '755', '644' ]
+50 silly gunzTarPerm extractEntry package.json
+51 silly gunzTarPerm extractEntry .npmignore
+52 silly gunzTarPerm extractEntry README.md
+53 silly gunzTarPerm extractEntry Gruntfile.js
+54 silly gunzTarPerm extractEntry bin/html-inspector.js
+55 silly gunzTarPerm extractEntry bin/phantom-bridge.js
+56 silly gunzTarPerm extractEntry bin/phantom-runner.js
+57 silly gunzTarPerm extractEntry bin/release
+58 silly gunzTarPerm extractEntry FAQs.md
+59 silly gunzTarPerm extractEntry .jshintrc
+60 silly gunzTarPerm extractEntry .travis.yml
+61 silly gunzTarPerm extractEntry CHANGELOG.md
+62 silly gunzTarPerm extractEntry bower.json
+63 silly gunzTarPerm extractEntry dist/html-inspector.js
+64 silly gunzTarPerm extractEntry img/html-inspector-console.png
+65 silly gunzTarPerm extractEntry CONTRIBUTING.md
+66 silly gunzTarPerm extractEntry spec/html-inspector-spec.js
+67 silly gunzTarPerm extractEntry src/callbacks.js
+68 silly gunzTarPerm extractEntry src/inspector.js
+69 silly gunzTarPerm extractEntry src/listener.js
+70 silly gunzTarPerm extractEntry src/rules.js
+71 silly gunzTarPerm extractEntry src/html-inspector.js
+72 silly gunzTarPerm extractEntry src/reporter.js
+73 silly gunzTarPerm extractEntry src/modules.js
+74 silly gunzTarPerm extractEntry src/reporter/console.simple.js
+75 silly gunzTarPerm extractEntry src/rules/best-practices/inline-event-handlers.js
+76 silly gunzTarPerm extractEntry src/rules/best-practices/script-placement.js
+77 silly gunzTarPerm extractEntry src/rules/best-practices/unnecessary-elements.js
+78 silly gunzTarPerm extractEntry src/rules/best-practices/unused-classes.js
+79 silly gunzTarPerm extractEntry src/rules/convention/bem-conventions.js
+80 silly gunzTarPerm extractEntry src/rules/validation/duplicate-ids.js
+81 silly gunzTarPerm extractEntry src/rules/validation/unique-elements.js
+82 silly gunzTarPerm extractEntry src/rules/validation/validate-attributes.js
+83 silly gunzTarPerm extractEntry src/rules/validation/validate-element-location.js
+84 silly gunzTarPerm extractEntry src/rules/validation/validate-elements.js
+85 silly gunzTarPerm extractEntry src/modules/css.js
+86 silly gunzTarPerm extractEntry src/modules/validation.js
+87 silly gunzTarPerm extractEntry src/utils/string-matcher.js
+88 silly gunzTarPerm extractEntry test/html-inspector-test.js
+89 silly gunzTarPerm extractEntry test/classes/callbacks-test.js
+90 silly gunzTarPerm extractEntry test/classes/listener-test.js
+91 silly gunzTarPerm extractEntry test/classes/modules-test.js
+92 silly gunzTarPerm extractEntry test/classes/reporter-test.js
+93 silly gunzTarPerm extractEntry test/classes/rules-test.js
+94 silly gunzTarPerm extractEntry test/classes/string-matcher-test.js
+95 silly gunzTarPerm extractEntry test/html-inspector/html-inspector-test.js
+96 silly gunzTarPerm extractEntry test/html-inspector/modules/css-test.js
+97 silly gunzTarPerm extractEntry test/html-inspector/modules/validation-test.js
+98 silly gunzTarPerm extractEntry test/html-inspector/modules-intro.txt
+99 silly gunzTarPerm extractEntry test/html-inspector/modules-outro.txt
+100 silly gunzTarPerm extractEntry test/html-inspector/rules/bem-conventions-test.js
+101 silly gunzTarPerm extractEntry test/html-inspector/rules/duplicate-ids-test.js
+102 silly gunzTarPerm extractEntry test/html-inspector/rules/inline-event-handlers-test.js
+103 silly gunzTarPerm extractEntry test/html-inspector/rules/script-placement-test.js
+104 silly gunzTarPerm extractEntry test/html-inspector/rules/unique-elements-test.js
+105 silly gunzTarPerm extractEntry test/html-inspector/rules/unnecessary-elements-test.js
+106 silly gunzTarPerm extractEntry test/html-inspector/rules/unused-classes-test.js
+107 silly gunzTarPerm extractEntry test/html-inspector/rules/validate-attributes-test.js
+108 silly gunzTarPerm extractEntry test/html-inspector/rules/validate-element-location-test.js
+109 silly gunzTarPerm extractEntry test/html-inspector/rules/validate-elements-test.js
+110 silly gunzTarPerm extractEntry test/html-inspector/rules-intro.txt
+111 silly gunzTarPerm extractEntry test/html-inspector/rules-outro.txt
+112 silly gunzTarPerm extractEntry test/html-inspector-test.css
+113 silly gunzTarPerm extractEntry test/html-inspector-test.html
+114 silly gunzTarPerm extractEntry test/importee-test.css
+115 verbose read json /usr/local/lib/node_modules/html-inspector/package.json
+116 silly lockFile 0ddc434f--lib-node-modules-html-inspector tar:///usr/local/lib/node_modules/html-inspector
+117 silly lockFile 0ddc434f--lib-node-modules-html-inspector tar:///usr/local/lib/node_modules/html-inspector
+118 silly lockFile 7eed206e-html-inspector-0-4-1-package-tgz tar:///Users/pauldewouters/.npm/html-inspector/0.4.1/package.tgz
+119 silly lockFile 7eed206e-html-inspector-0-4-1-package-tgz tar:///Users/pauldewouters/.npm/html-inspector/0.4.1/package.tgz
+120 info preinstall html-inspector@0.4.1
+121 verbose from cache /usr/local/lib/node_modules/html-inspector/package.json
+122 verbose readDependencies using package.json deps
+123 verbose from cache /usr/local/lib/node_modules/html-inspector/package.json
+124 verbose readDependencies using package.json deps
+125 verbose cache add [ 'commander@*', null ]
+126 verbose cache add name=undefined spec="commander@*" args=["commander@*",null]
+127 verbose parsed url { protocol: null,
+127 verbose parsed url   slashes: null,
+127 verbose parsed url   auth: null,
+127 verbose parsed url   host: null,
+127 verbose parsed url   port: null,
+127 verbose parsed url   hostname: null,
+127 verbose parsed url   hash: null,
+127 verbose parsed url   search: null,
+127 verbose parsed url   query: null,
+127 verbose parsed url   pathname: 'commander@*',
+127 verbose parsed url   path: 'commander@*',
+127 verbose parsed url   href: 'commander@*' }
+128 verbose cache add name="commander" spec="*" args=["commander","*"]
+129 verbose parsed url { protocol: null,
+129 verbose parsed url   slashes: null,
+129 verbose parsed url   auth: null,
+129 verbose parsed url   host: null,
+129 verbose parsed url   port: null,
+129 verbose parsed url   hostname: null,
+129 verbose parsed url   hash: null,
+129 verbose parsed url   search: null,
+129 verbose parsed url   query: null,
+129 verbose parsed url   pathname: '*',
+129 verbose parsed url   path: '*',
+129 verbose parsed url   href: '*' }
+130 verbose addNamed [ 'commander', '*' ]
+131 verbose addNamed [ null, '' ]
+132 silly lockFile bb4edd54-commander commander@*
+133 verbose lock commander@* /Users/pauldewouters/.npm/bb4edd54-commander.lock
+134 silly addNameRange { name: 'commander', range: '', hasData: false }
+135 verbose url raw commander
+136 verbose url resolving [ 'https://registry.npmjs.org/', './commander' ]
+137 verbose url resolved https://registry.npmjs.org/commander
+138 info trying registry request attempt 1 at 08:16:08
+139 verbose etag "963K7TYH6UP7JSFBNMS9L3V8X"
+140 http GET https://registry.npmjs.org/commander
+141 http 304 https://registry.npmjs.org/commander
+142 silly registry.get cb [ 304,
+142 silly registry.get   { server: 'CouchDB/1.3.1 (Erlang OTP/R15B03)',
+142 silly registry.get     etag: '"963K7TYH6UP7JSFBNMS9L3V8X"',
+142 silly registry.get     date: 'Sat, 24 Aug 2013 11:16:09 GMT',
+142 silly registry.get     'content-length': '0' } ]
+143 verbose etag commander from cache
+144 silly addNameRange number 2 { name: 'commander', range: '', hasData: true }
+145 silly addNameRange versions [ 'commander',
+145 silly addNameRange   [ '0.0.1',
+145 silly addNameRange     '0.0.3',
+145 silly addNameRange     '0.0.4',
+145 silly addNameRange     '0.0.5',
+145 silly addNameRange     '0.1.0',
+145 silly addNameRange     '0.2.0',
+145 silly addNameRange     '0.2.1',
+145 silly addNameRange     '0.3.0',
+145 silly addNameRange     '0.3.1',
+145 silly addNameRange     '0.3.2',
+145 silly addNameRange     '0.3.3',
+145 silly addNameRange     '0.4.0',
+145 silly addNameRange     '0.4.1',
+145 silly addNameRange     '0.4.2',
+145 silly addNameRange     '0.4.3',
+145 silly addNameRange     '0.5.0',
+145 silly addNameRange     '0.5.1',
+145 silly addNameRange     '0.6.0',
+145 silly addNameRange     '0.6.1',
+145 silly addNameRange     '0.5.2',
+145 silly addNameRange     '1.0.0',
+145 silly addNameRange     '1.0.1',
+145 silly addNameRange     '1.0.2',
+145 silly addNameRange     '1.0.3',
+145 silly addNameRange     '1.0.4',
+145 silly addNameRange     '1.0.5',
+145 silly addNameRange     '1.1.0',
+145 silly addNameRange     '1.1.1',
+145 silly addNameRange     '1.2.0',
+145 silly addNameRange     '1.3.0',
+145 silly addNameRange     '1.3.1',
+145 silly addNameRange     '1.3.2',
+145 silly addNameRange     '2.0.0' ] ]
+146 verbose addNamed [ 'commander', '2.0.0' ]
+147 verbose addNamed [ '2.0.0', '2.0.0' ]
+148 silly lockFile d5315eb7-commander-2-0-0 commander@2.0.0
+149 verbose lock commander@2.0.0 /Users/pauldewouters/.npm/d5315eb7-commander-2-0-0.lock
+150 verbose read json /Users/pauldewouters/.npm/commander/2.0.0/package/package.json
+151 silly lockFile d5315eb7-commander-2-0-0 commander@2.0.0
+152 silly lockFile d5315eb7-commander-2-0-0 commander@2.0.0
+153 silly lockFile bb4edd54-commander commander@*
+154 silly lockFile bb4edd54-commander commander@*
+155 silly resolved [ { name: 'commander',
+155 silly resolved     version: '2.0.0',
+155 silly resolved     description: 'the complete solution for node.js command-line programs',
+155 silly resolved     keywords: [ 'command', 'option', 'parser', 'prompt', 'stdin' ],
+155 silly resolved     author: { name: 'TJ Holowaychuk', email: 'tj@vision-media.ca' },
+155 silly resolved     repository:
+155 silly resolved      { type: 'git',
+155 silly resolved        url: 'https://github.com/visionmedia/commander.js.git' },
+155 silly resolved     devDependencies: { should: '>= 0.0.1' },
+155 silly resolved     scripts: { test: 'make test' },
+155 silly resolved     main: 'index',
+155 silly resolved     engines: { node: '>= 0.6.x' },
+155 silly resolved     readme: '# Commander.js\n\n  The complete solution for [node.js](http://nodejs.org) command-line interfaces, inspired by Ruby\'s [commander](https://github.com/visionmedia/commander).\n\n [![Build Status](https://secure.travis-ci.org/visionmedia/commander.js.png)](http://travis-ci.org/visionmedia/commander.js)\n\n## Installation\n\n    $ npm install commander\n\n## Option parsing\n\n Options with commander are defined with the `.option()` method, also serving as documentation for the options. The example below parses args and options from `process.argv`, leaving remaining args as the `program.args` array which were not consumed by options.\n\n```js\n#!/usr/bin/env node\n\n/**\n * Module dependencies.\n */\n\nvar program = require(\'commander\');\n\nprogram\n  .version(\'0.0.1\')\n  .option(\'-p, --peppers\', \'Add peppers\')\n  .option(\'-P, --pineapple\', \'Add pineapple\')\n  .option(\'-b, --bbq\', \'Add bbq sauce\')\n  .option(\'-c, --cheese [type]\', \'Add the specified type of cheese [marble]\', \'marble\')\n  .parse(process.argv);\n\nconsole.log(\'you ordered a pizza with:\');\nif (program.peppers) console.log(\'  - peppers\');\nif (program.pineapple) console.log(\'  - pineapple\');\nif (program.bbq) console.log(\'  - bbq\');\nconsole.log(\'  - %s cheese\', program.cheese);\n```\n\n Short flags may be passed as a single arg, for example `-abc` is equivalent to `-a -b -c`. Multi-word options such as "--template-engine" are camel-cased, becoming `program.templateEngine` etc.\n\n## Automated --help\n\n The help information is auto-generated based on the information commander already knows about your program, so the following `--help` info is for free:\n\n```  \n $ ./examples/pizza --help\n\n   Usage: pizza [options]\n\n   Options:\n\n     -V, --version        output the version number\n     -p, --peppers        Add peppers\n     -P, --pineapple      Add pineapple\n     -b, --bbq            Add bbq sauce\n     -c, --cheese <type>  Add the specified type of cheese [marble]\n     -h, --help           output usage information\n\n```\n\n## Coercion\n\n```js\nfunction range(val) {\n  return val.split(\'..\').map(Number);\n}\n\nfunction list(val) {\n  return val.split(\',\');\n}\n\nprogram\n  .version(\'0.0.1\')\n  .usage(\'[options] <file ...>\')\n  .option(\'-i, --integer <n>\', \'An integer argument\', parseInt)\n  .option(\'-f, --float <n>\', \'A float argument\', parseFloat)\n  .option(\'-r, --range <a>..<b>\', \'A range\', range)\n  .option(\'-l, --list <items>\', \'A list\', list)\n  .option(\'-o, --optional [value]\', \'An optional value\')\n  .parse(process.argv);\n\nconsole.log(\' int: %j\', program.integer);\nconsole.log(\' float: %j\', program.float);\nconsole.log(\' optional: %j\', program.optional);\nprogram.range = program.range || [];\nconsole.log(\' range: %j..%j\', program.range[0], program.range[1]);\nconsole.log(\' list: %j\', program.list);\nconsole.log(\' args: %j\', program.args);\n```\n\n## Custom help\n\n You can display arbitrary `-h, --help` information\n by listening for "--help". Commander will automatically\n exit once you are done so that the remainder of your program\n does not execute causing undesired behaviours, for example\n in the following executable "stuff" will not output when\n `--help` is used.\n\n```js\n#!/usr/bin/env node\n\n/**\n * Module dependencies.\n */\n\nvar program = require(\'../\');\n\nfunction list(val) {\n  return val.split(\',\').map(Number);\n}\n\nprogram\n  .version(\'0.0.1\')\n  .option(\'-f, --foo\', \'enable some foo\')\n  .option(\'-b, --bar\', \'enable some bar\')\n  .option(\'-B, --baz\', \'enable some baz\');\n\n// must be before .parse() since\n// node\'s emit() is immediate\n\nprogram.on(\'--help\', function(){\n  console.log(\'  Examples:\');\n  console.log(\'\');\n  console.log(\'    $ custom-help --help\');\n  console.log(\'    $ custom-help -h\');\n  console.log(\'\');\n});\n\nprogram.parse(process.argv);\n\nconsole.log(\'stuff\');\n```\n\nyielding the following help output:\n\n```\n\nUsage: custom-help [options]\n\nOptions:\n\n  -h, --help     output usage information\n  -V, --version  output the version number\n  -f, --foo      enable some foo\n  -b, --bar      enable some bar\n  -B, --baz      enable some baz\n\nExamples:\n\n  $ custom-help --help\n  $ custom-help -h\n\n```\n\n## .outputHelp()\n\n  Output help information without exiting.\n\n## .help()\n\n  Output help information and exit immediately.\n\n## Links\n\n - [API documentation](http://visionmedia.github.com/commander.js/)\n - [ascii tables](https://github.com/LearnBoost/cli-table)\n - [progress bars](https://github.com/visionmedia/node-progress)\n - [more progress bars](https://github.com/substack/node-multimeter)\n - [examples](https://github.com/visionmedia/commander.js/tree/master/examples)\n\n## License \n\n(The MIT License)\n\nCopyright (c) 2011 TJ Holowaychuk &lt;tj@vision-media.ca&gt;\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\'Software\'), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \'AS IS\', WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.\nIN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,\nTORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE\nSOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n',
+155 silly resolved     readmeFilename: 'Readme.md',
+155 silly resolved     bugs: { url: 'https://github.com/visionmedia/commander.js/issues' },
+155 silly resolved     _id: 'commander@2.0.0',
+155 silly resolved     _from: 'commander@*' } ]
+156 info install commander@2.0.0 into /usr/local/lib/node_modules/html-inspector
+157 info installOne commander@2.0.0
+158 verbose from cache /Users/pauldewouters/.npm/commander/2.0.0/package/package.json
+159 info /usr/local/lib/node_modules/html-inspector/node_modules/commander unbuild
+160 verbose read json /usr/local/lib/node_modules/html-inspector/node_modules/commander/package.json
+161 verbose tar unpack /Users/pauldewouters/.npm/commander/2.0.0/package.tgz
+162 silly lockFile c391e1a5-inspector-node-modules-commander tar:///usr/local/lib/node_modules/html-inspector/node_modules/commander
+163 verbose lock tar:///usr/local/lib/node_modules/html-inspector/node_modules/commander /Users/pauldewouters/.npm/c391e1a5-inspector-node-modules-commander.lock
+164 silly lockFile 51cc9407--npm-commander-2-0-0-package-tgz tar:///Users/pauldewouters/.npm/commander/2.0.0/package.tgz
+165 verbose lock tar:///Users/pauldewouters/.npm/commander/2.0.0/package.tgz /Users/pauldewouters/.npm/51cc9407--npm-commander-2-0-0-package-tgz.lock
+166 silly gunzTarPerm modes [ '755', '644' ]
+167 silly gunzTarPerm extractEntry package.json
+168 silly gunzTarPerm extractEntry index.js
+169 silly gunzTarPerm extractEntry History.md
+170 silly gunzTarPerm extractEntry Readme.md
+171 verbose read json /usr/local/lib/node_modules/html-inspector/node_modules/commander/package.json
+172 silly lockFile c391e1a5-inspector-node-modules-commander tar:///usr/local/lib/node_modules/html-inspector/node_modules/commander
+173 silly lockFile c391e1a5-inspector-node-modules-commander tar:///usr/local/lib/node_modules/html-inspector/node_modules/commander
+174 silly lockFile 51cc9407--npm-commander-2-0-0-package-tgz tar:///Users/pauldewouters/.npm/commander/2.0.0/package.tgz
+175 silly lockFile 51cc9407--npm-commander-2-0-0-package-tgz tar:///Users/pauldewouters/.npm/commander/2.0.0/package.tgz
+176 info preinstall commander@2.0.0
+177 verbose from cache /usr/local/lib/node_modules/html-inspector/node_modules/commander/package.json
+178 verbose readDependencies using package.json deps
+179 verbose from cache /usr/local/lib/node_modules/html-inspector/node_modules/commander/package.json
+180 verbose readDependencies using package.json deps
+181 silly resolved []
+182 verbose about to build /usr/local/lib/node_modules/html-inspector/node_modules/commander
+183 info build /usr/local/lib/node_modules/html-inspector/node_modules/commander
+184 verbose from cache /usr/local/lib/node_modules/html-inspector/node_modules/commander/package.json
+185 verbose linkStuff [ true,
+185 verbose linkStuff   '/usr/local/lib/node_modules',
+185 verbose linkStuff   false,
+185 verbose linkStuff   '/usr/local/lib/node_modules/html-inspector/node_modules' ]
+186 info linkStuff commander@2.0.0
+187 verbose read json /Users/pauldewouters/saltywp/projects/play.dev/content/plugins/wp-remote-wordpress-plugin/package.json
+188 verbose linkBins commander@2.0.0
+189 verbose linkMans commander@2.0.0
+190 verbose rebuildBundles commander@2.0.0
+191 info install commander@2.0.0
+192 info postinstall commander@2.0.0
+193 verbose about to build /usr/local/lib/node_modules/html-inspector
+194 info build /usr/local/lib/node_modules/html-inspector
+195 verbose from cache /usr/local/lib/node_modules/html-inspector/package.json
+196 verbose linkStuff [ true,
+196 verbose linkStuff   '/usr/local/lib/node_modules',
+196 verbose linkStuff   true,
+196 verbose linkStuff   '/usr/local/lib/node_modules' ]
+197 info linkStuff html-inspector@0.4.1
+198 verbose read json /Users/pauldewouters/saltywp/projects/play.dev/content/plugins/wp-remote-wordpress-plugin/package.json
+199 verbose linkBins html-inspector@0.4.1
+200 verbose link bins [ { htmlinspector: 'bin/html-inspector' },
+200 verbose link bins   '/usr/local/bin',
+200 verbose link bins   true ]
+201 verbose linkMans html-inspector@0.4.1
+202 verbose rebuildBundles html-inspector@0.4.1
+203 verbose rebuildBundles [ 'commander' ]
+204 info /usr/local/lib/node_modules/html-inspector unbuild
+205 verbose from cache /usr/local/lib/node_modules/html-inspector/package.json
+206 info preuninstall html-inspector@0.4.1
+207 info uninstall html-inspector@0.4.1
+208 verbose true,/usr/local/lib/node_modules,/usr/local/lib/node_modules unbuild html-inspector@0.4.1
+209 verbose /usr/local/bin,[object Object] binRoot
+210 info postuninstall html-inspector@0.4.1
+211 error Error: ENOENT, chmod '/usr/local/lib/node_modules/html-inspector/bin/html-inspector'
+212 error If you need help, you may report this log at:
+212 error     <http://github.com/isaacs/npm/issues>
+212 error or email it to:
+212 error     <npm-@googlegroups.com>
+213 error System Darwin 12.4.0
+214 error command "node" "/usr/local/bin/npm" "install" "-g" "html-inspector"
+215 error cwd /Users/pauldewouters/saltywp/projects/play.dev/content/plugins/wp-remote-wordpress-plugin
+216 error node -v v0.10.12
+217 error npm -v 1.2.32
+218 error path /usr/local/lib/node_modules/html-inspector/bin/html-inspector
+219 error code ENOENT
+220 error errno 34
+221 verbose exit [ 34, true ]
