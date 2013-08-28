@@ -50,7 +50,6 @@ function _wprp_get_themes() {
 
 			$theme_array = array(
 				'Name'           => $theme->get( 'Name' ),
-				'Template'       => $theme->get( 'Template' ),
 				'active'         => $active == $theme->get( 'Name' ),
 				'Template'       => $theme->get_template(),
 				'Stylesheet'     => $theme->get_stylesheet(),
