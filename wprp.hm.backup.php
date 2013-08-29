@@ -277,8 +277,8 @@ class WPRP_HM_Backup {
 	/**
 	 * Set the filename of the archive file
 	 *
-	 * @access public
 	 * @param string $filename
+	 * @throws Exception
 	 */
 	public function set_archive_filename( $filename ) {
 
@@ -322,8 +322,8 @@ class WPRP_HM_Backup {
 	/**
 	 * Set the filename of the database dump file
 	 *
-	 * @access public
 	 * @param string $filename
+	 * @throws Exception
 	 */
 	public function set_database_dump_filename( $filename ) {
 
@@ -354,14 +354,13 @@ class WPRP_HM_Backup {
 
     }
 
-    /**
-     * Set the root directory to backup from
-     *
-     * @access public
-     * @param string $path
-     * @return null
-     */
-    public function set_root( $path ) {
+	/**
+	 * Set the root directory to backup from
+	 *
+	 * @param string $path
+	 * @throws Exception
+	 */
+	public function set_root( $path ) {
 
     	if ( empty( $path ) || ! is_string( $path ) || ! is_dir ( $path ) )
     		throw new Exception( sprintf( __( 'Invalid root path %s must be a valid directory path', 'wpremote' ), '<code>' . $path . '</code>' ) );
@@ -385,14 +384,13 @@ class WPRP_HM_Backup {
 
     }
 
-    /**
-     * Set the directory backups are saved to
-     *
-     * @access public
-     * @param string $path
-     * @return null
-     */
-    public function set_path( $path ) {
+	/**
+	 * Set the directory backups are saved to
+	 *
+	 * @param string $path
+	 * @throws Exception
+	 */
+	public function set_path( $path ) {
 
     	if ( empty( $path ) || ! is_string( $path ) )
     		throw new Exception( sptrinf( __( 'Invalid backup path %s must be a non empty (string)', wpremote ), '<code>' . $path . '</code>' ) );
@@ -443,9 +441,8 @@ class WPRP_HM_Backup {
 	 * Set the backup type
 	 *
 	 * $type must be one of complete, database or file
-	 *
-	 * @access public
 	 * @param string $type
+	 * @throws Exception
 	 */
 	public function set_type( $type ) {
 
@@ -1381,8 +1378,8 @@ class WPRP_HM_Backup {
 	/**
 	 * Add backquotes to tables and db-names in SQL queries. Taken from phpMyAdmin.
 	 *
-	 * @access private
-	 * @param mixed $a_name
+	 * @param $a_name
+	 * @return array|string
 	 */
 	private function sql_backquote( $a_name ) {
 
@@ -1558,9 +1555,9 @@ class WPRP_HM_Backup {
 	 * Better addslashes for SQL queries.
 	 * Taken from phpMyAdmin.
 	 *
-	 * @access private
-	 * @param string $a_string. (default: '')
-	 * @param bool $is_like. (default: false)
+	 * @param string $a_string
+	 * @param bool   $is_like
+	 * @return mixed
 	 */
 	private function sql_addslashes( $a_string = '', $is_like = false ) {
 
@@ -1577,9 +1574,8 @@ class WPRP_HM_Backup {
 
 	/**
 	 * Write the SQL file
-	 *
-	 * @access private
 	 * @param string $sql
+	 * @return bool
 	 */
 	private function write_sql( $sql ) {
 

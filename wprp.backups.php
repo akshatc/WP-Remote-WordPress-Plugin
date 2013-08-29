@@ -35,8 +35,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 * all the files and sub-directories.
 	 *
 	 * @param string $dir
-	 * @static
-	 * @access public
+	 * @return bool
 	 */
 	public static function rmdir_recursive( $dir ) {
 
