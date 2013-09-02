@@ -31,6 +31,10 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### 2.6.2 (2 September 2013)
+
+* Bug fix: Reactivating plugin after plugin upgrade.
+
 #### 2.6.1 (26 August 2013)
 
 * Add multiple API keys to your WP Remote plugin with a `wpr_api_keys` filter if you'd like to use more than WP Remote account with the site.
