@@ -257,7 +257,7 @@ function wprp_translations_init() {
 		/** Set filter for WordPress languages directory */
 		$wprp_wp_lang_dir = apply_filters(
 			'wprp_filter_wp_lang_dir',
-				trailingslashit( WP_LANG_DIR ) . trailingslashit( 'genesis-layout-extras' ) . $wprp_textdomain . '-' . $plugin_locale . '.mo'
+				trailingslashit( WP_LANG_DIR ) . trailingslashit( 'wp-remote' ) . $wprp_textdomain . '-' . $plugin_locale . '.mo'
 		);
 
 		/** Translations: First, look in WordPress' "languages" folder = custom & update-secure! */
