@@ -31,6 +31,10 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### 2.6.3 (???)
+
+* 
+
 #### 2.6.2 (2 September 2013)
 
 * Bug fix: Reactivating plugin after plugin upgrade.
