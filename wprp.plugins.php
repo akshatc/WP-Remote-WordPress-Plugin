@@ -321,6 +321,9 @@ function _wpr_get_backupbuddy_plugin_data() {
 	if ( !class_exists('pb_backupbuddy') )
 		return false;
 
+	if ( ! file_exists( pb_backupbuddy::plugin_path() . '/pluginbuddy/lib/updater/updater.php' ) )
+		return false;
+
 	require_once( pb_backupbuddy::plugin_path() . '/pluginbuddy/lib/updater/updater.php' );
 	$preloader_class = 'pb_' . pb_backupbuddy::settings( 'slug' ) . '_updaterpreloader';
 	$updater_preloader = new $preloader_class( pb_backupbuddy::settings( 'slug' ) );
