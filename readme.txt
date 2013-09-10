@@ -31,6 +31,10 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### 2.6.4 (???)
+
+*
+
 #### 2.6.3 (10 September 2013)
 
 * Bug fix: Disabled updating BackupBuddy through WP Remote for BackupBuddy v4.1.1 and greater. BackupBuddy changed its custom update mechanism (as it's a premium plugin), which caused the WP Remote plugin not to function properly.
