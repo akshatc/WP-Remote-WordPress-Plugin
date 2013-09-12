@@ -222,14 +222,14 @@ function _wpr_check_filesystem_access() {
 
 function _wpr_set_filesystem_credentials( $credentials ) {
 
-	if ( empty( $_GET['filesystem_details'] ) )
+	if ( empty( $_POST['filesystem_details'] ) )
 		return $credentials;
 
 	$_credentials = array(
-		'username' => $_GET['filesystem_details']['credentials']['username'],
-		'password' => $_GET['filesystem_details']['credentials']['password'],
-		'hostname' => $_GET['filesystem_details']['credentials']['hostname'],
-		'connection_type' => $_GET['filesystem_details']['method']
+		'username' => $_POST['filesystem_details']['credentials']['username'],
+		'password' => $_POST['filesystem_details']['credentials']['password'],
+		'hostname' => $_POST['filesystem_details']['credentials']['hostname'],
+		'connection_type' => $_POST['filesystem_details']['method']
 	);
 
 	// check whether the credentials can be used
