@@ -226,6 +226,26 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'enable_log' :
+			update_option( 'wprp_enable_log', true );
+			$actions[$action] = true;
+		break;
+
+		case 'disable_log' :
+			delete_option( 'wprp_enable_log' );
+			$actions[$action] = true;
+		break;
+
+		case 'get_log' :
+
+			if ( class_exists( 'WPRP_Log' ) ) {
+				$actions[$action] = WPRP_Log::get_instance()->get_items();
+				WPRP_Log::get_instance()->delete_items();
+			} else {
+				$actions[$action] = new WP_Error( 'log-not-enabled', 'Logging is not enabled' );
+			}
+
+			break;
 		default :
 
 			$actions[$action] = 'not-implemented';
