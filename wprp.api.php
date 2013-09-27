@@ -71,6 +71,10 @@ class WPR_API_Request {
 
 WPR_API_Request::verify_request();
 
+// disable logging for anythign done in API requests
+if ( class_exists( 'WPRP_Log' ) )
+	WPRP_Log::get_instance()->disable_logging();
+
 // Disable error_reporting so they don't break the json request
 if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG )
 	error_reporting( 0 );
