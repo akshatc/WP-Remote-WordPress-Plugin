@@ -54,7 +54,7 @@ class WPRP_Log {
 		$user = get_userdata();
 
 		// we are only interested in administators
-		if ( ! array_intersect( $user->roles, array( 'administator' ) ) )
+		if ( ! array_intersect( $user->roles, array( 'administrator' ) ) )
 			return;
 
 		$this->add_item( array(
@@ -64,17 +64,19 @@ class WPRP_Log {
 		));
 	}
 
-	public function action_profile_updated( $user_data, $old_user_data ) {
+	public function action_profile_updated( $user_id, $old_user_data ) {
+
+		$user_data = get_userdata( $user_id );
 
 		// we are only interested in administators
-		if ( ! array_intersect( $user_data->roles, array( 'administator' ) ) )
+		if ( ! array_intersect( $user_data->roles, array( 'administrator' ) ) )
 			return;
+
 
 		if ( $user_data->user_email !== $old_user_data->user_email ) {
 			$this->add_item( array(
 				'type' => 'user',
 				'action' => 'email-update',
-				'remote_user' => array( 'user_login' => $user_data->user_login, 'display_name' => $user_data->display_name ),
 				'old_email' => $old_user_data->user_email,
 				'new_email' => $user_data->user_email,
 			));
@@ -84,16 +86,15 @@ class WPRP_Log {
 			$this->add_item( array(
 				'type' => 'user',
 				'action' => 'password-update',
-				'remote_user' => array( 'user_login' => $user_data->user_login, 'display_name' => $user_data->display_name ),
 			));
 		}
 	}
 
 	public function updated_option_current_theme( $old_theme, $new_theme ) {
+
 		$this->add_item( array(
 			'type' => 'theme',
 			'action' => 'switch',
-			'remote_user' => array( 'user_login' => $user_data->user_login, 'display_name' => $user_data->display_name ),
 			'old_theme' => $old_theme,
 			'new_theme' => $new_theme
 		));
