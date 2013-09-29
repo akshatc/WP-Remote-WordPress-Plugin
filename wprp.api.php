@@ -253,6 +253,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			);
 			$args = array();
 			foreach( $arg_keys as $arg_key ) {
+				// Note: get_users() supports validation / sanitization
 				if ( $value = WPR_API_Request::get_arg( $arg_key ) )
 					$args[$arg_key] = $value;
 			}
@@ -264,6 +265,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		case 'create_user':
 
 			$args = array(
+				// Note: wp_insert_user() handles sanitization / validation
 				'user_login' => WPR_API_Request::get_arg( 'user_login' ),
 				'user_email' => WPR_API_Request::get_arg( 'user_email' ),
 				'role' => get_option('default_role'),
@@ -272,6 +274,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 				'display_name' => false,
 				);
 			foreach( $args as $key => $value ) {
+				// Note: wp_insert_user() handles sanitization / validation
 				if ( $new_value = WPR_API_Request::get_arg( $key ) )
 					$args[$key] = $new_value;
 			}
