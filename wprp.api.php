@@ -222,6 +222,24 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'get_option':
+
+			$actions[$action] = get_option( sanitize_text_field( WPR_API_Request::get_arg( 'option_name' ) ) );
+
+			break;
+
+		case 'update_option':
+
+			$actions[$action] = update_option( sanitize_text_field( WPR_API_Request::get_arg( 'option_name' ) ), WPR_API_Request::get_arg( 'option_value' ) );
+
+			break;
+
+		case 'delete_option':
+
+			$actions[$action] = delete_option( sanitize_text_field( WPR_API_Request::get_arg( 'option_name' ) ) );
+
+			break;
+
 		default :
 
 			$actions[$action] = 'not-implemented';
