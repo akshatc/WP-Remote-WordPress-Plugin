@@ -33,13 +33,13 @@ class WPRP_Log {
 		add_action( 'profile_update', array( $this, 'action_profile_updated' ), 10, 2 );
 
 
-		add_action( 'updated_option_current_theme', array( $this, 'updated_option_current_theme' ), 10, 2 );
+		add_action( 'update_option_current_theme', array( $this, 'updated_option_current_theme' ), 10, 2 );
 	}
 
 	public function action_wp_login( $user_login, $user ) {
 
 		// we are only interested in administators
-		if ( ! array_intersect( $user->roles, array( 'administator' ) ) )
+		if ( ! array_intersect( $user->roles, array( 'administrator' ) ) )
 			return;
 
 		$this->add_item( array(
