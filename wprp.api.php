@@ -240,6 +240,62 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 			break;
 
+		case 'get_users':
+
+			$arg_keys = array( 
+				'include',
+				'exclude',
+				'search',
+				'orderby',
+				'order',
+				'offset',
+				'number',
+			);
+			$args = array();
+			foreach( $arg_keys as $arg_key ) {
+				if ( $value = WPR_API_Request::get_arg( $arg_key ) )
+					$args[$arg_key] = $value;
+			}
+
+			$actions[$action] = get_users( $args );
+
+			break;
+
+		case 'create_user':
+
+			$args = array(
+				'user_login' => WPR_API_Request::get_arg( 'user_login' ),
+				'user_email' => WPR_API_Request::get_arg( 'user_email' ),
+				'role' => get_option('default_role'),
+				'user_pass' => false,
+				'user_registered' => strftime( "%F %T", time() ),
+				'display_name' => false,
+				);
+			foreach( $args as $key => $value ) {
+				if ( $new_value = WPR_API_Request::get_arg( $key ) )
+					$args[$key] = $new_value;
+			}
+
+			if ( ! $args['user_pass'] ) {
+				$args['user_pass'] = $generated_password = wp_generate_password();
+			} else {
+				$generated_password = false;
+			}
+
+			$user_id = wp_insert_user( $args );
+
+			if ( is_wp_error( $user_id ) ) {
+				$actions[$action] = $user_id;
+			} else {
+				$user_obj = get_user_by( 'id', $user_id );
+				// Just this one time...
+				if ( $generated_password )
+					$user_obj->data->user_pass = $generated_password;
+				$actions[$action] = $user_obj;
+			}
+
+			break;
+
 		default :
 
 			$actions[$action] = 'not-implemented';
