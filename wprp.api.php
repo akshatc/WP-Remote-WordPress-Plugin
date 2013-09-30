@@ -288,7 +288,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			$user_id = wp_insert_user( $args );
 
 			if ( is_wp_error( $user_id ) ) {
-				$actions[$action] = $user_id;
+				$actions[$action] =  array( 'status' => 'error', 'error' => $user_id->get_error_message() );
 			} else {
 				$user_obj = get_user_by( 'id', $user_id );
 				// Just this one time...
