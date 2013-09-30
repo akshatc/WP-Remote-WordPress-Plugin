@@ -222,6 +222,130 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'get_option':
+
+			$actions[$action] = get_option( sanitize_text_field( WPR_API_Request::get_arg( 'option_name' ) ) );
+
+			break;
+
+		case 'update_option':
+
+			$actions[$action] = update_option( sanitize_text_field( WPR_API_Request::get_arg( 'option_name' ) ), WPR_API_Request::get_arg( 'option_value' ) );
+
+			break;
+
+		case 'delete_option':
+
+			$actions[$action] = delete_option( sanitize_text_field( WPR_API_Request::get_arg( 'option_name' ) ) );
+
+			break;
+
+		case 'get_users':
+
+			$arg_keys = array( 
+				'include',
+				'exclude',
+				'search',
+				'orderby',
+				'order',
+				'offset',
+				'number',
+			);
+			$args = array();
+			foreach( $arg_keys as $arg_key ) {
+				// Note: get_users() supports validation / sanitization
+				if ( $value = WPR_API_Request::get_arg( $arg_key ) )
+					$args[$arg_key] = $value;
+			}
+
+			$users = array_map( 'wprp_format_user_obj', get_users( $args ) ); 
+			$actions[$action] = $users;
+
+			break;
+
+		case 'create_user':
+
+			$args = array(
+				// Note: wp_insert_user() handles sanitization / validation
+				'user_login' => WPR_API_Request::get_arg( 'user_login' ),
+				'user_email' => WPR_API_Request::get_arg( 'user_email' ),
+				'role' => get_option('default_role'),
+				'user_pass' => false,
+				'user_registered' => strftime( "%F %T", time() ),
+				'display_name' => false,
+				);
+			foreach( $args as $key => $value ) {
+				// Note: wp_insert_user() handles sanitization / validation
+				if ( $new_value = WPR_API_Request::get_arg( $key ) )
+					$args[$key] = $new_value;
+			}
+
+			if ( ! $args['user_pass'] ) {
+				$args['user_pass'] = $generated_password = wp_generate_password();
+			} else {
+				$generated_password = false;
+			}
+
+			$user_id = wp_insert_user( $args );
+
+			if ( is_wp_error( $user_id ) ) {
+				$actions[$action] =  array( 'status' => 'error', 'error' => $user_id->get_error_message() );
+			} else {
+				$user_obj = wprp_format_user_obj( get_user_by( 'id', $user_id ) );
+				// Just this one time...
+				if ( $generated_password )
+					$user_obj->user_pass = $generated_password;
+				$actions[$action] = $user_obj;
+			}
+
+			break;
+
+		case 'get_user':
+		case 'update_user':
+		case 'delete_user':
+
+			$id_or_login = WPR_API_Request::get_arg( 'user');
+			if ( is_numeric( $id_or_login ) )
+				$user = get_user_by( 'id', $id_or_login );
+			else
+				$user = get_user_by( 'login', $id_or_login );
+
+			if ( ! $user ) {
+				$actions[$action] = array( 'status' => 'error', 'error' => "No user found." );
+				break;
+			}
+
+			require_once ABSPATH . '/wp-admin/includes/user.php';
+			if ( 'get_user' == $action ) {
+				$actions[$action] = wprp_format_user_obj( $user );
+			} else if ( 'update_user' == $action ) {
+
+				$fields = array(
+					'user_email',
+					'display_name',
+					'first_name',
+					'last_name',
+					'user_nicename',
+					'user_pass',
+					'user_url',
+					'description'
+				);
+				$args = array();
+				foreach( $fields as $field ) {
+					// Note: wp_update_user() handles sanitization / validation
+					if ( $value = WPR_API_Request::get_arg( $field ) )
+						$args[$field] = $value;
+				}
+				$args['ID'] = $user->ID;
+				wp_update_user( $args );
+				$actions[$action] = wprp_format_user_obj( get_user_by( 'id', $user->ID ) );
+
+			} else if ( 'delete_user' == $action ) {
+				$actions[$action] = wp_delete_user( $user->ID );
+			}
+
+			break;
+
 		default :
 
 			$actions[$action] = 'not-implemented';
