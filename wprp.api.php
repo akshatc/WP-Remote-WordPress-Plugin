@@ -299,6 +299,52 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 			break;
 
+		case 'get_user':
+		case 'update_user':
+		case 'delete_user':
+
+			$id_or_login = WPR_API_Request::get_arg( 'user');
+			if ( is_numeric( $id_or_login ) )
+				$user = get_user_by( 'id', $id_or_login );
+			else
+				$user = get_user_by( 'login', $id_or_login );
+
+			if ( ! $user ) {
+				$actions[$action] = array( 'status' => 'error', 'error' => "No user found." );
+				break;
+			}
+
+			require_once ABSPATH . '/wp-admin/includes/user.php';
+			if ( 'get_user' == $action ) {
+				$actions[$action] = $user;
+			} else if ( 'update_user' == $action ) {
+
+				$fields = array(
+					'user_email',
+					'display_name',
+					'first_name',
+					'last_name',
+					'user_nicename',
+					'user_pass',
+					'user_url',
+					'description'
+				);
+				$args = array();
+				foreach( $fields as $field ) {
+					// Note: wp_update_user() handles sanitization / validation
+					if ( $value = WPR_API_Request::get_arg( $field ) )
+						$args[$field] = $value;
+				}
+				$args['ID'] = $user->ID;
+				$actions[$action] = wp_update_user( $args );
+
+			} else if ( 'delete_user' == $action ) {
+				require_once ABSPATH . '/wp-admin/includes/user.php';
+				$actions[$action] = wp_delete_user( $user->ID );
+			}
+
+			break;
+
 		default :
 
 			$actions[$action] = 'not-implemented';
