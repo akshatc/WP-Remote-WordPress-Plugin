@@ -258,7 +258,8 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 					$args[$arg_key] = $value;
 			}
 
-			$actions[$action] = get_users( $args );
+			$users = array_map( 'wprp_format_user_obj', get_users( $args ) ); 
+			$actions[$action] = $users;
 
 			break;
 
@@ -290,10 +291,10 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			if ( is_wp_error( $user_id ) ) {
 				$actions[$action] =  array( 'status' => 'error', 'error' => $user_id->get_error_message() );
 			} else {
-				$user_obj = get_user_by( 'id', $user_id );
+				$user_obj = wprp_format_user_obj( get_user_by( 'id', $user_id ) );
 				// Just this one time...
 				if ( $generated_password )
-					$user_obj->data->user_pass = $generated_password;
+					$user_obj->user_pass = $generated_password;
 				$actions[$action] = $user_obj;
 			}
 
@@ -316,7 +317,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 			require_once ABSPATH . '/wp-admin/includes/user.php';
 			if ( 'get_user' == $action ) {
-				$actions[$action] = $user;
+				$actions[$action] = wprp_format_user_obj( $user );
 			} else if ( 'update_user' == $action ) {
 
 				$fields = array(
@@ -336,7 +337,8 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 						$args[$field] = $value;
 				}
 				$args['ID'] = $user->ID;
-				$actions[$action] = wp_update_user( $args );
+				wp_update_user( $args );
+				$actions[$action] = wprp_format_user_obj( get_user_by( 'id', $user->ID ) );
 
 			} else if ( 'delete_user' == $action ) {
 				require_once ABSPATH . '/wp-admin/includes/user.php';
