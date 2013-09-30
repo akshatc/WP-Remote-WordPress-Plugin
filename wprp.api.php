@@ -341,7 +341,6 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 				$actions[$action] = wprp_format_user_obj( get_user_by( 'id', $user->ID ) );
 
 			} else if ( 'delete_user' == $action ) {
-				require_once ABSPATH . '/wp-admin/includes/user.php';
 				$actions[$action] = wp_delete_user( $user->ID );
 			}
 
