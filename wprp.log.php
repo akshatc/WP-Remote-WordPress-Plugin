@@ -4,7 +4,7 @@ class WPRP_Log {
 
 	static $instance;
 
-	private $disable_logging = false;
+	private $is_logging_enabled = true;
 
 	static function get_instance() {
 
@@ -20,12 +20,12 @@ class WPRP_Log {
 	}
 
 	public function disable_logging() {
-		$this->is_disabled = true;
+		$this->is_logging_enabled = false;
 	}
 
 	public function setup_actions() {
 
-		if ( $this->disable_logging )
+		if ( $this->is_logging_enabled )
 			return;
 
 		add_action( 'wp_login', array( $this, 'action_wp_login' ), 10, 2 );
@@ -102,7 +102,7 @@ class WPRP_Log {
 
 	public function add_item( $item ) {
 
-		if ( $this->disable_logging )
+		if ( $this->is_logging_enabled )
 			return;
 		
 		$item = wp_parse_args( $item, array(
