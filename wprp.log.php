@@ -25,7 +25,7 @@ class WPRP_Log {
 
 	public function setup_actions() {
 
-		if ( $this->is_logging_enabled )
+		if ( ! $this->is_logging_enabled )
 			return;
 
 		add_action( 'wp_login', array( $this, 'action_wp_login' ), 10, 2 );
@@ -102,7 +102,7 @@ class WPRP_Log {
 
 	public function add_item( $item ) {
 
-		if ( $this->is_logging_enabled )
+		if ( ! $this->is_logging_enabled )
 			return;
 		
 		$item = wp_parse_args( $item, array(
