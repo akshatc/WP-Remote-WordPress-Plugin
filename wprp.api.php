@@ -226,6 +226,80 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'get_option':
+
+			$actions[$action] = get_option( sanitize_text_field( WPR_API_Request::get_arg( 'option_name' ) ) );
+
+			break;
+
+		case 'update_option':
+
+			$actions[$action] = update_option( sanitize_text_field( WPR_API_Request::get_arg( 'option_name' ) ), WPR_API_Request::get_arg( 'option_value' ) );
+
+		break;
+
+		case 'delete_option':
+
+			$actions[$action] = delete_option( sanitize_text_field( WPR_API_Request::get_arg( 'option_name' ) ) );
+
+		break;
+
+		case 'get_users':
+
+			$arg_keys = array( 
+				'include',
+				'exclude',
+				'search',
+				'orderby',
+				'order',
+				'offset',
+				'number',
+			);
+			$args = array();
+			foreach( $arg_keys as $arg_key ) {
+				// Note: get_users() supports validation / sanitization
+				if ( $value = WPR_API_Request::get_arg( $arg_key ) )
+					$args[$arg_key] = $value;
+			}
+
+			$users = array_map( 'wprp_format_user_obj', get_users( $args ) ); 
+			$actions[$action] = $users;
+
+			break;
+
+		case 'create_user':
+
+			$args = array(
+				// Note: wp_insert_user() handles sanitization / validation
+				'user_login' => WPR_API_Request::get_arg( 'user_login' ),
+				'user_email' => WPR_API_Request::get_arg( 'user_email' ),
+				'role' => get_option('default_role'),
+				'user_pass' => false,
+				'user_registered' => strftime( "%F %T", time() ),
+				'display_name' => false,
+				);
+			foreach( $args as $key => $value ) {
+				// Note: wp_insert_user() handles sanitization / validation
+				if ( $new_value = WPR_API_Request::get_arg( $key ) )
+					$args[$key] = $new_value;
+			}
+
+			if ( ! $args['user_pass'] ) {
+				$args['user_pass'] = $generated_password = wp_generate_password();
+			} else {
+				$generated_password = false;
+			}
+
+			$user_id = wp_insert_user( $args );
+
+			if ( is_wp_error( $user_id ) ) {
+				$actions[$action] =  array( 'status' => 'error', 'error' => $user_id->get_error_message() );
+			} else {
+				$actions[$action] = new WP_Error( 'log-not-enabled', 'Logging is not enabled' );
+			}
+
+			break;
+			
 		case 'enable_log' :
 			update_option( 'wprp_enable_log', true );
 			$actions[$action] = true;
@@ -246,6 +320,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			}
 
 			break;
+			
 		default :
 
 			$actions[$action] = 'not-implemented';

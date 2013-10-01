@@ -271,3 +271,20 @@ function wprp_translations_init() {
 	}
 }
 add_action( 'plugins_loaded', 'wprp_translations_init' );
+
+/**
+ * Format a WP User object into a better
+ * object for the API
+ */
+function wprp_format_user_obj( $user_obj ) {
+	$new_user_obj = new stdClass;
+
+	foreach( $user_obj->data as $key => $value ) {
+		$new_user_obj->$key = $value;
+	}
+
+	$new_user_obj->roles = $user_obj->roles;
+	$new_user_obj->caps = $user_obj->caps;
+
+	return $new_user_obj;
+}
