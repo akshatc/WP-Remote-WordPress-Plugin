@@ -71,6 +71,10 @@ class WPR_API_Request {
 
 WPR_API_Request::verify_request();
 
+// disable logging for anythign done in API requests
+if ( class_exists( 'WPRP_Log' ) )
+	WPRP_Log::get_instance()->disable_logging();
+
 // Disable error_reporting so they don't break the json request
 if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG )
 	error_reporting( 0 );
@@ -232,13 +236,13 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 			$actions[$action] = update_option( sanitize_text_field( WPR_API_Request::get_arg( 'option_name' ) ), WPR_API_Request::get_arg( 'option_value' ) );
 
-			break;
+		break;
 
 		case 'delete_option':
 
 			$actions[$action] = delete_option( sanitize_text_field( WPR_API_Request::get_arg( 'option_name' ) ) );
 
-			break;
+		break;
 
 		case 'get_users':
 
@@ -291,61 +295,32 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			if ( is_wp_error( $user_id ) ) {
 				$actions[$action] =  array( 'status' => 'error', 'error' => $user_id->get_error_message() );
 			} else {
-				$user_obj = wprp_format_user_obj( get_user_by( 'id', $user_id ) );
-				// Just this one time...
-				if ( $generated_password )
-					$user_obj->user_pass = $generated_password;
-				$actions[$action] = $user_obj;
+				$actions[$action] = new WP_Error( 'log-not-enabled', 'Logging is not enabled' );
 			}
 
 			break;
+			
+		case 'enable_log' :
+			update_option( 'wprp_enable_log', true );
+			$actions[$action] = true;
+		break;
 
-		case 'get_user':
-		case 'update_user':
-		case 'delete_user':
+		case 'disable_log' :
+			delete_option( 'wprp_enable_log' );
+			$actions[$action] = true;
+		break;
 
-			$id_or_login = WPR_API_Request::get_arg( 'user');
-			if ( is_numeric( $id_or_login ) )
-				$user = get_user_by( 'id', $id_or_login );
-			else
-				$user = get_user_by( 'login', $id_or_login );
+		case 'get_log' :
 
-			if ( ! $user ) {
-				$actions[$action] = array( 'status' => 'error', 'error' => "No user found." );
-				break;
-			}
-
-			require_once ABSPATH . '/wp-admin/includes/user.php';
-			if ( 'get_user' == $action ) {
-				$actions[$action] = wprp_format_user_obj( $user );
-			} else if ( 'update_user' == $action ) {
-
-				$fields = array(
-					'user_email',
-					'display_name',
-					'first_name',
-					'last_name',
-					'user_nicename',
-					'user_pass',
-					'user_url',
-					'description'
-				);
-				$args = array();
-				foreach( $fields as $field ) {
-					// Note: wp_update_user() handles sanitization / validation
-					if ( $value = WPR_API_Request::get_arg( $field ) )
-						$args[$field] = $value;
-				}
-				$args['ID'] = $user->ID;
-				wp_update_user( $args );
-				$actions[$action] = wprp_format_user_obj( get_user_by( 'id', $user->ID ) );
-
-			} else if ( 'delete_user' == $action ) {
-				$actions[$action] = wp_delete_user( $user->ID );
+			if ( class_exists( 'WPRP_Log' ) ) {
+				$actions[$action] = WPRP_Log::get_instance()->get_items();
+				WPRP_Log::get_instance()->delete_items();
+			} else {
+				$actions[$action] = new WP_Error( 'log-not-enabled', 'Logging is not enabled' );
 			}
 
 			break;
-
+			
 		default :
 
 			$actions[$action] = 'not-implemented';
