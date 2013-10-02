@@ -9,7 +9,8 @@ function _wprp_get_themes() {
 
 	require_once( ABSPATH . '/wp-admin/includes/theme.php' );
 
-	_wpr_add_non_extend_theme_support_filter();
+	// Disabled 10/2/2013 because causes fatals all the time.
+	// _wpr_add_non_extend_theme_support_filter();
 
 	// Get all themes
 	if ( function_exists( 'wp_get_themes' ) )

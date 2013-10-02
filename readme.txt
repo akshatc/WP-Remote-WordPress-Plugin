@@ -33,6 +33,8 @@ You can email us at support@wpremote.com for support.
 
 #### 2.6.4 (???)
 
+* Misc API improvements for Premium.
+* Bug fix: Disable all premium plugin and theme updates. Causing fatals too often.
 * Bug fix: Restore FTP-based core, theme, and plugin updates by properly accessing the passed credentials.
 
 #### 2.6.3 (10 September 2013)
