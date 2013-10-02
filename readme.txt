@@ -29,6 +29,12 @@ You can email us at support@wpremote.com for support.
 2. Activate the plugin.
 3. Sign up for an account at wpremote.com and add your site.
 
+== Screenshots ==
+
+1. The WP Remote dashboard at wpremote.com
+2. See all of the plugins and themes needing update across all Sites in one view.
+3. Download nightly Automatic Backups (Premium feature).
+
 == Changelog ==
 
 #### 2.6.4 (???)
