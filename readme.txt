@@ -31,6 +31,8 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### 2.6.5 (??? ?? ????)
+
 #### 2.6.4 (2 October 2013)
 
 * Misc API improvements for Premium.
