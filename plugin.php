@@ -50,6 +50,7 @@ if ( version_compare( phpversion(), '5.2.4', '<' ) ) {
 
 require_once( WPRP_PLUGIN_PATH . '/wprp.admin.php' );
 require_once( WPRP_PLUGIN_PATH . '/wprp.compatability.php' );
+require_once( WPRP_PLUGIN_PATH . '/wprp.utils.php' );
 
 if ( get_option( 'wprp_enable_log' ) )
 	require_once( WPRP_PLUGIN_PATH . '/wprp.log.php' );
