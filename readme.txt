@@ -39,6 +39,8 @@ You can email us at support@wpremote.com for support.
 
 #### 2.6.5 (??? ?? ????)
 
+* Incorporated a more reliable plugin re-activation process after update.
+
 #### 2.6.4 (2 October 2013)
 
 * Misc API improvements for Premium.
