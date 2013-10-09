@@ -97,14 +97,17 @@ function _wprp_update_plugin( $plugin ) {
 	$data = ob_get_contents();
 	ob_clean();
 
-	if ( ( ! $result && ! is_null( $result ) ) || $data )
-		return array( 'status' => 'error', 'error' => 'file_permissions_error' );
+	if ( ! empty( $skin->error ) )
 
-	elseif ( is_wp_error( $result ) )
+		return array( 'status' => 'error', 'error' => $upgrader->strings[$skin->error] );
+
+	else if ( is_wp_error( $result ) )
+
 		return array( 'status' => 'error', 'error' => $result->get_error_code() );
 
-	if ( $skin->error )
-		return array( 'status' => 'error', 'error' => $skin->error );
+	else if ( ( ! $result && ! is_null( $result ) ) || $data )
+
+		return array( 'status' => 'error', 'error' => 'Unknown error updating plugin.' );
 
 	// If the plugin was activited, we have to re-activate it
 	if ( $is_active ) {
