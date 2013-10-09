@@ -107,42 +107,9 @@ function _wprp_update_plugin( $plugin ) {
 		return array( 'status' => 'error', 'error' => $skin->error );
 
 	// If the plugin was activited, we have to re-activate it
-	if ( $is_active ) {
-
-		// we can not use the "normal" way or lazy activating, as thet requires wpremote to be activated
-		if ( strpos( $plugin, 'wpremote' ) !== false ) {
-			activate_plugin( $plugin, '', false, true );
-			return array( 'status' => 'success' );
-		}
-
-		// we do a remote request to activate, as we don't want to kill any installs
-		$data = array( 'actions' => array( 'activate_plugin' ), 'plugin' => $plugin, 'timestamp' => (string) time() );
-
-		list( $hash ) = WPR_API_Request::generate_hashes( $data );
-
-		$data['wpr_verify_key'] = $hash;
-
-		$args = array( 'body' => $data );
-
-		$request = wp_remote_post( get_bloginfo( 'url' ), $args );
-
-		if ( is_wp_error( $request ) ) {
-			return array( 'status' => 'error', 'error' => $request->get_error_code() );
-		}
-
-		$body = wp_remote_retrieve_body( $request );
-
-		if ( ! $json = @json_decode( $body ) )
-			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate.' );
-
-		$json = $json->activate_plugin;
-
-		if ( empty( $json->status ) )
-			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate. The activation request returned no response' );
-
-		if ( $json->status != 'success' )
-			return array( 'status' => 'error', 'error' => 'The plugin was updated, but failed to re-activate. The activation request returned response: ' . $json->status );
-	}
+	// but if activate_plugin() fatals, then we'll just have to return 500
+	if ( $is_active )
+		activate_plugin( $plugin, '', false, true );
 
 	return array( 'status' => 'success' );
 }
