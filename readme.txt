@@ -145,3 +145,7 @@ You can email us at support@wpremote.com for support.
 * Start keeping a changelog of plugin changes
 * Pass home_url, site_url and admin_url to WP Remote instead of guessing at them, fixes issues with the urls being wrong for non-standard WordPress installs
 * Better error message when you have the wrong API key entered.
+
+## Contribution guidelines ##
+
+see https://github.com/humanmade/WP-Remote-WordPress-Plugin/blob/master/CONTRIBUTING.md
