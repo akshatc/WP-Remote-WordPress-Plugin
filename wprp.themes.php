@@ -157,6 +157,8 @@ function _wprp_activate_theme( $theme ) {
 function _wprp_update_theme( $theme ) {
 
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
+	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-theme-upgrader-skin.php';
 
 	if ( ! _wprp_supports_theme_upgrade() )
 		return array( 'status' => 'error', 'error' => 'WordPress version too old for theme upgrades' );
