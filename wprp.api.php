@@ -127,6 +127,12 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'get_version_control_information' :
+
+			$actions[$action] = _wprp_get_version_control_information();
+
+		break;
+
 		case 'upgrade_core' :
 
 			$actions[$action] = _wprp_upgrade_core();
