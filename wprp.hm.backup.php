@@ -139,6 +139,14 @@ class WPRP_HM_Backup {
 	private $mysqldump_method = '';
 
 	/**
+	 * Whether or not to use a file manifest (more write-intensive)
+	 * 
+	 * @var bool
+	 * @access private
+	 */
+	private $using_file_manifest = false;
+
+	/**
 	 * Check whether safe mode is active or not
 	 *
 	 * @param string $ini_get_callback
@@ -419,6 +427,66 @@ class WPRP_HM_Backup {
 	 */
 	public function get_mysqldump_method() {
 		return $this->mysqldump_method;
+	}
+
+	/**
+	 * Whether or not to use the file manifest
+	 * 
+	 * @access public
+	 */
+	public function is_using_file_manifest() {
+		return (bool)$this->using_file_manifest;
+	}
+
+	/**
+	 * Set whether or not to use the file manifest
+	 * 
+	 * @access public
+	 */
+	public function set_is_using_file_manifest( $val ) {
+		$this->using_file_manifest = (bool)$val;
+	}
+
+	/**
+	 * Create a file manifest for the backup
+	 * 
+	 * @access private
+	 */
+	private function create_file_manifest() {
+
+		if ( file_exists( $this->get_file_manifest_filepath() ) )
+			unlink( $this->get_file_manifest_filepath() );
+
+		if ( ! $handle = fopen( $this->get_file_manifest_filepath(), 'w' ) )
+			return;
+
+		$files = $this->get_included_files();
+		$file_manifest = array();
+		foreach( $files as $file ) {
+
+			if ( $file->isDir() )
+				$file_manifest[] = trailingslashit( str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) );
+
+			elseif ( $file->isFile() )
+				$file_manifest[] = str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) );
+
+		}
+
+		$file_manifest = implode( PHP_EOL, $file_manifest );
+
+		fwrite( $handle, $file_manifest );
+
+		fclose( $handle );
+
+	}
+
+	/**
+	 * Get the path to the file manifest
+	 * 
+	 * @access private
+	 */
+	private function get_file_manifest_filepath() {
+		return $this->get_path() . '/.file-manifest';
 	}
 
 	/**
@@ -761,6 +829,10 @@ class WPRP_HM_Backup {
 	 */
 	public function archive() {
 
+		// If using a file manifest, create the manifest
+		if ( $this->is_using_file_manifest() )
+			$this->create_file_manifest();
+
 		// Do we have the path to the zip command
 		if ( $this->get_zip_command_path() )
 			$this->zip();
@@ -776,6 +848,10 @@ class WPRP_HM_Backup {
 		// Delete the database dump file
 		if ( file_exists( $this->get_database_dump_filepath() ) )
 			unlink( $this->get_database_dump_filepath() );
+
+		// If using a file manifest, delete the manifest
+		if ( file_exists( $this->get_file_manifest_filepath() ) )
+			unlink( $this->get_file_manifest_filepath() );
 
 		$this->do_action( 'hmbkp_archive_finished' );
 
