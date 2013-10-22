@@ -147,11 +147,11 @@ class WPRP_HM_Backup {
 	private $using_file_manifest = false;
 
 	/**
-	 * Contents of the file manifest
+	 * Files of the file manifest that have already been archived
 	 * 
 	 * @access private
 	 */
-	private $file_manifest_contents = false;
+	private $file_manifest_already_archived = array();
 
 	/**
 	 * Check whether safe mode is active or not
@@ -494,12 +494,40 @@ class WPRP_HM_Backup {
 	}
 
 	/**
-	 * Save the contents of the file manifest
+	 * Update the contents of the file manifest based
+	 * on what's already been archived
 	 * 
 	 * @access private
 	 */
-	private function save_file_manifest_contents_to_file() {
-		return file_put_contents( $this->get_file_manifest_filepath(), implode( PHP_EOL, $this->file_manifest_contents ) );
+	private function update_file_manifest() {
+
+		if ( ! $old_handle = fopen( $this->get_file_manifest_filepath(), 'r' ) )
+			return false;
+
+		$tmp_path = $this->get_path() . '/.file-manifest-new';
+		if ( ! $new_handle = fopen( $tmp_path, 'w' ) )
+			return false;
+
+		$i = 0;
+		while( ( $file = fgets( $old_handle ) ) !== false ) {
+
+			if ( empty( $file ) )
+				continue;
+
+			$file = trim( $file ); // will include a line ending
+
+			if ( in_array( $file, $this->file_manifest_already_archived ) )
+				continue;
+
+			fwrite( $new_handle, $file . PHP_EOL );
+			$i++;
+		}
+
+		fclose( $old_handle );
+		fclose( $new_handle );
+
+		rename( $tmp_path, $this->get_file_manifest_filepath() );
+		$this->file_manifest_already_archived = array();
 	}
 
 
@@ -513,48 +541,28 @@ class WPRP_HM_Backup {
 	}
 
 	/**
-	 * Get the next file from the file manifest
+	 * Get batch of files to archive from the file manifest
+	 * Ignore any files that already have been archived
 	 * 
 	 * @access private
-	 * @return string
 	 */
-	private function get_next_file_from_file_manifest() {
+	private function get_next_files_from_file_manifest( $batch_size = 300 ) {
 
-		// See if the file manifest has been loaded yet
-		if ( false === $this->file_manifest_contents ) {
+		if ( ! $handle = fopen( $this->get_file_manifest_filepath(), 'r' ) )
+			return array();
 
-			if ( is_file( $this->get_file_manifest_filepath() ) )
-				$this->file_manifest_contents = explode( PHP_EOL, file_get_contents( $this->get_file_manifest_filepath() ) );
-			else
-				$this->file_manifest_contents = array();
-		}
+		$files = array();
+		do {
+			$file = fgets( $handle );
 
-		if ( ! empty( $this->file_manifest_contents[0] ) )
-			return $this->file_manifest_contents[0];
-		else
-			return '';
-	}
+			if ( ! empty( $file ) && ! in_array( $file, $this->file_manifest_already_archived ) )
+				$files[] = trim( $file );
 
-	/**
-	 * Remove a given file from the file manifest contents
-	 *
-	 * @access private
-	 * @param string
-	 */
-	private function remove_file_from_file_manifest_contents( $file ) {
+		} while ( $file && count( $files ) < $batch_size );
 
-		if ( empty( $file ) )
-			return false;
+		fclose( $handle );
 
-		if ( empty( $this->file_manifest_contents ) )
-			return false;
-
-		foreach( $this->file_manifest_contents as $key => $manifest_file ) {
-			if ( $manifest_file == $file )
-				unset( $this->file_manifest_contents[$key] );
-		}
-
-		$this->file_manifest_contents = array_values( array_filter( $this->file_manifest_contents ) );
+		return $files;
 	}
 
 	/**
@@ -940,36 +948,38 @@ class WPRP_HM_Backup {
 
 			$errors = array();
 
-			while( $this->get_next_file_from_file_manifest() ) {
+			$next_files = $this->get_next_files_from_file_manifest();
+			do {
 
-				$next_files = array();
+				// Not necessary to include directories when using `zip`
+				foreach( $next_files as $key => $next_file ) {
 
-				while ( count( $next_files ) < 300 ) {
-
-					$next_file = $this->get_next_file_from_file_manifest();
-					if ( empty( $next_file ) )
-						break;
-
-					// Not necessary to include directories
-					if ( is_dir( $next_file ) ) {
-						$this->remove_file_from_file_manifest_contents( $next_file );
+					if ( ! is_dir( $next_file ) )
 						continue;
-					}
 
-					$next_files[] = $next_file;
-					$this->remove_file_from_file_manifest_contents( $next_file );
+					unset( $next_files[$key] );
+					$this->file_manifest_already_archived[] = $next_file;
 				}
+
+				// Ensure we don't have any empty keys
+				$next_files = array_values( array_filter( $next_files ) );
 
 				// Add the files to the archive
 				if ( ! empty( $next_files ) )
-					$stderr = shell_exec( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -q ' . escapeshellarg( $this->get_archive_filepath() ) . ' ./' . implode( ' ', $next_files ) . ' 2>&1' );
+					$stderr = shell_exec( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' ' . escapeshellarg( $this->get_archive_filepath() ) . ' ' . implode( ' ', $next_files ) . ' -q 2>&1' );
 
-				$this->save_file_manifest_contents_to_file();
-
+				// Log errors if there were any
 				if ( ! empty( $stderr ) )
-					$errors[] = $stderr;
+					$errors[] = trim( $stderr );
 
-			}
+				// Update the file manifest with these files that were archived
+				$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
+				$this->update_file_manifest();
+
+				$next_files = $this->get_next_files_from_file_manifest();
+
+			} while( ! empty( $next_files ) );
+
 			$stderr = implode( ', ', $errors );
 
 		// Zip up $this->root with excludes
