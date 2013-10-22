@@ -913,30 +913,32 @@ class WPRP_HM_Backup {
 		// If using a manifest, perform the backup in chunks
 		if ( $this->is_using_file_manifest() ) {
 			
+			// Create a list of all files to be backed up
 			$this->create_file_manifest();
 
 			$this->do_action( 'hmbkp_archive_started' );
 
 			$errors = array();
 
-			$next_files = $this->get_next_files_from_file_manifest();
+			// Back up files from the file manifest in chunks
+			$next_files = $this->get_next_files_from_file_manifest( 300 );
 			do {
 
 				$error = false;
 
-				// If not or if the shell zip failed then use ZipArchive
+				// ZipArchive is the fastest for chunked backups
 				if ( class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) ) {
 					$this->archive_method = 'ziparchive';
 					$error = $this->zip_archive_files( $next_files );
 				}
 
-				// Do we have the path to the zip command
+				// Fall back to `zip` if ZipArchive doesn't exist
 				else if ( $this->get_zip_command_path() ) {
 					$this->archive_method = 'zip';
 					$error = $this->zip_files( $next_files );
 				}
 
-				// If ZipArchive is unavailable or one of the above failed
+				// Last opportunity
 				else {
 					$this->archive_method = 'pclzip';
 					$error = $this->pcl_zip_files( $next_files );
@@ -954,11 +956,13 @@ class WPRP_HM_Backup {
 
 			} while( ! empty( $next_files ) );
 
+			// If the database should be included in the backup, it's included last
 			if ( 'file' !== $this->get_type() && file_exists( $this->get_database_dump_filepath() ) ) {
 
 				$error = false;
 
 				switch ( $this->archive_method ) {
+
 					case 'ziparchive':
 
 						$this->ziparchive->addFile( $this->get_database_dump_filepath(), $this->get_database_dump_filename() );
@@ -966,7 +970,9 @@ class WPRP_HM_Backup {
 						break;
 
 					case 'zip':
+
 						$error = shell_exec( 'cd ' . escapeshellarg( $this->get_path() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -uq ' . escapeshellarg( $this->get_archive_filepath() ) . ' ' . escapeshellarg( $this->get_database_dump_filename() ) . ' 2>&1' );
+
 						break;
 
 					case 'pclzip':
@@ -991,12 +997,14 @@ class WPRP_HM_Backup {
 				if ( $this->ziparchive->statusSys )
 					$this->warning( $this->get_archive_method(), $this->ziparchive->statusSys );
 
+				// Close the file for the final time
 				$this->ziparchive->close();
 			}
 
 			// Verify and remove if errors
 			$this->verify_archive();
 
+			// Remove the file manifest
 			if ( file_exists( $this->get_file_manifest_filepath() ) )
 				unlink( $this->get_file_manifest_filepath() );
 
