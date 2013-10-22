@@ -1025,30 +1025,56 @@ class WPRP_HM_Backup {
 
 			$files_added = 0;
 
-			foreach ( $this->get_files() as $file ) {
+			if ( $this->is_using_file_manifest() ) {
 
-				// Skip dot files, they should only exist on versions of PHP between 5.2.11 -> 5.3
-				if ( method_exists( $file, 'isDot' ) && $file->isDot() )
-					continue;
+				$next_files = $this->get_next_files_from_file_manifest();
+				do {
 
-				// Skip unreadable files
-				if ( ! @realpath( $file->getPathname() ) || ! $file->isReadable() )
-					continue;
+					foreach( $next_files as $next_file ) {
 
-			    // Excludes
-			    if ( $excludes && preg_match( '(' . $excludes . ')', str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) ) )
-			        continue;
+						$full_path = trailingslashit( $this->get_root() ) . $next_file;
+						if ( is_dir( $full_path ) )
+							$zip->addEmptyDir( $full_path );
+						else
+							$zip->addFile( pathinfo( $full_path, PATHINFO_BASENAME ), $full_path );
 
-			    if ( $file->isDir() )
-					$zip->addEmptyDir( trailingslashit( str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) ) );
+					}
 
-			    elseif ( $file->isFile() )
-					$zip->addFile( $file->getPathname(), str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) );
+					// Update the file manifest with these files that were archived
+					$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
+					$this->update_file_manifest();
 
-				if ( ++$files_added % 500 === 0 )
-					if ( ! $zip->close() || ! $zip->open( $this->get_archive_filepath(), ZIPARCHIVE::CREATE ) )
-						return;
+					$next_files = $this->get_next_files_from_file_manifest();
 
+				} while( ! empty( $next_files ) );
+
+			} else {
+
+				foreach ( $this->get_files() as $file ) {
+
+					// Skip dot files, they should only exist on versions of PHP between 5.2.11 -> 5.3
+					if ( method_exists( $file, 'isDot' ) && $file->isDot() )
+						continue;
+
+					// Skip unreadable files
+					if ( ! @realpath( $file->getPathname() ) || ! $file->isReadable() )
+						continue;
+
+				    // Excludes
+				    if ( $excludes && preg_match( '(' . $excludes . ')', str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) ) )
+				        continue;
+
+				    if ( $file->isDir() )
+						$zip->addEmptyDir( trailingslashit( str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) ) );
+
+				    elseif ( $file->isFile() )
+						$zip->addFile( $file->getPathname(), str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) );
+
+					if ( ++$files_added % 500 === 0 )
+						if ( ! $zip->close() || ! $zip->open( $this->get_archive_filepath(), ZIPARCHIVE::CREATE ) )
+							return;
+
+				}
 			}
 
 		}
