@@ -481,6 +481,16 @@ class WPRP_HM_Backup {
 	}
 
 	/**
+	 * Save the contents of the file manifest
+	 * 
+	 * @access private
+	 */
+	private function save_file_manifest_contents_to_file() {
+		return file_put_contents( $this->get_file_manifest_filepath(), implode( PHP_EOL, $this->file_manifest_contents ) );
+	}
+
+
+	/**
 	 * Get the path to the file manifest
 	 * 
 	 * @access private
@@ -497,22 +507,28 @@ class WPRP_HM_Backup {
 	 */
 	private function get_next_file_from_file_manifest() {
 
-		if ( ! is_file( $this->get_file_manifest_filepath() ) )
-			$this->file_manifest_contents = array();
+		// See if the file manifest has been loaded yet
+		if ( false === $this->file_manifest_contents ) {
 
-		if ( false === $this->file_manifest_contents )
-			$this->file_manifest_contents = explode( PHP_EOL, file_get_contents( $this->get_file_manifest_filepath() ) );
+			if ( is_file( $this->get_file_manifest_filepath() ) )
+				$this->file_manifest_contents = explode( PHP_EOL, file_get_contents( $this->get_file_manifest_filepath() ) );
+			else
+				$this->file_manifest_contents = array();
+		}
 
-		return array_shift( $this->file_manifest_contents );
+		if ( ! empty( $this->file_manifest_contents[0] ) )
+			return $this->file_manifest_contents[0];
+		else
+			return '';
 	}
 
 	/**
-	 * Remove a given file from the file manifest
+	 * Remove a given file from the file manifest contents
 	 *
 	 * @access private
 	 * @param string
 	 */
-	private function remove_file_from_file_manifest( $file ) {
+	private function remove_file_from_file_manifest_contents( $file ) {
 
 		if ( empty( $file ) )
 			return false;
@@ -525,10 +541,7 @@ class WPRP_HM_Backup {
 				unset( $this->file_manifest_contents[$key] );
 		}
 
-		// Only periodically update the file manifest to improve performance
-		if ( empty( $this->file_manifest_contents ) || count( $this->file_manifest_contents ) % 200 == 0 )
-			file_put_contents( $this->get_file_manifest_filepath(), implode( PHP_EOL, $this->file_manifest_contents ) );
-
+		$this->file_manifest_contents = array_values( array_filter( $this->file_manifest_contents ) );
 	}
 
 	/**
@@ -913,21 +926,36 @@ class WPRP_HM_Backup {
 		if ( $this->get_type() !== 'database' && $this->is_using_file_manifest() ) {
 
 			$errors = array();
-			while ( $next_file = $this->get_next_file_from_file_manifest() ) {
 
-				// Not necessary to include directories
-				if ( is_dir( $next_file ) ) {
-					$this->remove_file_from_file_manifest( $next_file );
-					continue;
+			while( $this->get_next_file_from_file_manifest() ) {
+
+				$next_files = array();
+
+				while ( count( $next_files ) < 300 ) {
+
+					$next_file = $this->get_next_file_from_file_manifest();
+					if ( empty( $next_file ) )
+						break;
+
+					// Not necessary to include directories
+					if ( is_dir( $next_file ) ) {
+						$this->remove_file_from_file_manifest_contents( $next_file );
+						continue;
+					}
+
+					$next_files[] = $next_file;
+					$this->remove_file_from_file_manifest_contents( $next_file );
 				}
 
-				// Add the file to the archive
-				$stderr = shell_exec( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -q ' . escapeshellarg( $this->get_archive_filepath() ) . ' ./' . $next_file . ' 2>&1' );
+				// Add the files to the archive
+				if ( ! empty( $next_files ) )
+					$stderr = shell_exec( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -q ' . escapeshellarg( $this->get_archive_filepath() ) . ' ./' . implode( ' ', $next_files ) . ' 2>&1' );
 
-				$this->remove_file_from_file_manifest( $next_file );
+				$this->save_file_manifest_contents_to_file();
 
 				if ( ! empty( $stderr ) )
 					$errors[] = $stderr;
+
 			}
 			$stderr = implode( ', ', $errors );
 
