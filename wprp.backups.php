@@ -206,6 +206,12 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		switch ( $action ) :
 
+			case 'hmbkp_backup_started':
+
+				$this->save_backup_process_id();
+
+			break;
+
 	    	case 'hmbkp_mysqldump_started' :
 
 	    		$this->set_status( sprintf( __( 'Dumping Database %s', 'wpremote' ), '(<code>' . $this->get_mysqldump_method() . '</code>)' ) );
@@ -234,6 +240,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 	    		if ( file_exists( $this->get_schedule_running_path() ) )
 	    			unlink( $this->get_schedule_running_path() );
+
+				$this->clear_backup_process_id();
 
 	    	break;
 
@@ -424,6 +432,43 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		fclose( $handle );
 
+	}
+
+	/**
+	 * Get the file path to the backup process ID log
+	 * 
+	 * @access private
+	 */
+	private function get_backup_process_id_path() {
+		return $this->get_path() . '/.backup-process-id';
+	}
+
+	/**
+	 * Save this current backup process ID in case
+	 * we need to check later whether it was killed in action
+	 *
+	 * @access private
+	 */
+	private function save_backup_process_id() {
+
+		if ( ! $handle = fopen( $this->get_backup_process_id_path(), 'w' ) )
+			return;
+
+		fwrite( $handle, getmypid() );
+
+		fclose( $handle );
+
+	}
+
+	/**
+	 * Clear the backup process ID
+	 * 
+	 * @access private
+	 */
+	private function clear_backup_process_id() {
+
+		if ( file_exists( $this->get_backup_process_id_path() ) )
+			unlink( $this->get_backup_process_id_path() );
 	}
 
 	/**
