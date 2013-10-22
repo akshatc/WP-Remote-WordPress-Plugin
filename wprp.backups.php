@@ -546,6 +546,8 @@ function _wprp_backups_api_call( $action ) {
 			return true;
 
 		case 'do_backup' :
+
+			WPRP_Backups::get_instance()->set_is_using_file_manifest( true );
 			return WPRP_Backups::get_instance()->do_backup();
 
 		case 'get_backup' :
