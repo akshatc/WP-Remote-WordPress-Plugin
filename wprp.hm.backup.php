@@ -147,6 +147,13 @@ class WPRP_HM_Backup {
 	private $using_file_manifest = false;
 
 	/**
+	 * Contents of the file manifest
+	 * 
+	 * @access private
+	 */
+	private $file_manifest_contents = false;
+
+	/**
 	 * Check whether safe mode is active or not
 	 *
 	 * @param string $ini_get_callback
@@ -498,13 +505,12 @@ class WPRP_HM_Backup {
 	private function get_next_file_from_file_manifest() {
 
 		if ( ! is_file( $this->get_file_manifest_filepath() ) )
-			return '';
+			$this->file_manifest_contents = array();
 
-		$file_manifest = explode( PHP_EOL, file_get_contents( $this->get_file_manifest_filepath() ) );
-		if ( is_array( $file_manifest ) )
-			return array_shift( $file_manifest );
-		else
-			return '';
+		if ( false === $this->file_manifest_contents )
+			$this->file_manifest_contents = explode( PHP_EOL, file_get_contents( $this->get_file_manifest_filepath() ) );
+
+		return array_shift( $this->file_manifest_contents );
 	}
 
 	/**
@@ -518,23 +524,17 @@ class WPRP_HM_Backup {
 		if ( empty( $file ) )
 			return false;
 
-		if ( ! is_file( $this->get_file_manifest_filepath() ) )
+		if ( empty( $this->file_manifest_contents ) )
 			return false;
 
-		$file_manifest = explode( PHP_EOL, file_get_contents( $this->get_file_manifest_filepath() ) );
-		foreach( $file_manifest as $key => $manifest_file ) {
+		foreach( $this->file_manifest_contents as $key => $manifest_file ) {
 			if ( $manifest_file == $file )
-				unset( $file_manifest[$key] );
+				unset( $this->file_manifest_contents[$key] );
 		}
 
-		if ( ! $handle = fopen( $this->get_file_manifest_filepath(), 'w' ) )
-			return false;
-
-		$file_manifest = implode( PHP_EOL, $file_manifest );
-
-		fwrite( $handle, $file_manifest );
-
-		fclose( $handle );
+		// Only periodically update the file manifest to improve performance
+		if ( empty( $this->file_manifest_contents ) || count( $this->file_manifest_contents ) % 200 == 0 )
+			file_put_contents( $this->get_file_manifest_filepath(), implode( PHP_EOL, $this->file_manifest_contents ) );
 
 	}
 
