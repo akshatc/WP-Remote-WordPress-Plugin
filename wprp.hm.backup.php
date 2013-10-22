@@ -154,6 +154,11 @@ class WPRP_HM_Backup {
 	private $file_manifest_already_archived = array();
 
 	/**
+	 * A ZipArchive instance for this instance
+	 */
+	private $ziparchive = false;
+
+	/**
 	 * Check whether safe mode is active or not
 	 *
 	 * @param string $ini_get_callback
@@ -905,29 +910,115 @@ class WPRP_HM_Backup {
 	 */
 	public function archive() {
 
-		// If using a file manifest, create the manifest
-		if ( $this->is_using_file_manifest() )
+		// If using a manifest, perform the backup in chunks
+		if ( $this->is_using_file_manifest() ) {
+			
 			$this->create_file_manifest();
 
-		// Do we have the path to the zip command
-		if ( $this->get_zip_command_path() )
-			$this->zip();
+			$this->do_action( 'hmbkp_archive_started' );
 
-		// If not or if the shell zip failed then use ZipArchive
-		if ( empty( $this->archive_verified ) && class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) )
-			$this->zip_archive();
+			$errors = array();
 
-		// If ZipArchive is unavailable or one of the above failed
-		if ( empty( $this->archive_verified ) )
-			$this->pcl_zip();
+			$next_files = $this->get_next_files_from_file_manifest();
+			do {
+
+				$error = false;
+
+				// If not or if the shell zip failed then use ZipArchive
+				if ( class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) ) {
+					$this->archive_method = 'ziparchive';
+					$error = $this->zip_archive_files( $next_files );
+				}
+
+				// Do we have the path to the zip command
+				else if ( $this->get_zip_command_path() ) {
+					$this->archive_method = 'zip';
+					$error = $this->zip_files( $next_files );
+				}
+
+				// If ZipArchive is unavailable or one of the above failed
+				else {
+					$this->archive_method = 'pclzip';
+					$error = $this->pcl_zip_files( $next_files );
+				}
+
+				if ( ! empty( $error ) )
+					$errors[] = $error;
+
+				// Update the file manifest with these files that were archived
+				$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
+				$this->update_file_manifest();
+
+				// Get the next set of files to archive
+				$next_files = $this->get_next_files_from_file_manifest();
+
+			} while( ! empty( $next_files ) );
+
+			if ( 'file' !== $this->get_type() && file_exists( $this->get_database_dump_filepath() ) ) {
+
+				$error = false;
+
+				switch ( $this->archive_method ) {
+					case 'ziparchive':
+
+						$this->ziparchive->addFile( $this->get_database_dump_filepath(), $this->get_database_dump_filename() );
+
+						break;
+
+					case 'zip':
+						$error = shell_exec( 'cd ' . escapeshellarg( $this->get_path() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -uq ' . escapeshellarg( $this->get_archive_filepath() ) . ' ' . escapeshellarg( $this->get_database_dump_filename() ) . ' 2>&1' );
+						break;
+
+					case 'pclzip':
+				
+						break;
+				}
+
+				if ( ! empty( $error ) )
+					$errors[] = $error;
+			}
+
+			// If the methods produced any errors, log them
+			if ( ! empty( $errors ) )
+				$this->warning( $this->get_archive_method(), implode( ', ', $errors ) );
+
+			// ZipArchive has some special reporting requirements
+			if ( ! empty( $this->ziparchive ) ) {
+
+				if ( $this->ziparchive->status )
+					$this->warning( $this->get_archive_method(), $this->ziparchive->status );
+
+				if ( $this->ziparchive->statusSys )
+					$this->warning( $this->get_archive_method(), $this->ziparchive->statusSys );
+
+				$this->ziparchive->close();
+			}
+
+			// Verify and remove if errors
+			$this->verify_archive();
+
+			if ( file_exists( $this->get_file_manifest_filepath() ) )
+				unlink( $this->get_file_manifest_filepath() );
+
+		} else {
+
+			// Do we have the path to the zip command
+			if ( $this->get_zip_command_path() )
+				$this->zip();
+
+			// If not or if the shell zip failed then use ZipArchive
+			if ( empty( $this->archive_verified ) && class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) )
+				$this->zip_archive();
+
+			// If ZipArchive is unavailable or one of the above failed
+			if ( empty( $this->archive_verified ) )
+				$this->pcl_zip();
+
+		}
 
 		// Delete the database dump file
 		if ( file_exists( $this->get_database_dump_filepath() ) )
 			unlink( $this->get_database_dump_filepath() );
-
-		// If using a file manifest, delete the manifest
-		if ( file_exists( $this->get_file_manifest_filepath() ) )
-			unlink( $this->get_file_manifest_filepath() );
 
 		$this->do_action( 'hmbkp_archive_finished' );
 
@@ -944,46 +1035,8 @@ class WPRP_HM_Backup {
 
 		$this->do_action( 'hmbkp_archive_started' );
 
-		if ( $this->get_type() !== 'database' && $this->is_using_file_manifest() ) {
-
-			$errors = array();
-
-			$next_files = $this->get_next_files_from_file_manifest();
-			do {
-
-				// Not necessary to include directories when using `zip`
-				foreach( $next_files as $key => $next_file ) {
-
-					if ( ! is_dir( $next_file ) )
-						continue;
-
-					unset( $next_files[$key] );
-					$this->file_manifest_already_archived[] = $next_file;
-				}
-
-				// Ensure we don't have any empty keys
-				$next_files = array_values( array_filter( $next_files ) );
-
-				// Add the files to the archive
-				if ( ! empty( $next_files ) )
-					$stderr = shell_exec( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' ' . escapeshellarg( $this->get_archive_filepath() ) . ' ' . implode( ' ', $next_files ) . ' -q 2>&1' );
-
-				// Log errors if there were any
-				if ( ! empty( $stderr ) )
-					$errors[] = trim( $stderr );
-
-				// Update the file manifest with these files that were archived
-				$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
-				$this->update_file_manifest();
-
-				$next_files = $this->get_next_files_from_file_manifest();
-
-			} while( ! empty( $next_files ) );
-
-			$stderr = implode( ', ', $errors );
-
 		// Zip up $this->root with excludes
-		} else if ( $this->get_type() !== 'database' && $this->exclude_string( 'zip' ) ) {
+		if ( $this->get_type() !== 'database' && $this->exclude_string( 'zip' ) ) {
 		    $stderr = shell_exec( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -rq ' . escapeshellarg( $this->get_archive_filepath() ) . ' ./' . ' -x ' . $this->exclude_string( 'zip' ) . ' 2>&1' );
 
 		// Zip up $this->root without excludes
@@ -1000,7 +1053,25 @@ class WPRP_HM_Backup {
 			$this->warning( $this->get_archive_method(), $stderr );
 
 		$this->verify_archive();
+	}
 
+	/**
+	 * Zip one or more files
+	 *
+	 * @access private
+	 */
+	private function zip_files( $files ) {
+
+		// Not necessary to include directories when using `zip`
+		foreach( $files as $key => $file ) {
+
+			if ( ! is_dir( $file ) )
+				continue;
+
+			unset( $files[$key] );
+		}
+
+		return shell_exec( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' ' . escapeshellarg( $this->get_archive_filepath() ) . ' ' . implode( ' ', $files ) . ' -q 2>&1' );
 	}
 
 	/**
@@ -1025,56 +1096,30 @@ class WPRP_HM_Backup {
 
 			$files_added = 0;
 
-			if ( $this->is_using_file_manifest() ) {
+			foreach ( $this->get_files() as $file ) {
 
-				$next_files = $this->get_next_files_from_file_manifest();
-				do {
+				// Skip dot files, they should only exist on versions of PHP between 5.2.11 -> 5.3
+				if ( method_exists( $file, 'isDot' ) && $file->isDot() )
+					continue;
 
-					foreach( $next_files as $next_file ) {
+				// Skip unreadable files
+				if ( ! @realpath( $file->getPathname() ) || ! $file->isReadable() )
+					continue;
 
-						$full_path = trailingslashit( $this->get_root() ) . $next_file;
-						if ( is_dir( $full_path ) )
-							$zip->addEmptyDir( $full_path );
-						else
-							$zip->addFile( pathinfo( $full_path, PATHINFO_BASENAME ), $full_path );
+			    // Excludes
+			    if ( $excludes && preg_match( '(' . $excludes . ')', str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) ) )
+			        continue;
 
-					}
+			    if ( $file->isDir() )
+					$zip->addEmptyDir( trailingslashit( str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) ) );
 
-					// Update the file manifest with these files that were archived
-					$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
-					$this->update_file_manifest();
+			    elseif ( $file->isFile() )
+					$zip->addFile( $file->getPathname(), str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) );
 
-					$next_files = $this->get_next_files_from_file_manifest();
+				if ( ++$files_added % 500 === 0 )
+					if ( ! $zip->close() || ! $zip->open( $this->get_archive_filepath(), ZIPARCHIVE::CREATE ) )
+						return;
 
-				} while( ! empty( $next_files ) );
-
-			} else {
-
-				foreach ( $this->get_files() as $file ) {
-
-					// Skip dot files, they should only exist on versions of PHP between 5.2.11 -> 5.3
-					if ( method_exists( $file, 'isDot' ) && $file->isDot() )
-						continue;
-
-					// Skip unreadable files
-					if ( ! @realpath( $file->getPathname() ) || ! $file->isReadable() )
-						continue;
-
-				    // Excludes
-				    if ( $excludes && preg_match( '(' . $excludes . ')', str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) ) )
-				        continue;
-
-				    if ( $file->isDir() )
-						$zip->addEmptyDir( trailingslashit( str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) ) );
-
-				    elseif ( $file->isFile() )
-						$zip->addFile( $file->getPathname(), str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) );
-
-					if ( ++$files_added % 500 === 0 )
-						if ( ! $zip->close() || ! $zip->open( $this->get_archive_filepath(), ZIPARCHIVE::CREATE ) )
-							return;
-
-				}
 			}
 
 		}
@@ -1093,6 +1138,34 @@ class WPRP_HM_Backup {
 
 		$this->verify_archive();
 
+	}
+
+	/**
+	 * Zip Archive one or more files
+	 * 
+	 * @access private
+	 */
+	private function zip_archive_files( $files ) {
+
+		if ( empty( $this->ziparchive ) ) {
+			$this->ziparchive = new ZipArchive;
+			if ( ! file_exists( $this->get_archive_filepath() ) )
+				$this->ziparchive->open( $this->get_archive_filepath(), ZIPARCHIVE::CREATE );
+			else
+				$this->ziparchive->open( $this->get_archive_filepath() );
+		}
+
+		foreach( $files as $file ) {
+
+			$full_path = trailingslashit( $this->get_root() ) . $file;
+			if ( is_dir( $full_path ) )
+				$this->ziparchive->addEmptyDir( $full_path );
+			else
+				$this->ziparchive->addFile( pathinfo( $full_path, PATHINFO_BASENAME ), $full_path );
+
+		}
+
+		$this->ziparchive->close();
 	}
 
 	/**
