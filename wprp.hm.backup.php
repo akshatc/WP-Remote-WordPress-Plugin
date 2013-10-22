@@ -490,6 +490,55 @@ class WPRP_HM_Backup {
 	}
 
 	/**
+	 * Get the next file from the file manifest
+	 * 
+	 * @access private
+	 * @return string
+	 */
+	private function get_next_file_from_file_manifest() {
+
+		if ( ! is_file( $this->get_file_manifest_filepath() ) )
+			return '';
+
+		$file_manifest = explode( PHP_EOL, file_get_contents( $this->get_file_manifest_filepath() ) );
+		if ( is_array( $file_manifest ) )
+			return array_shift( $file_manifest );
+		else
+			return '';
+	}
+
+	/**
+	 * Remove a given file from the file manifest
+	 *
+	 * @access private
+	 * @param string
+	 */
+	private function remove_file_from_file_manifest( $file ) {
+
+		if ( empty( $file ) )
+			return false;
+
+		if ( ! is_file( $this->get_file_manifest_filepath() ) )
+			return false;
+
+		$file_manifest = explode( PHP_EOL, file_get_contents( $this->get_file_manifest_filepath() ) );
+		foreach( $file_manifest as $key => $manifest_file ) {
+			if ( $manifest_file == $file )
+				unset( $file_manifest[$key] );
+		}
+
+		if ( ! $handle = fopen( $this->get_file_manifest_filepath(), 'w' ) )
+			return false;
+
+		$file_manifest = implode( PHP_EOL, $file_manifest );
+
+		fwrite( $handle, $file_manifest );
+
+		fclose( $handle );
+
+	}
+
+	/**
 	 * Get the backup type
 	 *
 	 * Defaults to complete
@@ -868,13 +917,36 @@ class WPRP_HM_Backup {
 
 		$this->do_action( 'hmbkp_archive_started' );
 
+		if ( $this->get_type() !== 'database' && $this->is_using_file_manifest() ) {
+
+			$errors = array();
+			while ( $next_file = $this->get_next_file_from_file_manifest() ) {
+
+				// Not necessary to include directories
+				if ( is_dir( $next_file ) ) {
+					$this->remove_file_from_file_manifest( $next_file );
+					continue;
+				}
+
+				// Add the file to the archive
+				$stderr = shell_exec( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -q ' . escapeshellarg( $this->get_archive_filepath() ) . ' ./' . $next_file . ' 2>&1' );
+
+				$this->remove_file_from_file_manifest( $next_file );
+
+				if ( ! empty( $stderr ) )
+					$errors[] = $stderr;
+			}
+			$stderr = implode( ', ', $errors );
+
 		// Zip up $this->root with excludes
-		if ( $this->get_type() !== 'database' && $this->exclude_string( 'zip' ) )
+		} else if ( $this->get_type() !== 'database' && $this->exclude_string( 'zip' ) ) {
 		    $stderr = shell_exec( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -rq ' . escapeshellarg( $this->get_archive_filepath() ) . ' ./' . ' -x ' . $this->exclude_string( 'zip' ) . ' 2>&1' );
 
 		// Zip up $this->root without excludes
-		elseif ( $this->get_type() !== 'database' )
+		} elseif ( $this->get_type() !== 'database' ) {
 		    $stderr = shell_exec( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -rq ' . escapeshellarg( $this->get_archive_filepath() ) . ' ./' . ' 2>&1' );
+
+		}
 
 		// Add the database dump to the archive
 		if ( $this->get_type() !== 'file' && file_exists( $this->get_database_dump_filepath() ) )
