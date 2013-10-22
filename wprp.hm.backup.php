@@ -464,9 +464,6 @@ class WPRP_HM_Backup {
 		if ( file_exists( $this->get_file_manifest_filepath() ) )
 			unlink( $this->get_file_manifest_filepath() );
 
-		if ( ! $handle = fopen( $this->get_file_manifest_filepath(), 'w' ) )
-			return;
-
 		$files = $this->get_included_files();
 		$file_manifest = array();
 		foreach( $files as $file ) {
@@ -479,11 +476,7 @@ class WPRP_HM_Backup {
 
 		}
 
-		$file_manifest = implode( PHP_EOL, $file_manifest );
-
-		fwrite( $handle, $file_manifest );
-
-		fclose( $handle );
+		return file_put_contents( $this->get_file_manifest_filepath(), implode( PHP_EOL, $file_manifest ) );
 
 	}
 
