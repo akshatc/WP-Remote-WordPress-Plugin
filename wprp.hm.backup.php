@@ -924,8 +924,6 @@ class WPRP_HM_Backup {
 			$next_files = $this->get_next_files_from_file_manifest( 300 );
 			do {
 
-				$error = false;
-
 				// ZipArchive is the fastest for chunked backups
 				if ( class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) ) {
 					$this->archive_method = 'ziparchive';
@@ -944,8 +942,10 @@ class WPRP_HM_Backup {
 					$error = $this->pcl_zip_files( $next_files );
 				}
 
-				if ( ! empty( $error ) )
+				if ( ! empty( $error ) ) {
 					$errors[] = $error;
+					unset( $error );
+				}
 
 				// Update the file manifest with these files that were archived
 				$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
@@ -958,8 +958,6 @@ class WPRP_HM_Backup {
 
 			// If the database should be included in the backup, it's included last
 			if ( 'file' !== $this->get_type() && file_exists( $this->get_database_dump_filepath() ) ) {
-
-				$error = false;
 
 				switch ( $this->archive_method ) {
 
@@ -980,8 +978,10 @@ class WPRP_HM_Backup {
 						break;
 				}
 
-				if ( ! empty( $error ) )
+				if ( ! empty( $error ) ) {
 					$errors[] = $error;
+					unset( $error );
+				}
 			}
 
 			// If the methods produced any errors, log them
