@@ -833,19 +833,7 @@ class WPRP_HM_Backup {
 
 			$files_added = 0;
 
-			foreach ( $this->get_files() as $file ) {
-
-				// Skip dot files, they should only exist on versions of PHP between 5.2.11 -> 5.3
-				if ( method_exists( $file, 'isDot' ) && $file->isDot() )
-					continue;
-
-				// Skip unreadable files
-				if ( ! @realpath( $file->getPathname() ) || ! $file->isReadable() )
-					continue;
-
-			    // Excludes
-			    if ( $excludes && preg_match( '(' . $excludes . ')', str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) ) )
-			        continue;
+			foreach ( $this->get_included_files() as $file ) {
 
 			    if ( $file->isDir() )
 					$zip->addEmptyDir( trailingslashit( str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) ) );
