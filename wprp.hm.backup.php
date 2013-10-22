@@ -464,9 +464,22 @@ class WPRP_HM_Backup {
 		if ( file_exists( $this->get_file_manifest_filepath() ) )
 			unlink( $this->get_file_manifest_filepath() );
 
-		$files = $this->get_included_files();
+		$excludes = $this->exclude_string( 'regex' );
+
 		$file_manifest = array();
-		foreach( $files as $file ) {
+		foreach( $this->get_files() as $file ) {
+
+			// Skip dot files, they should only exist on versions of PHP between 5.2.11 -> 5.3
+			if ( method_exists( $file, 'isDot' ) && $file->isDot() )
+				continue;
+
+			// Skip unreadable files
+			if ( ! @realpath( $file->getPathname() ) || ! $file->isReadable() )
+				continue;
+
+		    // Excludes
+		    if ( $excludes && preg_match( '(' . $excludes . ')', str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) ) )
+		        continue;
 
 			if ( $file->isDir() )
 				$file_manifest[] = trailingslashit( str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) );
