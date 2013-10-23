@@ -51,16 +51,22 @@ class WPRP_Log {
 
 	public function action_user_register( $user_id ) {
 
-		$user = get_user_by( 'id', $user_id );
+		$new_user = get_user_by( 'id', $user_id );
 
 		// we are only interested in administators
-		if ( ! array_intersect( $user->roles, array( 'administrator' ) ) )
+		if ( ! array_intersect( $new_user->roles, array( 'administrator' ) ) )
 			return;
 
 		$this->add_item( array(
-			'type' => 'user',
-			'action' => 'create',
-			'remote_user' => array( 'user_login' => $user->user_login, 'display_name' => $user->display_name ),
+			'type'             => 'user',
+			'action'           => 'create',
+			'remote_user'      => array(
+				'user_login'   => wp_get_current_user()->user_login,
+				'display_name' => wp_get_current_user()->display_name
+			),
+			'user_login'       => $new_user->user_login,
+			'display_name'     => $new_user->display_name,
+			'role'             => $new_user->roles[0],
 		));
 	}
 
