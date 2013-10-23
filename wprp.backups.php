@@ -313,7 +313,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 			$contents[] = '';
 			$contents[] = '<IfModule mod_rewrite.c>';
 			$contents[] = 'RewriteEngine On';
-			$contents[] = 'RewriteCond %{QUERY_STRING} !key=' . WPRP_SECURE_KEY;
+			$contents[] = 'RewriteCond %{QUERY_STRING} !key=' . $this->key();
 			$contents[] = 'RewriteRule (.*) - [F]';
 			$contents[] = '</IfModule>';
 			$contents[] = '';
