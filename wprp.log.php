@@ -60,13 +60,10 @@ class WPRP_Log {
 		$this->add_item( array(
 			'type'             => 'user',
 			'action'           => 'create',
-			'remote_user'      => array(
-				'user_login'   => wp_get_current_user()->user_login,
-				'display_name' => wp_get_current_user()->display_name
-			),
 			'user_login'       => $new_user->user_login,
 			'display_name'     => $new_user->display_name,
 			'role'             => $new_user->roles[0],
+			/** remote_user is added in the `add_item()` method **/
 		));
 	}
 
@@ -85,6 +82,7 @@ class WPRP_Log {
 				'action' => 'email-update',
 				'old_email' => $old_user_data->user_email,
 				'new_email' => $user_data->user_email,
+				/** remote_user is added in the `add_item()` method **/
 			));
 		}
 
@@ -92,6 +90,7 @@ class WPRP_Log {
 			$this->add_item( array(
 				'type' => 'user',
 				'action' => 'password-update',
+				/** remote_user is added in the `add_item()` method **/
 			));
 		}
 	}
@@ -102,7 +101,8 @@ class WPRP_Log {
 			'type' => 'theme',
 			'action' => 'switch',
 			'old_theme' => $old_theme,
-			'new_theme' => $new_theme
+			'new_theme' => $new_theme,
+			/** remote_user is added in the `add_item()` method **/
 		));
 	}
 
