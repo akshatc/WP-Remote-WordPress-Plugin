@@ -51,7 +51,7 @@ class WPRP_Log {
 
 	public function action_user_register( $user_id ) {
 
-		$user = get_userdata();
+		$user = get_user_by( 'id', $user_id );
 
 		// we are only interested in administators
 		if ( ! array_intersect( $user->roles, array( 'administrator' ) ) )
@@ -66,7 +66,7 @@ class WPRP_Log {
 
 	public function action_profile_updated( $user_id, $old_user_data ) {
 
-		$user_data = get_userdata( $user_id );
+		$user_data = get_user_by( 'id', $user_id );
 
 		// we are only interested in administators
 		if ( ! array_intersect( $user_data->roles, array( 'administrator' ) ) )
