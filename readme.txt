@@ -40,6 +40,7 @@ You can email us at support@wpremote.com for support.
 #### 2.6.5 (??? ?? ????)
 
 * Incorporated a more reliable plugin re-activation process after update.
+* Bug fix: Properly delete backup folders for failed backups.
 
 #### 2.6.4 (2 October 2013)
 
