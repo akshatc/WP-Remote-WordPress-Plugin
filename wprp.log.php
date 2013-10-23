@@ -4,7 +4,7 @@ class WPRP_Log {
 
 	static $instance;
 
-	private $disable_logging = false;
+	private $is_logging_enabled = true;
 
 	static function get_instance() {
 
@@ -20,12 +20,12 @@ class WPRP_Log {
 	}
 
 	public function disable_logging() {
-		$this->is_disabled = true;
+		$this->is_logging_enabled = false;
 	}
 
 	public function setup_actions() {
 
-		if ( $this->disable_logging )
+		if ( ! $this->is_logging_enabled )
 			return;
 
 		add_action( 'wp_login', array( $this, 'action_wp_login' ), 10, 2 );
@@ -33,13 +33,13 @@ class WPRP_Log {
 		add_action( 'profile_update', array( $this, 'action_profile_updated' ), 10, 2 );
 
 
-		add_action( 'updated_option_current_theme', array( $this, 'updated_option_current_theme' ), 10, 2 );
+		add_action( 'update_option_current_theme', array( $this, 'updated_option_current_theme' ), 10, 2 );
 	}
 
 	public function action_wp_login( $user_login, $user ) {
 
 		// we are only interested in administators
-		if ( ! array_intersect( $user->roles, array( 'administator' ) ) )
+		if ( ! array_intersect( $user->roles, array( 'administrator' ) ) )
 			return;
 
 		$this->add_item( array(
@@ -51,32 +51,38 @@ class WPRP_Log {
 
 	public function action_user_register( $user_id ) {
 
-		$user = get_userdata();
+		$new_user = get_user_by( 'id', $user_id );
 
 		// we are only interested in administators
-		if ( ! array_intersect( $user->roles, array( 'administator' ) ) )
+		if ( ! array_intersect( $new_user->roles, array( 'administrator' ) ) )
 			return;
 
 		$this->add_item( array(
-			'type' => 'user',
-			'action' => 'create',
-			'remote_user' => array( 'user_login' => $user->user_login, 'display_name' => $user->display_name ),
+			'type'             => 'user',
+			'action'           => 'create',
+			'user_login'       => $new_user->user_login,
+			'display_name'     => $new_user->display_name,
+			'role'             => $new_user->roles[0],
+			/** remote_user is added in the `add_item()` method **/
 		));
 	}
 
-	public function action_profile_updated( $user_data, $old_user_data ) {
+	public function action_profile_updated( $user_id, $old_user_data ) {
+
+		$user_data = get_user_by( 'id', $user_id );
 
 		// we are only interested in administators
-		if ( ! array_intersect( $user_data->roles, array( 'administator' ) ) )
+		if ( ! array_intersect( $user_data->roles, array( 'administrator' ) ) )
 			return;
+
 
 		if ( $user_data->user_email !== $old_user_data->user_email ) {
 			$this->add_item( array(
 				'type' => 'user',
 				'action' => 'email-update',
-				'remote_user' => array( 'user_login' => $user_data->user_login, 'display_name' => $user_data->display_name ),
 				'old_email' => $old_user_data->user_email,
 				'new_email' => $user_data->user_email,
+				/** remote_user is added in the `add_item()` method **/
 			));
 		}
 
@@ -84,24 +90,25 @@ class WPRP_Log {
 			$this->add_item( array(
 				'type' => 'user',
 				'action' => 'password-update',
-				'remote_user' => array( 'user_login' => $user_data->user_login, 'display_name' => $user_data->display_name ),
+				/** remote_user is added in the `add_item()` method **/
 			));
 		}
 	}
 
 	public function updated_option_current_theme( $old_theme, $new_theme ) {
+
 		$this->add_item( array(
 			'type' => 'theme',
 			'action' => 'switch',
-			'remote_user' => array( 'user_login' => $user_data->user_login, 'display_name' => $user_data->display_name ),
 			'old_theme' => $old_theme,
-			'new_theme' => $new_theme
+			'new_theme' => $new_theme,
+			/** remote_user is added in the `add_item()` method **/
 		));
 	}
 
 	public function add_item( $item ) {
 
-		if ( $this->disable_logging )
+		if ( ! $this->is_logging_enabled )
 			return;
 		
 		$item = wp_parse_args( $item, array(

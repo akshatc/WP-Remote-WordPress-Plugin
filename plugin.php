@@ -3,7 +3,7 @@
 /*
 Plugin Name: WP Remote
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>. <strong>Deactivate to clear your API Key.</strong>
-Version: 2.6.4-alpha
+Version: 2.6.5-alpha
 Author: Human Made Limited
 Author URI: http://hmn.md/
 */
@@ -261,3 +261,20 @@ function wprp_translations_init() {
 	}
 }
 add_action( 'plugins_loaded', 'wprp_translations_init' );
+
+/**
+ * Format a WP User object into a better
+ * object for the API
+ */
+function wprp_format_user_obj( $user_obj ) {
+	$new_user_obj = new stdClass;
+
+	foreach( $user_obj->data as $key => $value ) {
+		$new_user_obj->$key = $value;
+	}
+
+	$new_user_obj->roles = $user_obj->roles;
+	$new_user_obj->caps = $user_obj->caps;
+
+	return $new_user_obj;
+}
