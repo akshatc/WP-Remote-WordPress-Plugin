@@ -170,6 +170,10 @@ class WPRP_HM_Backup {
 		if ( array_intersect( array( 'shell_exec', 'escapeshellarg', 'escapeshellcmd' ), array_map( 'trim', explode( ',', @ini_get( 'disable_functions' ) ) ) ) )
 			return false;
 
+		// Functions can also be disabled via suhosin
+		if ( array_intersect( array( 'shell_exec', 'escapeshellarg', 'escapeshellcmd' ), array_map( 'trim', explode( ',', @ini_get( 'suhosin.executor.func.blacklist' ) ) ) ) )
+			return false;
+
 		// Can we issue a simple echo command?
 		if ( ! @shell_exec( 'echo backupwordpress' ) )
 			return false;
