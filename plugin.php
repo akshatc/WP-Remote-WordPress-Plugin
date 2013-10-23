@@ -62,18 +62,6 @@ if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 
 }
 
-// Don't include when doing a core update
-if ( empty( $_GET['action'] ) || $_GET['action'] != 'do-core-upgrade' ) :
-
-	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
-
-	// Custom upgrader skins
-	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-plugin-upgrader-skin.php';
-	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-theme-upgrader-skin.php';
-	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-core-upgrader-skin.php';
-
-endif;
-
 /**
  * Get a needed URL on the WP Remote site
  *
@@ -177,6 +165,8 @@ function _wprp_upgrade_core()  {
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 	include_once ( ABSPATH . 'wp-admin/includes/upgrade.php' );
 	include_once ( ABSPATH . 'wp-includes/update.php' );
+	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-core-upgrader-skin.php';
 
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )

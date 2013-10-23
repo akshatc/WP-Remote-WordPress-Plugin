@@ -71,6 +71,8 @@ function _wprp_get_plugins() {
 function _wprp_update_plugin( $plugin ) {
 
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
+	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-plugin-upgrader-skin.php';
 
 	if ( ! _wprp_supports_plugin_upgrade() )
 		return array( 'status' => 'error', 'error' => 'WordPress version too old for plugin upgrades' );
