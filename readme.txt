@@ -41,6 +41,7 @@ You can email us at support@wpremote.com for support.
 
 * Incorporated a more reliable plugin re-activation process after update.
 * Bug fix: Properly delete backup folders for failed backups. Users may want to look inside of `/wp-content/` for any folders named as `*-backups`. If they were created by WP Remote, they can be safely deleted.
+* Bug fix: Log the proper fields in history when a new user is created.
 
 #### 2.6.4 (2 October 2013)
 
