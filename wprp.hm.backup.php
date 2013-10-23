@@ -170,6 +170,10 @@ class WPRP_HM_Backup {
 		if ( array_intersect( array( 'shell_exec', 'escapeshellarg', 'escapeshellcmd' ), array_map( 'trim', explode( ',', @ini_get( 'disable_functions' ) ) ) ) )
 			return false;
 
+		// Functions can also be disabled via suhosin
+		if ( array_intersect( array( 'shell_exec', 'escapeshellarg', 'escapeshellcmd' ), array_map( 'trim', explode( ',', @ini_get( 'suhosin.executor.func.blacklist' ) ) ) ) )
+			return false;
+
 		// Can we issue a simple echo command?
 		if ( ! @shell_exec( 'echo backupwordpress' ) )
 			return false;
@@ -501,7 +505,8 @@ class WPRP_HM_Backup {
 			'/Program Files/MySQL/MySQL Server 5.4/bin/mysqldump',
 			'/Program Files/MySQL/MySQL Server 5.1/bin/mysqldump',
 			'/Program Files/MySQL/MySQL Server 5.0/bin/mysqldump',
-			'/Program Files/MySQL/MySQL Server 4.1/bin/mysqldump'
+			'/Program Files/MySQL/MySQL Server 4.1/bin/mysqldump',
+			'/opt/local/bin/mysqldump',
 		);
 
 		// Find the one which works
@@ -562,7 +567,8 @@ class WPRP_HM_Backup {
 
 		// List of possible zip locations
 		$zip_locations = array(
-			'/usr/bin/zip'
+			'/usr/bin/zip',
+			'/opt/local/bin/zip',
 		);
 
 		// Find the one which works
