@@ -94,8 +94,15 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		$this->backup();
 
-		if ( ! file_exists( $this->get_archive_filepath() ) )
-			return new WP_Error( 'backup-failed', implode( ', ', $this->get_errors() ) );
+		if ( ! file_exists( $this->get_archive_filepath() ) ) {
+
+			$errors = $this->get_errors();
+			if ( ! empty( $errors ) )
+				return new WP_Error( 'backup-failed', implode( ', ', $errors ) );
+			else
+				return new WP_Error( 'backup-failed', __( 'Backup file is missing.', 'wpremote' ) );
+
+		}
 
 		return true;
 
