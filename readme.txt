@@ -3,7 +3,7 @@ Contributors: humanmade, willmot, joehoyle, danielbachhuber, mattheu, pauldewout
 Tags: wpremote, remote administration, multiple wordpress
 Requires at least: 3.0
 Tested up to: 3.7
-Stable tag: 2.6.4
+Stable tag: 2.6.5
 
 WP Remote is a free web app that enables you to easily manage all of your WordPress powered sites from one place.
 
@@ -37,7 +37,7 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
-#### 2.6.5 (??? ?? ????)
+#### 2.6.5 (23 October 2013)
 
 * Incorporated a more reliable plugin re-activation process after update.
 * Bug fix: Properly delete backup folders for failed backups. Users may want to look inside of `/wp-content/` for any folders named as `*-backups`. If they were created by WP Remote, they can be safely deleted.
