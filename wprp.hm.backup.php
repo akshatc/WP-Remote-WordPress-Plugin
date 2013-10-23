@@ -469,6 +469,9 @@ class WPRP_HM_Backup {
 		if ( file_exists( $this->get_file_manifest_filepath() ) )
 			unlink( $this->get_file_manifest_filepath() );
 
+		if ( ! $handle = fopen( $this->get_file_manifest_filepath(), 'w' ) )
+			return false;
+
 		$excludes = $this->exclude_string( 'regex' );
 
 		$file_manifest = array();
@@ -487,15 +490,19 @@ class WPRP_HM_Backup {
 		        continue;
 
 			if ( $file->isDir() )
-				$file_manifest[] = trailingslashit( str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) );
+				$line = trailingslashit( str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) ) );
 
 			elseif ( $file->isFile() )
-				$file_manifest[] = str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) );
+				$line = str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) );
+
+			if ( ! empty( $line ) ) {
+				fwrite( $handle, $line . PHP_EOL );
+				unset( $line );
+			}
 
 		}
 
-		return file_put_contents( $this->get_file_manifest_filepath(), implode( PHP_EOL, $file_manifest ) );
-
+		fclose( $handle );
 	}
 
 	/**
