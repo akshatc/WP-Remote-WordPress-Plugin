@@ -158,8 +158,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		if ( file_exists( trailingslashit( $this->get_path() ) . '.htaccess' ) )
 			unlink( trailingslashit( $this->get_path() ) . '.htaccess' );
-
-		rmdir( $this->get_path() );
+		
+		$this->rmdir_recursive( $this->get_path() );
 
 		delete_option( 'wprp_backup_path' );
 
