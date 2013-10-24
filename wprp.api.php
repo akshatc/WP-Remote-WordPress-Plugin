@@ -83,6 +83,8 @@ if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG )
 // TODO what about if admin use doesn't exists?
 wp_set_current_user( 1 );
 
+include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
+
 $actions = array();
 
 foreach( WPR_API_Request::get_actions() as $action ) {
