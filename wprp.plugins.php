@@ -167,12 +167,12 @@ function _wprp_deactivate_plugin( $plugin ) {
 
 	include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-	$result = deactivate_plugins( $plugin );
+	if ( is_plugin_active( $plugin ) )
+		deactivate_plugins( $plugin );
 
-	if ( is_wp_error( $result ) )
-		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+	$status = is_plugin_active( $plugin );
 
-	return array( 'status' => 'success' );
+	return array( 'status' => $status );
 }
 
 /**
