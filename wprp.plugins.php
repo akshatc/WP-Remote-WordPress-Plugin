@@ -74,9 +74,6 @@ function _wprp_update_plugin( $plugin ) {
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-plugin-upgrader-skin.php';
 
-	if ( ! _wprp_supports_plugin_upgrade() )
-		return array( 'status' => 'error', 'error' => 'WordPress version too old for plugin upgrades' );
-
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
 		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );
@@ -216,20 +213,5 @@ function _wprp_uninstall_plugin( $plugin ) {
 	} else {
 		return array( 'status' => 'error', 'error' => 'Plugin uninstalled, but not deleted.' );
 	}
-
-}
-
-/**
- * Check if the site can support plugin upgrades
- *
- * @todo should probably check if we have direct filesystem access
- * @todo can we remove support for versions which don't support Plugin_Upgrader
- * @return bool
- */
-function _wprp_supports_plugin_upgrade() {
-
-	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
-
-	return class_exists( 'Plugin_Upgrader' );
 
 }

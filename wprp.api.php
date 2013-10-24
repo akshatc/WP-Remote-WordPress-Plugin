@@ -135,7 +135,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		case 'get_plugins' :
 
-			$actions[$action] = _wprp_supports_plugin_upgrade() ? _wprp_get_plugins() : 'not-implemented';
+			$actions[$action] = _wprp_get_plugins();
 
 		break;
 
@@ -175,7 +175,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		case 'get_themes' :
 
-			$actions[$action] = _wprp_supports_theme_upgrade() ? _wprp_get_themes() : 'not-implemented';
+			$actions[$action] = _wprp_get_themes();
 
 		break;
 
