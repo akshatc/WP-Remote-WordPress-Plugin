@@ -170,9 +170,7 @@ function _wprp_deactivate_plugin( $plugin ) {
 	if ( is_plugin_active( $plugin ) )
 		deactivate_plugins( $plugin );
 
-	$status = is_plugin_active( $plugin );
-
-	return array( 'status' => $status );
+	return array( 'status' => 'success' );
 }
 
 /**
