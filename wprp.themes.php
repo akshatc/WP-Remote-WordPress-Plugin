@@ -158,9 +158,6 @@ function _wprp_update_theme( $theme ) {
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-theme-upgrader-skin.php';
 
-	if ( ! _wprp_supports_theme_upgrade() )
-		return array( 'status' => 'error', 'error' => 'WordPress version too old for theme upgrades' );
-
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
 		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );		
@@ -221,19 +218,4 @@ function _wprp_delete_theme( $theme ) {
 	delete_site_transient('update_themes');
 
 	return array( 'status' => 'success' );
-}
-
-/**
- * Check if the site can support theme upgrades
- *
- * @todo should probably check if we have direct filesystem access
- * @todo can we remove support for versions which don't support Theme_Upgrader
- * @return bool
- */
-function _wprp_supports_theme_upgrade() {
-
-	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
-
-	return class_exists( 'Theme_Upgrader' );
-
 }
