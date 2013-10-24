@@ -37,7 +37,9 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
-#### 2.7.0 (?? ????? ????)
+#### 2.6.6 (23 October 2013)
+
+* Bug fix: Due to some files moving around, WP Remote wasn't able to properly update the current version of the plugin.
 
 #### 2.6.5 (23 October 2013)
 
