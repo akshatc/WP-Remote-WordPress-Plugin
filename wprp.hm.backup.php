@@ -1181,10 +1181,8 @@ class WPRP_HM_Backup {
 
 		$this->do_action( 'hmbkp_archive_started' );
 
-    	$zip = new ZipArchive();
-
-    	if ( ! class_exists( 'ZipArchive' ) || ! $zip->open( $this->get_archive_filepath(), ZIPARCHIVE::CREATE ) )
-    	    return;
+		if ( false === ( $zip = &$this->setup_ziparchive() ) )
+			return;
 
 		$excludes = $this->exclude_string( 'regex' );
 
