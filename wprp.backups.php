@@ -149,7 +149,10 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 			}
 
-			return str_replace( parent::conform_dir( WP_CONTENT_DIR ), WP_CONTENT_URL, $backup );
+			$response = new stdClass;
+			$response->url = str_replace( parent::conform_dir( WP_CONTENT_DIR ), WP_CONTENT_URL, $backup );
+			$response->seconds_elapsed = time() - $this->start_timestamp;
+			return $response;
 
 		}
 
