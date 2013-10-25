@@ -214,8 +214,6 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			if ( in_array( WPR_API_Request::get_arg( 'backup_type' ), array( 'complete', 'database', 'file' ) ) )
 				WPRP_Backups::get_instance()->set_type( WPR_API_Request::get_arg( 'backup_type' ) );
 
-			WPRP_Backups::get_instance()->set_is_using_file_manifest( apply_filters( 'wprp_backups_use_file_manifest', '__return_true' ) );
-
 			$actions[$action] = WPRP_Backups::get_instance()->do_backup();
 
 		break;
@@ -229,6 +227,12 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		case 'delete_backup' :
 
 			$actions[$action] = WPRP_Backups::get_instance()->cleanup();
+
+		break;
+
+		case 'backup_heartbeat' :
+
+			$actions[$action] = WPRP_Backups::get_instance()->backup_heartbeat(); 
 
 		break;
 

@@ -24,6 +24,14 @@ class WPRP_HM_Backup {
 	private $type = '';
 
 	/**
+	 * The start timestamp of the backup
+	 * 
+	 * @int
+	 * @access protected
+	 */
+	protected $start_timestamp;
+
+	/**
 	 * The filename of the backup file
 	 *
 	 * @string
@@ -296,8 +304,13 @@ class WPRP_HM_Backup {
 	 */
 	public function get_archive_filename() {
 
-		if ( empty( $this->archive_filename ) )
-			$this->set_archive_filename( implode( '-', array( sanitize_title( str_ireplace( array( 'http://', 'https://', 'www' ), '', home_url() ) ), 'backup', date( 'Y-m-d-H-i-s', current_time( 'timestamp' ) ) ) ) . '.zip' );
+		if ( empty( $this->archive_filename ) ) {
+
+			if ( empty( $this->start_timestamp ) )
+				$this->start_timestamp = current_time( 'timestamp' );
+
+			$this->set_archive_filename( implode( '-', array( sanitize_title( str_ireplace( array( 'http://', 'https://', 'www' ), '', home_url() ) ), 'backup', date( 'Y-m-d-H-i-s', $this->start_timestamp ) ) ) . '.zip' );
+		}
 
 		return $this->archive_filename;
 
@@ -984,6 +997,9 @@ class WPRP_HM_Backup {
 
 		// If using a manifest, perform the backup in chunks
 		if ( 'database' !== $this->get_type() && $this->is_using_file_manifest() ) {
+
+			// Create a list of all files to be backed up
+			$this->create_file_manifest();
 			
 			$this->archive_via_file_manifest();
 

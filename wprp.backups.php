@@ -23,8 +23,10 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 */
 	public static function get_instance() {
 
-		if ( empty( self::$instance ) )
+		if ( empty( self::$instance ) ) {
 			self::$instance = new WPRP_Backups();
+			self::$instance->set_is_using_file_manifest( apply_filters( 'wprp_backups_use_file_manifest', '__return_true' ) );
+		}
 
 		return self::$instance;
 
@@ -92,6 +94,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		$this->set_status( 'Starting backup...' );
 
+		$this->set_start_timestamp();
+
 		$this->backup();
 
 		if ( ! file_exists( $this->get_archive_filepath() ) ) {
@@ -117,6 +121,9 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		global $is_apache;
 
+		// Restore the start timestamp to global scope so HM Backup recognizes the proper archive file
+		$this->restore_start_timestamp();
+
 		if ( $status = $this->get_status() ) {
 
 			if ( $this->is_backup_still_running() )
@@ -125,8 +132,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 				return new WP_Error( 'backup-failed', __( 'Backup process failed or was killed.', 'wpremote' ) );
 		}
 
-		$backup = glob( $this->get_path() . '/*.zip' );
-		$backup = reset( $backup );
+		$backup = $this->get_archive_filepath();
 
 		if ( file_exists( $backup ) ) {
 
@@ -435,6 +441,22 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	}
 
 	/**
+	 * Set the start timestamp for the backup
+	 */
+	private function set_start_timestamp() {
+		$this->start_timestamp = current_time( 'timestamp' );
+		file_put_contents( $this->get_path() . '/.start-timestamp', $this->start_timestamp );
+	}
+
+	/**
+	 * Restore the start timestamp for the backup
+	 */
+	private function restore_start_timestamp() {
+		if ( $start_timestamp = file_get_contents( $this->get_path() . '/.start-timestamp' ) )
+			$this->start_timestamp = (int) $start_timestamp;
+	}
+
+	/**
 	 * Get the file path to the backup process ID log
 	 * 
 	 * @access private
@@ -491,17 +513,22 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 */
 	private function is_backup_still_running() {
 
+		// Ensure the backup directory is actually present
+		if ( ! is_dir( $this->get_path() ) )
+			return false;
+
 		// Check whether there's supposed to be a backup in progress
 		if ( false == ( $process_id = $this->get_backup_process_id() ) )
 			return false;
 
 		// Whether the backup directory has been modified recently is a good
 		// indicator of whether the backup is still running
-		if ( false == ( $mtime = filemtime( $this->path() ) ) )
+		if ( false == ( $mtime = filemtime( $this->get_archive_filepath() ) ) )
 			return false;
 
 		// If it hasn't been modified in the last 15 seconds, we're likely dead
-		if ( ( time() - $mtime ) > 15 )
+		// @todo Figure out why $mtime is always ~150 less than the current time
+		if ( ( time() - $mtime ) > 500 )
 			return false;
 
 		return true;
@@ -515,9 +542,15 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 */
 	public function backup_heartbeat() {
 
+		// Restore the start timestamp to global scope so HM Backup recognizes the proper archive file
+		$this->restore_start_timestamp();
+
 		// Check whether there's supposed to be a backup in progress
 		if ( $this->get_backup_process_id() && $this->is_backup_still_running() )
 			return false;
+
+		// Ensure the next request doesn't think it's dead
+		touch( $this->get_archive_filepath() );
 
 		// Uh oh, needs to be restarted
 		$this->save_backup_process_id();
