@@ -807,7 +807,7 @@ class WPRP_HM_Backup {
 		    $stderr = shell_exec( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -rq ' . escapeshellarg( $this->get_archive_filepath() ) . ' ./' . ' 2>&1' );
 
 		// Add the database dump to the archive
-		if ( $this->get_type() !== 'file' && file_exists( $this->get_database_dump_filepath() ) )
+		if ( $this->verify_archive() && $this->get_type() !== 'file' && file_exists( $this->get_database_dump_filepath() ) )
 		    $stderr = shell_exec( 'cd ' . escapeshellarg( $this->get_path() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -uq ' . escapeshellarg( $this->get_archive_filepath() ) . ' ' . escapeshellarg( $this->get_database_dump_filename() ) . ' 2>&1' );
 
 		if ( ! empty( $stderr ) )
@@ -954,10 +954,6 @@ class WPRP_HM_Backup {
 	public function verify_archive() {
 
 		$this->do_action( 'hmbkp_archive_verify_started' );
-
-		// If we've already passed then no need to check again
-		if ( ! empty( $this->archive_verified ) )
-			return true;
 
 		// If there are errors delete the backup file.
 		if ( $this->get_errors( $this->get_archive_method() ) && file_exists( $this->get_archive_filepath() ) )
