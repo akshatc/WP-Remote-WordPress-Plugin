@@ -523,7 +523,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		// Whether the backup directory has been modified recently is a good
 		// indicator of whether the backup is still running
-		if ( false == ( $mtime = filemtime( $this->get_archive_filepath() ) ) )
+		if ( false == ( $mtime = filemtime( $this->get_path() ) ) )
 			return false;
 
 		// If it hasn't been modified in the last 15 seconds, we're likely dead
