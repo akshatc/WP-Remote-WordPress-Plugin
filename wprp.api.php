@@ -211,6 +211,9 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		case 'do_backup' :
 
+			if ( in_array( WPR_API_Request::get_arg( 'backup_type' ), array( 'complete', 'database', 'file' ) ) )
+				WPRP_Backups::get_instance()->set_type( WPR_API_Request::get_arg( 'backup_type' ) );
+
 			$actions[$action] = WPRP_Backups::get_instance()->do_backup();
 
 		break;
