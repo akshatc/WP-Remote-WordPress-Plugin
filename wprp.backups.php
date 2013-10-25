@@ -210,6 +210,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 */
 	protected function do_action( $action ) {
 
+		$this->update_heartbeat_timestamp();
+
 		switch ( $action ) :
 
 			case 'hmbkp_backup_started':
@@ -457,6 +459,25 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	}
 
 	/**
+	 * Update the heartbeat timestamp to the current time.
+	 */
+	private function update_heartbeat_timestamp() {
+		file_put_contents( $this->get_path() . '/.heartbeat-timestamp', time() );
+	}
+
+	/**
+	 * Get the heartbeat timestamp.
+	 */
+	private function get_heartbeat_timestamp() {
+
+		$file = $this->get_path() . '/.heartbeat-timestamp';
+		if ( file_exists( $file ) )
+			return (int) file_get_contents( $file );
+		else
+			return false;
+	}
+
+	/**
 	 * Get the file path to the backup process ID log
 	 * 
 	 * @access private
@@ -513,22 +534,12 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 */
 	private function is_backup_still_running() {
 
-		// Ensure the backup directory is actually present
-		if ( ! is_dir( $this->get_path() ) )
-			return false;
-
 		// Check whether there's supposed to be a backup in progress
 		if ( false == ( $process_id = $this->get_backup_process_id() ) )
 			return false;
 
-		// Whether the backup directory has been modified recently is a good
-		// indicator of whether the backup is still running
-		if ( false == ( $mtime = filemtime( $this->get_path() ) ) )
-			return false;
-
-		// If it hasn't been modified in the last 15 seconds, we're likely dead
-		// @todo Figure out why $mtime is always ~150 less than the current time
-		if ( ( time() - $mtime ) > 500 )
+		// If it hasn't been modified in the last 300 seconds, we're likely dead
+		if ( ( time() - $this->get_heartbeat_timestamp() ) > 300 )
 			return false;
 
 		return true;
