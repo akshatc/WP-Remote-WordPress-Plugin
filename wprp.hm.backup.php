@@ -1078,6 +1078,8 @@ class WPRP_HM_Backup {
 
 					$zip->addFile( $this->get_database_dump_filepath(), $this->get_database_dump_filename() );
 
+					$zip->close();
+
 					break;
 
 				case 'zip':
