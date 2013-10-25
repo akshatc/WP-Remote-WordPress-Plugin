@@ -210,10 +210,26 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		break;
 
 		case 'do_backup' :
-		case 'delete_backup' :
-		case 'supports_backups' :
+
+			$actions[$action] = WPRP_Backups::get_instance()->do_backup();
+
+		break;
+
 		case 'get_backup' :
-			$actions[$action] = function_exists( '_wprp_get_backups_info' ) ? _wprp_backups_api_call( $action ) : 'not-implemented';
+
+			$actions[$action] = WPRP_Backups::get_instance()->get_backup();
+
+		break;
+
+		case 'delete_backup' :
+
+			$actions[$action] = WPRP_Backups::get_instance()->cleanup();
+
+		break;
+
+		case 'supports_backups' :
+
+			$actions[$action] = true;
 
 		break;
 
