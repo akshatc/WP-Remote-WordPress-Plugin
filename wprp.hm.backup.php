@@ -1210,7 +1210,7 @@ class WPRP_HM_Backup {
 			if ( is_dir( $full_path ) )
 				$this->ziparchive->addEmptyDir( $full_path );
 			else
-				$this->ziparchive->addFile( pathinfo( $full_path, PATHINFO_BASENAME ), $full_path );
+				$this->ziparchive->addFile( $full_path, pathinfo( $full_path, PATHINFO_BASENAME ) );
 
 		}
 
