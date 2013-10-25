@@ -561,6 +561,10 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		// Restore the start timestamp to global scope so HM Backup recognizes the proper archive file
 		$this->restore_start_timestamp();
 
+		// No process means no backup in progress
+		if ( ! $this->get_backup_process_id() )
+			return false;
+
 		// Check whether there's supposed to be a backup in progress
 		if ( $this->get_backup_process_id() && $this->is_backup_still_running() )
 			return false;
