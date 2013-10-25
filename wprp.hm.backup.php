@@ -751,6 +751,45 @@ class WPRP_HM_Backup {
 
 	}
 
+	/**
+	 * Set up the ZipArchive instance if ZipArchive is available
+	 */
+	protected function &setup_ziparchive() {
+
+		if ( ! empty( $this->ziparchive ) ) {
+			$this->ziparchive->open( $this->get_archive_filepath(), ZIPARCHIVE::CREATE );
+			return $this->ziparchive;
+		}
+
+		$ziparchive = new ZipArchive;
+
+		// Try opening ZipArchive
+		if ( ! file_exists( $this->get_archive_filepath() ) )
+			$ret = $ziparchive->open( $this->get_archive_filepath(), ZIPARCHIVE::CREATE );
+		else
+			$ret = $ziparchive->open( $this->get_archive_filepath() );
+
+		// File couldn't be opened
+		if ( ! $ret )
+			return false;
+
+		// Try closing ZipArchive
+		$ret = $ziparchive->close();
+
+		// File couldn't be closed
+		if ( ! $ret )
+			return false;
+
+		// Open it once more
+		if ( ! file_exists( $this->get_archive_filepath() ) )
+			$ziparchive->open( $this->get_archive_filepath(), ZIPARCHIVE::CREATE );
+		else
+			$ziparchive->open( $this->get_archive_filepath() );
+
+		$this->ziparchive = $ziparchive;
+		return $this->ziparchive;
+	}
+
 	protected function do_action( $action ) {
 
 		do_action( $action, $this );
@@ -957,7 +996,12 @@ class WPRP_HM_Backup {
 			// ZipArchive is the fastest for chunked backups
 			if ( class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) ) {
 				$this->archive_method = 'ziparchive';
-				$error = $this->zip_archive_files( $next_files );
+
+				$ret = $this->zip_archive_files( $next_files );
+				if ( ! $ret ) {
+					$this->skip_zip_archive = true;
+					continue;
+				}
 			}
 
 			// Fall back to `zip` if ZipArchive doesn't exist
@@ -993,7 +1037,9 @@ class WPRP_HM_Backup {
 
 				case 'ziparchive':
 
-					$this->ziparchive->addFile( $this->get_database_dump_filepath(), $this->get_database_dump_filename() );
+					$zip = $this->setup_ziparchive();
+
+					$zip->addFile( $this->get_database_dump_filepath(), $this->get_database_dump_filename() );
 
 					break;
 
@@ -1196,25 +1242,21 @@ class WPRP_HM_Backup {
 	 */
 	private function zip_archive_files( $files ) {
 
-		if ( empty( $this->ziparchive ) ) {
-			$this->ziparchive = new ZipArchive;
-			if ( ! file_exists( $this->get_archive_filepath() ) )
-				$this->ziparchive->open( $this->get_archive_filepath(), ZIPARCHIVE::CREATE );
-			else
-				$this->ziparchive->open( $this->get_archive_filepath() );
-		}
+		if ( false === ( $zip = &$this->setup_ziparchive() ) )
+			return false;
 
 		foreach( $files as $file ) {
 
 			$full_path = trailingslashit( $this->get_root() ) . $file;
 			if ( is_dir( $full_path ) )
-				$this->ziparchive->addEmptyDir( $full_path );
+				$zip->addEmptyDir( $full_path );
 			else
-				$this->ziparchive->addFile( $full_path, pathinfo( $full_path, PATHINFO_BASENAME ) );
+				$zip->addFile( $full_path, pathinfo( $full_path, PATHINFO_BASENAME ) );
 
 		}
 
-		$this->ziparchive->close();
+		$zip->close();
+		return true;
 	}
 
 	/**
