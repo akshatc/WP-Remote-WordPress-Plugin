@@ -565,9 +565,6 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		if ( $this->get_backup_process_id() && $this->is_backup_still_running() )
 			return false;
 
-		// Ensure the next request doesn't think it's dead
-		touch( $this->get_archive_filepath() );
-
 		// Uh oh, needs to be restarted
 		$this->save_backup_process_id();
 
