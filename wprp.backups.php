@@ -154,19 +154,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 */
 	public function cleanup() {
 
-		$zips = glob( $this->get_path() . '/*.zip' );
-
-		// Remove any .zip files
-		foreach ( $zips as $zip )
-			unlink( $zip );
-
-		if ( file_exists( trailingslashit( $this->get_path() ) . 'index.html' ) )
-			unlink( trailingslashit( $this->get_path() ) . 'index.html' );
-
-		if ( file_exists( trailingslashit( $this->get_path() ) . '.htaccess' ) )
-			unlink( trailingslashit( $this->get_path() ) . '.htaccess' );
-
-		rmdir( $this->get_path() );
+		$this->rmdir_recursive( $this->get_path() );
 
 		delete_option( 'wprp_backup_path' );
 
@@ -340,7 +328,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 			$contents[] = '';
 			$contents[] = '<IfModule mod_rewrite.c>';
 			$contents[] = 'RewriteEngine On';
-			$contents[] = 'RewriteCond %{QUERY_STRING} !key=' . WPRP_SECURE_KEY;
+			$contents[] = 'RewriteCond %{QUERY_STRING} !key=' . $this->key();
 			$contents[] = 'RewriteRule (.*) - [F]';
 			$contents[] = '</IfModule>';
 			$contents[] = '';
@@ -539,35 +527,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 }
 
-/**
- * Handle the backups API calls
- *
- * @param string $action
- * @return bool|string|true|void|WP_Error
- */
-function _wprp_backups_api_call( $action ) {
-
-	switch( $action ) {
-
-		case 'supports_backups' :
-			return true;
-
-		case 'do_backup' :
-
-			WPRP_Backups::get_instance()->set_is_using_file_manifest( true );
-			return WPRP_Backups::get_instance()->do_backup();
-
-		case 'get_backup' :
-			return WPRP_Backups::get_instance()->get_backup();
-
-		case 'delete_backup' :
-			return WPRP_Backups::get_instance()->cleanup();
-
-	}
-
-}
-
-/**
+/*
  * Return an array of back meta information
  *
  * @return array
