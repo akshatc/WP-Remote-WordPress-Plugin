@@ -1300,9 +1300,7 @@ class WPRP_HM_Backup {
 
 		$_wprp_hmbkp_exclude_string = $this->exclude_string( 'regex' );
 
-		$this->load_pclzip();
-
-		$archive = new PclZip( $this->get_archive_filepath() );
+		$archive = &$this->setup_pclzip();
 
 		// Zip up everything
 		if ( $this->get_type() !== 'database' )
