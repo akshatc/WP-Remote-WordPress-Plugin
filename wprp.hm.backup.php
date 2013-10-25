@@ -159,6 +159,11 @@ class WPRP_HM_Backup {
 	private $ziparchive = false;
 
 	/**
+	 * A PclZip instance for this instance
+	 */
+	private $pclzip = false;
+
+	/**
 	 * Check whether safe mode is active or not
 	 *
 	 * @param string $ini_get_callback
@@ -791,6 +796,20 @@ class WPRP_HM_Backup {
 		return $this->ziparchive;
 	}
 
+	/**
+	 * Set up the PclZip instance
+	 *
+	 * @access protected
+	 */
+	protected function &setup_pclzip() {
+
+		if ( empty( $this->pclzip ) ) {
+			$this->load_pclzip();
+			$this->pclzip = new PclZip( $this->get_archive_filepath() );
+		}
+		return $this->pclzip;
+	}
+
 	protected function do_action( $action ) {
 
 		do_action( $action, $this );
@@ -1051,6 +1070,11 @@ class WPRP_HM_Backup {
 					break;
 
 				case 'pclzip':
+
+					$pclzip = &$this->setup_pclzip();
+
+					if ( ! $pclzip->add( $this->get_database_dump_filepath(), PCLZIP_OPT_REMOVE_PATH, $this->get_path() ) )
+						$this->warning( $this->get_archive_method(), $pclzip->errorInfo( true ) );
 			
 					break;
 			}
@@ -1293,6 +1317,33 @@ class WPRP_HM_Backup {
 		unset( $GLOBALS['_wprp_hmbkp_exclude_string'] );
 
 		$this->verify_archive();
+
+	}
+
+	/**
+	 * Use PclZip to archive batches of files
+	 */
+	private function pcl_zip_files( $files ) {
+		global $_wprp_hmbkp_exclude_string;
+
+		$this->errors_to_warnings( $this->get_archive_method() );
+
+		$_wprp_hmbkp_exclude_string = $this->exclude_string( 'regex' );
+
+		$pclzip = &$this->setup_pclzip();
+
+		foreach( $files as $file ) {
+
+			$full_path = trailingslashit( $this->get_root() ) . $file;
+			if ( is_dir( $full_path ) )
+				continue;
+			
+			if ( ! $pclzip->add( $full_path, PCLZIP_OPT_REMOVE_PATH, $this->get_root() ) )
+				$this->warning( $this->get_archive_method(), $pclzip->errorInfo( true ) );
+
+		}
+
+		unset( $GLOBALS['_wprp_hmbkp_exclude_string'] );
 
 	}
 
