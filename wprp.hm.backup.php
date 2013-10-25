@@ -1022,16 +1022,13 @@ class WPRP_HM_Backup {
 	 */
 	private function archive_via_file_manifest() {
 
-		// Create a list of all files to be backed up
-		$this->create_file_manifest();
-
-		$this->do_action( 'hmbkp_archive_started' );
-
 		$errors = array();
 
 		// Back up files from the file manifest in chunks
 		$next_files = $this->get_next_files_from_file_manifest( 300 );
 		do {
+
+			$this->do_action( 'hmbkp_archive_started' );
 
 			// ZipArchive is the fastest for chunked backups
 			if ( class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) ) {
