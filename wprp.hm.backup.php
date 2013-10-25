@@ -538,6 +538,9 @@ class WPRP_HM_Backup {
 	 */
 	private function update_file_manifest() {
 
+		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
+			return false;
+
 		if ( ! $old_handle = fopen( $this->get_file_manifest_filepath(), 'r' ) )
 			return false;
 
@@ -585,6 +588,9 @@ class WPRP_HM_Backup {
 	 * @access private
 	 */
 	private function get_next_files_from_file_manifest( $batch_size = 300 ) {
+
+		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
+			return array();
 
 		if ( ! $handle = fopen( $this->get_file_manifest_filepath(), 'r' ) )
 			return array();
