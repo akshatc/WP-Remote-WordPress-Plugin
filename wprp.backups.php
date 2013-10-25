@@ -117,8 +117,13 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		global $is_apache;
 
-		if ( $status = $this->get_status() )
-			return new WP_Error( 'error-status', $status );
+		if ( $status = $this->get_status() ) {
+
+			if ( $this->is_backup_still_running() )
+				return new WP_Error( 'error-status', $status );
+			else
+				return new WP_Error( 'backup-failed', __( 'Backup process failed or was killed.', 'wpremote' ) );
+		}
 
 		$backup = glob( $this->get_path() . '/*.zip' );
 		$backup = reset( $backup );
@@ -439,6 +444,19 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	}
 
 	/**
+	 * Get the current backup process ID
+	 * 
+	 * @access private
+	 */
+	private function get_backup_process_id() {
+		$file = $this->get_backup_process_id_path();
+		if ( file_exists( $file ) )
+			return (int) trim( file_get_contents( $file ) );
+		else
+			return false;
+	}
+
+	/**
 	 * Save this current backup process ID in case
 	 * we need to check later whether it was killed in action
 	 *
@@ -464,6 +482,48 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		if ( file_exists( $this->get_backup_process_id_path() ) )
 			unlink( $this->get_backup_process_id_path() );
+	}
+
+	/**
+	 * Whether or not a backup appears to be in progress
+	 * 
+	 * @access private
+	 */
+	private function is_backup_still_running() {
+
+		// Check whether there's supposed to be a backup in progress
+		if ( false == ( $process_id = $this->get_backup_process_id() ) )
+			return false;
+
+		// Whether the backup directory has been modified recently is a good
+		// indicator of whether the backup is still running
+		if ( false == ( $mtime = filemtime( $this->path() ) ) )
+			return false;
+
+		// If it hasn't been modified in the last 15 seconds, we're likely dead
+		if ( ( time() - $mtime ) > 15 )
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * Check if there's a backup in progress, whether it's running,
+	 * and restart it if it's not running
+	 *
+	 * @todo support checking whether the database should exist
+	 */
+	public function backup_heartbeat() {
+
+		// Check whether there's supposed to be a backup in progress
+		if ( $this->get_backup_process_id() && $this->is_backup_still_running() )
+			return false;
+
+		// Uh oh, needs to be restarted
+		$this->save_backup_process_id();
+
+		$this->restart_archive();
+
 	}
 
 	/**

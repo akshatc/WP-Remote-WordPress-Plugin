@@ -1145,6 +1145,25 @@ class WPRP_HM_Backup {
 	}
 
 	/**
+	 * Restart a failed archive process
+	 * 
+	 * @access public
+	 */
+	public function restart_archive() {
+
+		if ( $this->is_using_file_manifest() ) {
+
+			$this->archive_via_file_manifest();
+
+		} else {
+
+			$this->archive_via_single_request();
+
+		}
+
+	}
+
+	/**
 	 * Zip using the native zip command
 	 *
 	 * @access public
