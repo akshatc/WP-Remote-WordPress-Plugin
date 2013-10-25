@@ -234,7 +234,12 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 			case 'hmbkp_archive_started' :
 
-	    		$this->set_status( sprintf( __( 'Creating zip archive %s', 'wpremote' ), '(<code>' . $this->get_archive_method() . '</code>)' ) );
+				if ( $this->is_using_file_manifest() )
+					$status = sprintf( __( '%d files remaining to archive %s', 'wpremote' ), $this->file_manifest_remaining, '(<code>' . $this->get_archive_method() . '</code>)' );
+				else
+					 $status = sprintf( __( 'Creating zip archive %s', 'wpremote' ), '(<code>' . $this->get_archive_method() . '</code>)' );
+
+				$this->set_status( $status );
 
 	    	break;
 

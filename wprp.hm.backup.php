@@ -160,6 +160,7 @@ class WPRP_HM_Backup {
 	 * @access private
 	 */
 	private $file_manifest_already_archived = array();
+	protected $file_manifest_remaining = 0;
 
 	/**
 	 * A ZipArchive instance for this instance
@@ -497,6 +498,7 @@ class WPRP_HM_Backup {
 		$excludes = $this->exclude_string( 'regex' );
 
 		$file_manifest = array();
+		$this->file_manifest_remaining = 0;
 		foreach( $this->get_files() as $file ) {
 
 			// Skip dot files, they should only exist on versions of PHP between 5.2.11 -> 5.3
@@ -520,6 +522,7 @@ class WPRP_HM_Backup {
 			if ( ! empty( $line ) ) {
 				fwrite( $handle, $line . PHP_EOL );
 				unset( $line );
+				$this->file_manifest_remaining++;
 			}
 
 		}
@@ -556,6 +559,7 @@ class WPRP_HM_Backup {
 			fwrite( $new_handle, $file . PHP_EOL );
 			$i++;
 		}
+		$this->file_manifest_remaining = $i;
 
 		fclose( $old_handle );
 		fclose( $new_handle );
