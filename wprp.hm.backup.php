@@ -1115,8 +1115,6 @@ class WPRP_HM_Backup {
 			if ( $this->ziparchive->statusSys )
 				$this->warning( $this->get_archive_method(), $this->ziparchive->statusSys );
 
-			// Close the file for the final time
-			$this->ziparchive->close();
 		}
 
 		// Verify and remove if errors
