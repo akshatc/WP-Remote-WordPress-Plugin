@@ -756,6 +756,7 @@ class WPRP_HM_Backup {
 	 */
 	protected function &setup_ziparchive() {
 
+		// Instance is already open
 		if ( ! empty( $this->ziparchive ) ) {
 			$this->ziparchive->open( $this->get_archive_filepath(), ZIPARCHIVE::CREATE );
 			return $this->ziparchive;
@@ -1037,7 +1038,7 @@ class WPRP_HM_Backup {
 
 				case 'ziparchive':
 
-					$zip = $this->setup_ziparchive();
+					$zip = &$this->setup_ziparchive();
 
 					$zip->addFile( $this->get_database_dump_filepath(), $this->get_database_dump_filename() );
 
