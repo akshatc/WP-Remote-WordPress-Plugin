@@ -476,32 +476,6 @@ class WPRP_Backups extends WPRP_HM_Backup {
 }
 
 /**
- * Handle the backups API calls
- *
- * @param string $action
- * @return bool|string|true|void|WP_Error
- */
-function _wprp_backups_api_call( $action ) {
-
-	switch( $action ) {
-
-		case 'supports_backups' :
-			return true;
-
-		case 'do_backup' :
-			return WPRP_Backups::get_instance()->do_backup();
-
-		case 'get_backup' :
-			return WPRP_Backups::get_instance()->get_backup();
-
-		case 'delete_backup' :
-			return WPRP_Backups::get_instance()->cleanup();
-
-	}
-
-}
-
-/**
  * Return an array of back meta information
  *
  * @return array

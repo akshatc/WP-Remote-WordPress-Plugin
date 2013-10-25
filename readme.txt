@@ -39,6 +39,8 @@ You can email us at support@wpremote.com for support.
 
 #### 2.7.0 (?? ???? ????)
 
+* Plugin API improvements: specify database- and file-only backups
+
 #### 2.6.6 (23 October 2013)
 
 * Bug fix: Due to some files moving around, WP Remote wasn't able to properly update the current version of the plugin.
