@@ -1248,7 +1248,6 @@ class WPRP_HM_Backup {
 
 		foreach( $files as $file ) {
 
-
 			$full_path = trailingslashit( $this->get_root() ) . $file;
 			if ( is_dir( $full_path ) )
 				$zip->addEmptyDir( $file );
@@ -1257,6 +1256,7 @@ class WPRP_HM_Backup {
 
 		}
 
+		// Avoid limitations in ZipArchive by making sure we save each batch to disk
 		$zip->close();
 		return true;
 	}
