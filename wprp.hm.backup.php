@@ -926,116 +926,144 @@ class WPRP_HM_Backup {
 		// If using a manifest, perform the backup in chunks
 		if ( 'database' !== $this->get_type() && $this->is_using_file_manifest() ) {
 			
-			// Create a list of all files to be backed up
-			$this->create_file_manifest();
-
-			$this->do_action( 'hmbkp_archive_started' );
-
-			$errors = array();
-
-			// Back up files from the file manifest in chunks
-			$next_files = $this->get_next_files_from_file_manifest( 300 );
-			do {
-
-				// ZipArchive is the fastest for chunked backups
-				if ( class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) ) {
-					$this->archive_method = 'ziparchive';
-					$error = $this->zip_archive_files( $next_files );
-				}
-
-				// Fall back to `zip` if ZipArchive doesn't exist
-				else if ( $this->get_zip_command_path() ) {
-					$this->archive_method = 'zip';
-					$error = $this->zip_files( $next_files );
-				}
-
-				// Last opportunity
-				else {
-					$this->archive_method = 'pclzip';
-					$error = $this->pcl_zip_files( $next_files );
-				}
-
-				if ( ! empty( $error ) ) {
-					$errors[] = $error;
-					unset( $error );
-				}
-
-				// Update the file manifest with these files that were archived
-				$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
-				$this->update_file_manifest();
-
-				// Get the next set of files to archive
-				$next_files = $this->get_next_files_from_file_manifest();
-
-			} while( ! empty( $next_files ) );
-
-			// If the database should be included in the backup, it's included last
-			if ( 'file' !== $this->get_type() && file_exists( $this->get_database_dump_filepath() ) ) {
-
-				switch ( $this->archive_method ) {
-
-					case 'ziparchive':
-
-						$this->ziparchive->addFile( $this->get_database_dump_filepath(), $this->get_database_dump_filename() );
-
-						break;
-
-					case 'zip':
-
-						$error = shell_exec( 'cd ' . escapeshellarg( $this->get_path() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -uq ' . escapeshellarg( $this->get_archive_filepath() ) . ' ' . escapeshellarg( $this->get_database_dump_filename() ) . ' 2>&1' );
-
-						break;
-
-					case 'pclzip':
-				
-						break;
-				}
-
-				if ( ! empty( $error ) ) {
-					$errors[] = $error;
-					unset( $error );
-				}
-			}
-
-			// If the methods produced any errors, log them
-			if ( ! empty( $errors ) )
-				$this->warning( $this->get_archive_method(), implode( ', ', $errors ) );
-
-			// ZipArchive has some special reporting requirements
-			if ( ! empty( $this->ziparchive ) ) {
-
-				if ( $this->ziparchive->status )
-					$this->warning( $this->get_archive_method(), $this->ziparchive->status );
-
-				if ( $this->ziparchive->statusSys )
-					$this->warning( $this->get_archive_method(), $this->ziparchive->statusSys );
-
-				// Close the file for the final time
-				$this->ziparchive->close();
-			}
-
-			// Verify and remove if errors
-			$this->verify_archive();
-
-			// Remove the file manifest
-			if ( file_exists( $this->get_file_manifest_filepath() ) )
-				unlink( $this->get_file_manifest_filepath() );
+			$this->archive_via_file_manifest();
 
 		} else {
 
-			// Do we have the path to the zip command
-			if ( $this->get_zip_command_path() )
-				$this->zip();
-
-			// If not or if the shell zip failed then use ZipArchive
-			if ( empty( $this->archive_verified ) && class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) )
-				$this->zip_archive();
-
-			// If ZipArchive is unavailable or one of the above failed
-			if ( empty( $this->archive_verified ) )
-				$this->pcl_zip();
+			$this->archive_via_single_request();
 
 		}
+
+	}
+
+	/**
+	 * Archive with a file manifest
+	 *
+	 * @access private
+	 */
+	private function archive_via_file_manifest() {
+
+		// Create a list of all files to be backed up
+		$this->create_file_manifest();
+
+		$this->do_action( 'hmbkp_archive_started' );
+
+		$errors = array();
+
+		// Back up files from the file manifest in chunks
+		$next_files = $this->get_next_files_from_file_manifest( 300 );
+		do {
+
+			// ZipArchive is the fastest for chunked backups
+			if ( class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) ) {
+				$this->archive_method = 'ziparchive';
+				$error = $this->zip_archive_files( $next_files );
+			}
+
+			// Fall back to `zip` if ZipArchive doesn't exist
+			else if ( $this->get_zip_command_path() ) {
+				$this->archive_method = 'zip';
+				$error = $this->zip_files( $next_files );
+			}
+
+			// Last opportunity
+			else {
+				$this->archive_method = 'pclzip';
+				$error = $this->pcl_zip_files( $next_files );
+			}
+
+			if ( ! empty( $error ) ) {
+				$errors[] = $error;
+				unset( $error );
+			}
+
+			// Update the file manifest with these files that were archived
+			$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
+			$this->update_file_manifest();
+
+			// Get the next set of files to archive
+			$next_files = $this->get_next_files_from_file_manifest();
+
+		} while( ! empty( $next_files ) );
+
+		// If the database should be included in the backup, it's included last
+		if ( 'file' !== $this->get_type() && file_exists( $this->get_database_dump_filepath() ) ) {
+
+			switch ( $this->archive_method ) {
+
+				case 'ziparchive':
+
+					$this->ziparchive->addFile( $this->get_database_dump_filepath(), $this->get_database_dump_filename() );
+
+					break;
+
+				case 'zip':
+
+					$error = shell_exec( 'cd ' . escapeshellarg( $this->get_path() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -uq ' . escapeshellarg( $this->get_archive_filepath() ) . ' ' . escapeshellarg( $this->get_database_dump_filename() ) . ' 2>&1' );
+
+					break;
+
+				case 'pclzip':
+			
+					break;
+			}
+
+			if ( ! empty( $error ) ) {
+				$errors[] = $error;
+				unset( $error );
+			}
+		}
+
+		// If the methods produced any errors, log them
+		if ( ! empty( $errors ) )
+			$this->warning( $this->get_archive_method(), implode( ', ', $errors ) );
+
+		// ZipArchive has some special reporting requirements
+		if ( ! empty( $this->ziparchive ) ) {
+
+			if ( $this->ziparchive->status )
+				$this->warning( $this->get_archive_method(), $this->ziparchive->status );
+
+			if ( $this->ziparchive->statusSys )
+				$this->warning( $this->get_archive_method(), $this->ziparchive->statusSys );
+
+			// Close the file for the final time
+			$this->ziparchive->close();
+		}
+
+		// Verify and remove if errors
+		$this->verify_archive();
+
+		// Remove the file manifest
+		if ( file_exists( $this->get_file_manifest_filepath() ) )
+			unlink( $this->get_file_manifest_filepath() );
+
+		// Delete the database dump file
+		if ( file_exists( $this->get_database_dump_filepath() ) )
+			unlink( $this->get_database_dump_filepath() );
+
+		$this->do_action( 'hmbkp_archive_finished' );
+
+	}
+
+	/**
+	 * Archive using our traditional method of one request
+	 *
+	 * @access private
+	 */
+	private function archive_via_single_request() {
+
+		// Do we have the path to the zip command
+		if ( $this->get_zip_command_path() )
+			$this->zip();
+
+		// If not or if the shell zip failed then use ZipArchive
+		if ( empty( $this->archive_verified ) && class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) )
+			$this->zip_archive();
+
+		// If ZipArchive is unavailable or one of the above failed
+		if ( empty( $this->archive_verified ) )
+			$this->pcl_zip();
 
 		// Delete the database dump file
 		if ( file_exists( $this->get_database_dump_filepath() ) )
