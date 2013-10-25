@@ -1248,11 +1248,12 @@ class WPRP_HM_Backup {
 
 		foreach( $files as $file ) {
 
+
 			$full_path = trailingslashit( $this->get_root() ) . $file;
 			if ( is_dir( $full_path ) )
-				$zip->addEmptyDir( $full_path );
+				$zip->addEmptyDir( $file );
 			else
-				$zip->addFile( $full_path, pathinfo( $full_path, PATHINFO_BASENAME ) );
+				$zip->addFile( $full_path, $file );
 
 		}
 
