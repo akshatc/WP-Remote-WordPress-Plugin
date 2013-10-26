@@ -365,8 +365,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		shuffle( $key );
 
- 		return md5( serialize( $key ) );
-
+		$this->key = md5( serialize( $key ) );
+		return $this->key;
 	}
 
 	/**

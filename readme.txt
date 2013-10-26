@@ -40,6 +40,7 @@ You can email us at support@wpremote.com for support.
 #### 2.7.0 (?? ???? ????)
 
 * Plugin API improvements: specify database- and file-only backups
+* Bug fix: Make the backup download URL accessible on Apache servers again. The protective .htaccess was being generated with the wrong key.
 
 #### 2.6.6 (23 October 2013)
 
