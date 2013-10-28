@@ -37,6 +37,8 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### 2.7.0 (?? ???? ????)
+
 #### 2.6.7 (27 October 2013)
 
 * API improvement: specify database- and file-only backups
