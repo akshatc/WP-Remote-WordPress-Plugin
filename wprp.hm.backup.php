@@ -160,6 +160,20 @@ class WPRP_HM_Backup {
 	 * @access private
 	 */
 	private $file_manifest_already_archived = array();
+
+	/**
+	 * When using the file manifest, the number of files that should be
+	 * archived per batch.
+	 * 
+	 * @access private
+	 */
+	private $file_manifest_per_batch = 300;
+
+	/**
+	 * Files remaining to be achived in the file manifest.
+	 * 
+	 * @access protected
+	 */
 	protected $file_manifest_remaining = 0;
 
 	/**
@@ -587,7 +601,7 @@ class WPRP_HM_Backup {
 	 * 
 	 * @access private
 	 */
-	private function get_next_files_from_file_manifest( $batch_size = 300 ) {
+	private function get_next_files_from_file_manifest( $batch_size ) {
 
 		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
 			return array();
@@ -1030,7 +1044,7 @@ class WPRP_HM_Backup {
 		$errors = array();
 
 		// Back up files from the file manifest in chunks
-		$next_files = $this->get_next_files_from_file_manifest( 300 );
+		$next_files = $this->get_next_files_from_file_manifest( $this->file_manifest_per_batch );
 		do {
 
 			$this->do_action( 'hmbkp_archive_started' );
@@ -1068,7 +1082,7 @@ class WPRP_HM_Backup {
 			$this->update_file_manifest();
 
 			// Get the next set of files to archive
-			$next_files = $this->get_next_files_from_file_manifest();
+			$next_files = $this->get_next_files_from_file_manifest( $this->file_manifest_per_batch );
 
 		} while( ! empty( $next_files ) );
 
