@@ -1037,7 +1037,7 @@ class WPRP_HM_Backup {
 
 			// ZipArchive is the fastest for chunked backups
 			if ( class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) ) {
-				$this->archive_method = 'ziparchive';
+				$this->archive_method = 'zip_archive_files';
 
 				$ret = $this->zip_archive_files( $next_files );
 				if ( ! $ret ) {
@@ -1048,13 +1048,13 @@ class WPRP_HM_Backup {
 
 			// Fall back to `zip` if ZipArchive doesn't exist
 			else if ( $this->get_zip_command_path() ) {
-				$this->archive_method = 'zip';
+				$this->archive_method = 'zip_files';
 				$error = $this->zip_files( $next_files );
 			}
 
 			// Last opportunity
 			else {
-				$this->archive_method = 'pclzip';
+				$this->archive_method = 'pcl_zip_files';
 				$error = $this->pcl_zip_files( $next_files );
 			}
 
