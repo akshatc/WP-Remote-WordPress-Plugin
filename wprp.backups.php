@@ -491,16 +491,3 @@ function _wprp_get_backups_info() {
 	);
 
 }
-
-/**
- * Calculate the filesize of the site
- *
- * The calculated size is stored in a transient
- */
-function wprp_ajax_calculate_backup_size() {
-
-	WPRP_Backups::get_instance()->get_filesize();
-
-	exit;
-}
-add_action( 'wp_ajax_nopriv_wprp_calculate_backup_size', 'wprp_ajax_calculate_backup_size' );
