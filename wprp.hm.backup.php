@@ -1006,10 +1006,9 @@ class WPRP_HM_Backup {
 	public function archive() {
 
 		// If using a manifest, perform the backup in chunks
-		if ( 'database' !== $this->get_type() && $this->is_using_file_manifest() ) {
-
-			// Create a list of all files to be backed up
-			$this->create_file_manifest();
+		if ( 'database' !== $this->get_type()
+			&& $this->is_using_file_manifest()
+			&& $this->create_file_manifest() ) {
 			
 			$this->archive_via_file_manifest();
 
