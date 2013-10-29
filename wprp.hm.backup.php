@@ -534,14 +534,14 @@ class WPRP_HM_Backup {
 				$line = str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) );
 
 			if ( ! empty( $line ) ) {
-				fwrite( $handle, $line . PHP_EOL );
+				@fwrite( $handle, $line . PHP_EOL );
 				unset( $line );
 				$this->file_manifest_remaining++;
 			}
 
 		}
 
-		fclose( $handle );
+		@fclose( $handle );
 	}
 
 	/**
@@ -573,15 +573,15 @@ class WPRP_HM_Backup {
 			if ( in_array( $file, $this->file_manifest_already_archived ) )
 				continue;
 
-			fwrite( $new_handle, $file . PHP_EOL );
+			@fwrite( $new_handle, $file . PHP_EOL );
 			$i++;
 		}
 		$this->file_manifest_remaining = $i;
 
-		fclose( $old_handle );
-		fclose( $new_handle );
+		@fclose( $old_handle );
+		@fclose( $new_handle );
 
-		rename( $tmp_path, $this->get_file_manifest_filepath() );
+		@rename( $tmp_path, $this->get_file_manifest_filepath() );
 		$this->file_manifest_already_archived = array();
 	}
 
@@ -618,7 +618,7 @@ class WPRP_HM_Backup {
 
 		} while ( $file && count( $files ) < $batch_size );
 
-		fclose( $handle );
+		@fclose( $handle );
 
 		return $files;
 	}
@@ -2068,10 +2068,10 @@ class WPRP_HM_Backup {
 	    	if ( ! $handle = @fopen( $sqlname, 'a' ) )
 	    		return;
 
-	    	if ( ! fwrite( $handle, $sql ) )
+	    	if ( ! @fwrite( $handle, $sql ) )
 	    		return;
 
-	    	fclose( $handle );
+	    	@fclose( $handle );
 
 	    	return true;
 
