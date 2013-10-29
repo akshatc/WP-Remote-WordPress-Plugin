@@ -492,7 +492,7 @@ class WPRP_HM_Backup {
 		if ( file_exists( $this->get_file_manifest_filepath() ) )
 			unlink( $this->get_file_manifest_filepath() );
 
-		if ( ! $handle = fopen( $this->get_file_manifest_filepath(), 'w' ) )
+		if ( ! $handle = @fopen( $this->get_file_manifest_filepath(), 'w' ) )
 			return false;
 
 		$excludes = $this->exclude_string( 'regex' );
@@ -541,11 +541,11 @@ class WPRP_HM_Backup {
 		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
 			return false;
 
-		if ( ! $old_handle = fopen( $this->get_file_manifest_filepath(), 'r' ) )
+		if ( ! $old_handle = @fopen( $this->get_file_manifest_filepath(), 'r' ) )
 			return false;
 
 		$tmp_path = $this->get_path() . '/.file-manifest-new';
-		if ( ! $new_handle = fopen( $tmp_path, 'w' ) )
+		if ( ! $new_handle = @fopen( $tmp_path, 'w' ) )
 			return false;
 
 		$i = 0;
@@ -592,7 +592,7 @@ class WPRP_HM_Backup {
 		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
 			return array();
 
-		if ( ! $handle = fopen( $this->get_file_manifest_filepath(), 'r' ) )
+		if ( ! $handle = @fopen( $this->get_file_manifest_filepath(), 'r' ) )
 			return array();
 
 		$files = array();
