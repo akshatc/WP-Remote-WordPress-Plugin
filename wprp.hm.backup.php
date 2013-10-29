@@ -1363,11 +1363,8 @@ class WPRP_HM_Backup {
 	 * Use PclZip to archive batches of files
 	 */
 	private function pcl_zip_files( $files ) {
-		global $_wprp_hmbkp_exclude_string;
 
 		$this->errors_to_warnings( $this->get_archive_method() );
-
-		$_wprp_hmbkp_exclude_string = $this->exclude_string( 'regex' );
 
 		$pclzip = &$this->setup_pclzip();
 
@@ -1381,8 +1378,6 @@ class WPRP_HM_Backup {
 				$this->warning( $this->get_archive_method(), $pclzip->errorInfo( true ) );
 
 		}
-
-		unset( $GLOBALS['_wprp_hmbkp_exclude_string'] );
 
 	}
 
