@@ -542,6 +542,8 @@ class WPRP_HM_Backup {
 		}
 
 		@fclose( $handle );
+
+		return true;
 	}
 
 	/**
