@@ -1199,6 +1199,7 @@ class WPRP_HM_Backup {
 
 		}
 
+		$this->do_action( 'hmbkp_backup_complete' );
 	}
 
 	/**
