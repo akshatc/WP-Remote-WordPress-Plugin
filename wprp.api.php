@@ -192,7 +192,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		case 'activate_theme':
 
-			$actions[$action] = _wprp_activate_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ), $api_args );
+			$actions[$action] = _wprp_activate_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
 
 		break;
 
