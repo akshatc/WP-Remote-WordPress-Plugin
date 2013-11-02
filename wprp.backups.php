@@ -25,7 +25,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		if ( empty( self::$instance ) ) {
 			self::$instance = new WPRP_Backups();
-			self::$instance->set_is_using_file_manifest( apply_filters( 'wprp_backups_use_file_manifest', '__return_true' ) );
+			self::$instance->set_is_using_file_manifest( apply_filters( 'wprp_backups_use_file_manifest', '__return_false' ) );
 		}
 
 		return self::$instance;
