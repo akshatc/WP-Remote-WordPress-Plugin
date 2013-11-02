@@ -230,6 +230,12 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'backup_heartbeat' :
+
+			$actions[$action] = WPRP_Backups::get_instance()->backup_heartbeat(); 
+
+		break;
+
 		case 'supports_backups' :
 
 			$actions[$action] = true;
