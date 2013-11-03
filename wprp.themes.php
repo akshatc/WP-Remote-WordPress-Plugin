@@ -96,6 +96,9 @@ function _wprp_get_themes() {
  */
 function _wprp_install_theme( $theme, $args = array() ) {
 
+	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
+		return array( 'status' => 'error', 'error' => "File modification is disabled with the DISALLOW_FILE_MODS constant." );
+
 	if ( wp_get_theme( $theme )->exists() )
 		return array( 'status' => 'error', 'error' => 'Theme is already installed.' );
 
@@ -154,6 +157,9 @@ function _wprp_activate_theme( $theme ) {
  */
 function _wprp_update_theme( $theme ) {
 
+	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
+		return array( 'status' => 'error', 'error' => "File modification is disabled with the DISALLOW_FILE_MODS constant." );
+
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-theme-upgrader-skin.php';
@@ -192,6 +198,9 @@ function _wprp_update_theme( $theme ) {
  */
 function _wprp_delete_theme( $theme ) {
 	global $wp_filesystem;
+
+	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
+		return array( 'status' => 'error', 'error' => "File modification is disabled with the DISALLOW_FILE_MODS constant." );
 
 	if ( ! wp_get_theme( $theme )->exists() )
 		return array( 'status' => 'error', 'error' => 'Theme is not installed.' );
