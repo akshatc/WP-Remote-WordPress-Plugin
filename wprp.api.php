@@ -129,6 +129,23 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'get_constants':
+
+			$constants = array();
+			if ( is_array( WPR_API_Request::get_arg( 'constants' ) ) ) {
+
+				foreach( WPR_API_Request::get_arg( 'constants' ) as $constant ) {
+					if ( defined( $constant ) )
+						$constants[$constant] = constant( $constant );
+					else
+						$constants[$constant] = null;
+				}
+
+			}
+			$actions[$action] = $constants;
+
+		break;
+
 		case 'upgrade_core' :
 
 			$actions[$action] = _wprp_upgrade_core();
