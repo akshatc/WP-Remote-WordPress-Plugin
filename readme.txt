@@ -40,6 +40,7 @@ You can email us at support@wpremote.com for support.
 #### 2.7.0 (?? ???? ????)
 
 * Improved durability of backups where the backup process can take more than 90 seconds.
+* Plugin, theme, and core updates now respect the `DISALLOW_FILE_MODS` constant.
 
 #### 2.6.7 (27 October 2013)
 
