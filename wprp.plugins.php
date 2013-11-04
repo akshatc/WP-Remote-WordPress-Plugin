@@ -71,7 +71,7 @@ function _wprp_get_plugins() {
 function _wprp_update_plugin( $plugin ) {
 
 	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
-		return array( 'status' => 'error', 'error' => "File modification is disabled with the DISALLOW_FILE_MODS constant." );
+		return new WP_Error( 'disallow-file-mods', __( "File modification is disabled with the DISALLOW_FILE_MODS constant.", 'wpremote' ) );
 
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
@@ -120,7 +120,7 @@ function _wprp_update_plugin( $plugin ) {
 function _wprp_install_plugin( $plugin, $args = array() ) {
 
 	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
-		return array( 'status' => 'error', 'error' => "File modification is disabled with the DISALLOW_FILE_MODS constant." );
+		return new WP_Error( 'disallow-file-mods', __( "File modification is disabled with the DISALLOW_FILE_MODS constant.", 'wpremote' ) );
 
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -186,7 +186,7 @@ function _wprp_uninstall_plugin( $plugin ) {
 	global $wp_filesystem;
 
 	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
-		return array( 'status' => 'error', 'error' => "File modification is disabled with the DISALLOW_FILE_MODS constant." );
+		return new WP_Error( 'disallow-file-mods', __( "File modification is disabled with the DISALLOW_FILE_MODS constant.", 'wpremote' ) );
 
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
