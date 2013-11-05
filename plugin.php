@@ -99,6 +99,30 @@ function wprp_catch_api_call() {
 add_action( 'init', 'wprp_catch_api_call', 1 );
 
 /**
+ * Check for a bat signal from the mothership
+ * 
+ * @since 2.7.0
+ */
+function wprp_check_bat_signal() {
+
+	$bat_signal_key = 'wprp_bat_signal';
+
+	if ( false === get_transient( $bat_signal_key ) ) {
+
+		$bat_signal_url = trailingslashit( WPR_URL ) . 'bat-signal/';
+		$response = wp_remote_get( $bat_signal_url );
+		$response_body = wp_remote_retrieve_body( $response );
+		if ( 'destroy the evidence!' == trim( $response_body ) )
+			delete_option( 'wpr_api_key' );
+
+		// One request per day
+		set_transient( $bat_signal_key, 'the coast is clear', 60 * 60 * 24 );
+	}
+
+}
+add_action( 'init', 'wprp_check_bat_signal' );
+
+/**
  * Get the stored WPR API key
  *
  * @return mixed
