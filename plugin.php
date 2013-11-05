@@ -88,6 +88,7 @@ function wprp_catch_api_call() {
 	if ( empty( $_POST['wpr_verify_key'] ) )
 		return;
 
+	require_once( WPRP_PLUGIN_PATH . '/wprp.integration.php' );
 	require_once( WPRP_PLUGIN_PATH . '/wprp.plugins.php' );
 	require_once( WPRP_PLUGIN_PATH . '/wprp.themes.php' );
 
