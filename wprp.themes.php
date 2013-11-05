@@ -166,7 +166,7 @@ function _wprp_update_theme( $theme ) {
 
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
-		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );		
+		return new WP_Error( 'filesystem-not-writable', __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
 	$skin = new WPRP_Theme_Upgrader_Skin();
 	$upgrader = new Theme_Upgrader( $skin );
@@ -210,7 +210,7 @@ function _wprp_delete_theme( $theme ) {
 	include_once ABSPATH . 'wp-includes/update.php';
 
 	if ( ! _wpr_check_filesystem_access() || ! WP_Filesystem() )
-		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );
+		return new WP_Error( 'filesystem-not-writable', __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
 	$themes_dir = $wp_filesystem->wp_themes_dir();
 	if ( empty( $themes_dir ) )
