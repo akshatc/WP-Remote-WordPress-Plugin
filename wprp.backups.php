@@ -478,11 +478,21 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 */
 	private function get_heartbeat_timestamp() {
 
-		$file = $this->get_path() . '/.heartbeat-timestamp';
-		if ( file_exists( $file ) )
-			return (int) file_get_contents( $file );
-		else
-			return false;
+		$heartbeat = $this->get_path() . '/.heartbeat-timestamp';
+		$database = $this->get_database_dump_filepath();
+
+		$times = array();
+
+		if ( file_exists( $heartbeat ) )
+			return (int) file_get_contents( $heartbeat );
+
+		if ( file_exists( $database ) )
+			return (int) filemtime( $database );
+
+		if ( $times )
+			return max( $times );
+
+		return false;
 	}
 
 	/**
