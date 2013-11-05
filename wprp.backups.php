@@ -129,7 +129,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 			if ( $this->is_backup_still_running() )
 				return new WP_Error( 'error-status', $status );
 			else
-				return new WP_Error( 'backup-failed', __( 'Backup process failed or was killed.', 'wpremote' ) );
+				return new WP_Error( 'backup-process-killed', __( 'Backup process failed or was killed.', 'wpremote' ) );
 		}
 
 		$backup = $this->get_archive_filepath();
