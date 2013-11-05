@@ -96,15 +96,15 @@ function _wprp_update_plugin( $plugin ) {
 
 	if ( ! empty( $skin->error ) )
 
-		return array( 'status' => 'error', 'error' => $upgrader->strings[$skin->error] );
+		return new WP_Error( 'plugin-upgrader-skin', $upgrader->strings[$skin->error] );
 
 	else if ( is_wp_error( $result ) )
 
-		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+		return $result;
 
 	else if ( ( ! $result && ! is_null( $result ) ) || $data )
 
-		return array( 'status' => 'error', 'error' => 'Unknown error updating plugin.' );
+		return new WP_Error( 'plugin-update', __( 'Unknown error updating plugin.', 'wpremote' ) );
 
 	// If the plugin was activited, we have to re-activate it
 	// but if activate_plugin() fatals, then we'll just have to return 500
@@ -135,7 +135,7 @@ function _wprp_install_plugin( $plugin, $args = array() ) {
 	$api = plugins_api( 'plugin_information', $api_args );
 
 	if ( is_wp_error( $api ) )
-		return array( 'status' => 'error', 'error' => $api->get_error_code() );
+		return $api;
 
 	$skin = new WPRP_Plugin_Upgrader_Skin();
 	$upgrader = new Plugin_Upgrader( $skin );
@@ -147,9 +147,9 @@ function _wprp_install_plugin( $plugin, $args = array() ) {
 
 	$result = $upgrader->install( $api->download_link );
 	if ( is_wp_error( $result ) )
-		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+		return $result;
 	else if ( ! $result )
-		return array( 'status' => 'error', 'error' => 'Unknown error installing plugin.' );
+		return new WP_Error( 'plugin-install', __( 'Unknown error installing plugin.', 'wpremote' ) );
 
 	return array( 'status' => 'success' );
 }
@@ -161,7 +161,7 @@ function _wprp_activate_plugin( $plugin ) {
 	$result = activate_plugin( $plugin );
 
 	if ( is_wp_error( $result ) )
-		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+		return $result;
 
 	return array( 'status' => 'success' );
 }
@@ -197,7 +197,7 @@ function _wprp_uninstall_plugin( $plugin ) {
 
 	$plugins_dir = $wp_filesystem->wp_plugins_dir();
 	if ( empty( $plugins_dir ) )
-		return array( 'status' => 'error', 'error' => 'Unable to locate WordPress Plugin directory.' );
+		return new WP_Error( 'missing-plugin-dir', __( 'Unable to locate WordPress Plugin directory.' , 'wpremote' ) );
 
 	$plugins_dir = trailingslashit( $plugins_dir );
 
@@ -218,7 +218,7 @@ function _wprp_uninstall_plugin( $plugin ) {
 		}
 		return array( 'status' => 'success' );
 	} else {
-		return array( 'status' => 'error', 'error' => 'Plugin uninstalled, but not deleted.' );
+		return new WP_Error( 'plugin-uninstall', __( 'Plugin uninstalled, but not deleted.', 'wpremote' ) );
 	}
 
 }
