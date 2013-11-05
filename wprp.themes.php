@@ -100,7 +100,7 @@ function _wprp_install_theme( $theme, $args = array() ) {
 		return new WP_Error( 'disallow-file-mods', __( "File modification is disabled with the DISALLOW_FILE_MODS constant.", 'wpremote' ) );
 
 	if ( wp_get_theme( $theme )->exists() )
-		return array( 'status' => 'error', 'error' => 'Theme is already installed.' );
+		return new WP_Error( 'theme-installed', __( 'Theme is already installed.' ) );
 
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -115,7 +115,7 @@ function _wprp_install_theme( $theme, $args = array() ) {
 	$api = themes_api( 'theme_information', $api_args );
 
 	if ( is_wp_error( $api ) )
-		return array( 'status' => 'error', 'error' => $api->get_error_code() );
+		return $api;
 
 	$skin = new WPRP_Theme_Upgrader_Skin();
 	$upgrader = new Theme_Upgrader( $skin );
@@ -129,7 +129,7 @@ function _wprp_install_theme( $theme, $args = array() ) {
 	if ( is_wp_error( $result ) )
 		return $result;
 	else if ( ! $result )
-		return array( 'status' => 'error', 'error' => 'Unknown error installing theme.' );
+		return new WP_Error( 'unknown-install-error', __( 'Unknown error installing theme.', 'wpremote' ) );
 
 	return array( 'status' => 'success' );
 }
@@ -143,7 +143,7 @@ function _wprp_install_theme( $theme, $args = array() ) {
 function _wprp_activate_theme( $theme ) {
 
 	if ( ! wp_get_theme( $theme )->exists() )
-		return array( 'status' => 'error', 'error' => 'Theme is not installed.' );
+		return new WP_Error( 'theme-not-installed', __( 'Theme is not installed.', 'wpremote' ) );
 
 	switch_theme( $theme );
 	return array( 'status' => 'success' );
@@ -166,7 +166,7 @@ function _wprp_update_theme( $theme ) {
 
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
-		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );		
+		return new WP_Error( 'filesystem-not-writable', __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
 	$skin = new WPRP_Theme_Upgrader_Skin();
 	$upgrader = new Theme_Upgrader( $skin );
@@ -177,14 +177,17 @@ function _wprp_update_theme( $theme ) {
 	$data = ob_get_contents();
 	ob_clean();
 
-	if ( ( ! $result && ! is_null( $result ) ) || $data )
-		return array( 'status' => 'error', 'error' => 'file_permissions_error' );
+	if ( ! empty( $skin->error ) )
 
-	elseif ( is_wp_error( $result ) )
-		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+		return new WP_Error( 'theme-upgrader-skin', $upgrader->strings[$skin->error] );
 
-	if ( $skin->error )
-		return array( 'status' => 'error', 'error' => $skin->error );
+	else if ( is_wp_error( $result ) )
+
+		return $result;
+
+	else if ( ( ! $result && ! is_null( $result ) ) || $data )
+
+		return new WP_Error( 'theme-update', __( 'Unknown error updating theme.', 'wpremote' ) );
 
 	return array( 'status' => 'success' );
 
@@ -203,25 +206,25 @@ function _wprp_delete_theme( $theme ) {
 		return new WP_Error( 'disallow-file-mods', __( "File modification is disabled with the DISALLOW_FILE_MODS constant.", 'wpremote' ) );
 
 	if ( ! wp_get_theme( $theme )->exists() )
-		return array( 'status' => 'error', 'error' => 'Theme is not installed.' );
+		return new WP_Error( 'theme-missing', __( 'Theme is not installed.', 'wpremote' ) );
 
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	include_once ABSPATH . 'wp-includes/update.php';
 
 	if ( ! _wpr_check_filesystem_access() || ! WP_Filesystem() )
-		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );
+		return new WP_Error( 'filesystem-not-writable', __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
 	$themes_dir = $wp_filesystem->wp_themes_dir();
 	if ( empty( $themes_dir ) )
-		return array( 'status' => 'error', 'error' => 'Unable to locate WordPress theme directory.' );
+		return new WP_Error( 'theme-dir-missing', __( 'Unable to locate WordPress theme directory', 'wpremote' ) );
 
 	$themes_dir = trailingslashit( $themes_dir );
 	$theme_dir = trailingslashit( $themes_dir . $theme );
 	$deleted = $wp_filesystem->delete( $theme_dir, true );
 
 	if ( ! $deleted )
-		return array( 'status' => 'error', 'error' => sprintf( 'Could not fully delete the theme: %s.', $theme ) );
+		return new WP_Error( 'theme-delete', sprintf( __( 'Could not fully delete the theme: %s.', 'wpremote' ), $theme ) );
 
 	// Force refresh of theme update information
 	delete_site_transient('update_themes');
