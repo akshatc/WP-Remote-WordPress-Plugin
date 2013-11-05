@@ -593,7 +593,7 @@ class WPRP_HM_Backup {
 	 * 
 	 * @access private
 	 */
-	private function get_file_manifest_filepath() {
+	protected function get_file_manifest_filepath() {
 		return $this->get_path() . '/.file-manifest';
 	}
 
