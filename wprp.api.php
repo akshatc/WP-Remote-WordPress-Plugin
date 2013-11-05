@@ -235,6 +235,8 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		case 'backup_heartbeat' :
 
+			WPRP_Backups::get_instance()->set_is_using_file_manifest( true );
+
 			$actions[$action] = WPRP_Backups::get_instance()->backup_heartbeat(); 
 
 		break;

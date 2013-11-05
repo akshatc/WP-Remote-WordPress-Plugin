@@ -568,6 +568,10 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		if ( ! $this->get_backup_process_id() )
 			return false;
 
+		// No file manifest means this wasn't a file manifest approach
+		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
+			return false;
+
 		// Check whether there's supposed to be a backup in progress
 		if ( $this->get_backup_process_id() && $this->is_backup_still_running() )
 			return false;
