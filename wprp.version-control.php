@@ -96,23 +96,36 @@ class WPRP_Version_Control_System_Git {
 	}
 
 	/**
-	 * Taken from the great Git Status plugin
-	 * https://raw.github.com/johnbillion/wp-git-status
-	 * 
-	 * @author John Blackbourn
+	 * @return [ dirty => bool, branch => string, ref => string ]
 	 */
 	private function get_status() {
 
 		if ( ! empty( $this->status ) )
 			return $this->status;
 
-		if ( ! WPRP_HM_Backup::is_shell_exec_available() )
-			return false;
+		if ( WPRP_HM_Backup::is_shell_exec_available() )
+			$this->status = $this->get_status_from_exec();
+
+		else
+			$this->status = $this->get_status_from_files();
+
+		return $this->status;
+		
+	}
+
+	/**
+	 * Taken from the great Git Status plugin
+	 * https://raw.github.com/johnbillion/wp-git-status
+	 * 
+	 * @author John Blackbourn
+	 * @return [ dirty => bool, branch => string, ref => string ]
+	 */
+	private function get_status_from_exec() {
 
 		$status = array_filter( explode( "\n", shell_exec( sprintf( 'cd %s; git status', escapeshellarg( $this->dir ) ) ) ) );
 
 		if ( empty( $status ) or ( false !== strpos( $status[0], 'fatal' ) ) )
-			return false;
+			return null;
 
 		$end = end( $status );
 		$return = array(
@@ -132,6 +145,27 @@ class WPRP_Version_Control_System_Git {
 		if ( $rev )
 			$return['ref'] = $rev[0];
 
-		return $this->status = $return;
+		return $return;
+	}
+
+	/**
+	 * Try to get the into about a git dir using file reading only
+	 * 
+	 * This is useful is shell_exec() is not available
+	 * 
+	 * @return [ dirty => bool, branch => string, ref => string ]
+	 */
+	private function get_status_from_files() {
+
+		if ( ! is_dir( $this->dir . '/.git' ) )
+			return null;
+
+		$branch = str_replace( 'ref: refs/heads/', '', file_get_contents( $this->dir . '/.git/HEAD' ) );
+
+		return array(
+			'dirty' => false, // currently not supported in by reading the files
+			'branch' => $branch,
+			'ref' => ''
+		);
 	}
 }
