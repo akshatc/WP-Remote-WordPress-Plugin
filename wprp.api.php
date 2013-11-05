@@ -1,5 +1,7 @@
 <?php
 
+print_r( WPRP_Version_Control::get_instance()->get_version_control_information() );
+exit;
 class WPR_API_Request {
 
 	static $actions = array();
@@ -131,7 +133,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		case 'get_version_control_information' :
 
-			$actions[$action] = _wprp_get_version_control_information();
+			$actions[$action] = WPRP_Version_Control::get_instance()->get_version_control_information();
 
 		break;
 		

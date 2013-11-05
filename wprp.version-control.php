@@ -1,53 +1,137 @@
 <?php
 
-function _wprp_get_version_control_information() {
+class WPRP_Version_Control {
 
-	$data = array(
-		'system' => ''
+	private static $instance;
+	private $systems = array(
+		'git' => 'WPRP_Version_Control_System_Git'
 	);
 
-	if ( $git_info = _wprp_git_status_get_status() ) {
-		$data['system'] = 'git';
-		$data = array_merge( $data, $git_info );
+	public static function get_instance() {
+		if ( ! self::$instance )
+			self::$instance = new WPRP_Version_Control();
+
+		return self::$instance;
 	}
 
-	return $data;
+	/**
+	 * Get all of the vcs info for the current site
+	 * 
+	 * @retun [ root => [string] ]
+	 */
+	public function get_version_control_information() {
+
+		$data = array(
+			'root' => $this->get_root_data()
+		);
+
+		return $data;
+	}
+
+	/**
+	 * Get the info about (if any) the root / full project repo.
+	 * 
+	 * @return array
+	 */
+	public function get_root_data() {
+
+		// we want to support WP in a sub dir
+		if ( file_exists( ABSPATH . 'wp-config.php') )
+			$dir = ABSPATH;
+	
+		else if ( file_exists( dirname( ABSPATH ) . '/wp-config.php' ) && ! file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) )
+			$dir = dirname( ABSPATH );
+
+		return $this->get_dir_data( $dir );
+	}
+
+	public function get_dir_data( $dir  ) {
+		$data = array();
+
+		// check the root for all the vcs'
+		foreach ( $this->systems as $system_slug => $class ) {
+			$system = new $class( $dir );
+
+			if ( $system->is_valid() ) {
+				$data['system'] = $system_slug;
+				$data['dirty'] = $system->is_dirty();
+				$data['branch'] = $system->get_branch();
+				break;
+			}
+
+		}
+
+		return $data;	
+	}
 }
 
-/**
- * Taken from the great Git Status plugin
- * https://raw.github.com/johnbillion/wp-git-status
- * 
- * @author John Blackbourn
- */
-function _wprp_git_status_get_status() {
+class WPRP_Version_Control_System_Git {
 
-	if ( !function_exists( 'exec' ) )
-		return false;
+	public function __construct( $dir ) {
+		$this->dir = $dir;
+	}
 
-	exec( sprintf( 'cd %s/../; git status', escapeshellarg( ABSPATH ) ), $status );
+	public function is_valid() {
+		
+		return (bool) $this->get_status();
+	}
 
-	if ( empty( $status ) or ( false !== strpos( $status[0], 'fatal' ) ) )
-		return false;
+	public function is_dirty() {
+		$status = $this->get_status();
 
-	$end = end( $status );
-	$return = array(
-		'dirty'  => true,
-		'branch' => 'detached',
-		'ref' => '',
-	);
+		if ( ! $status )
+			return false;
 
-	if ( preg_match( '/On branch (.+)$/', $status[0], $matches ) )
-		$return['branch'] = trim( $matches[1] );
+		return $status['dirty'];
+	}
 
-	if ( empty( $end ) or ( false !== strpos( $end, 'nothing to commit' ) ) )
-		$return['dirty'] = false;
+	public function get_branch() {
 
-	exec( sprintf( 'cd %s/../; git rev-parse HEAD', escapeshellarg( ABSPATH ) ), $rev );
+		$status = $this->get_status();
 
-	if ( $rev )
-		$return['ref'] = $rev[0];
+		if ( ! $status )
+			return null;
 
-	return $return;
+		return $status['branch'];
+	}
 
+	/**
+	 * Taken from the great Git Status plugin
+	 * https://raw.github.com/johnbillion/wp-git-status
+	 * 
+	 * @author John Blackbourn
+	 */
+	private function get_status() {
+
+		if ( ! empty( $this->status ) )
+			return $this->status;
+
+		if ( ! WPRP_HM_Backup::is_shell_exec_available() )
+			return false;
+
+		$status = array_filter( explode( "\n", shell_exec( sprintf( 'cd %s; git status', escapeshellarg( $this->dir ) ) ) ) );
+
+		if ( empty( $status ) or ( false !== strpos( $status[0], 'fatal' ) ) )
+			return false;
+
+		$end = end( $status );
+		$return = array(
+			'dirty'  => true,
+			'branch' => 'detached',
+			'ref' => '',
+		);
+
+		if ( preg_match( '/On branch (.+)$/', $status[0], $matches ) )
+			$return['branch'] = trim( $matches[1] );
+
+		if ( empty( $end ) or ( false !== strpos( $end, 'nothing to commit' ) ) )
+			$return['dirty'] = false;
+
+		$rev = explode( "\n", shell_exec( sprintf( 'cd %s; git rev-parse HEAD', escapeshellarg( $this->dir ) ) ) );
+
+		if ( $rev )
+			$return['ref'] = $rev[0];
+
+		return $this->status = $return;
+	}
 }
