@@ -3,7 +3,7 @@
 /*
 Plugin Name: WP Remote
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>. <strong>Deactivate to clear your API Key.</strong>
-Version: 2.6.5-alpha
+Version: 2.7.0-alpha
 Author: Human Made Limited
 Author URI: http://hmn.md/
 */
@@ -62,18 +62,6 @@ if ( version_compare( get_bloginfo( 'version' ), '3.1', '>=' ) ) {
 
 }
 
-// Don't include when doing a core update
-if ( empty( $_GET['action'] ) || $_GET['action'] != 'do-core-upgrade' ) :
-
-	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
-
-	// Custom upgrader skins
-	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-plugin-upgrader-skin.php';
-	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-theme-upgrader-skin.php';
-	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-core-upgrader-skin.php';
-
-endif;
-
 /**
  * Get a needed URL on the WP Remote site
  *
@@ -109,6 +97,30 @@ function wprp_catch_api_call() {
 
 }
 add_action( 'init', 'wprp_catch_api_call', 1 );
+
+/**
+ * Check for a bat signal from the mothership
+ * 
+ * @since 2.7.0
+ */
+function wprp_check_bat_signal() {
+
+	$bat_signal_key = 'wprp_bat_signal';
+
+	if ( false === get_transient( $bat_signal_key ) ) {
+
+		$bat_signal_url = trailingslashit( WPR_URL ) . 'bat-signal/';
+		$response = wp_remote_get( $bat_signal_url );
+		$response_body = wp_remote_retrieve_body( $response );
+		if ( 'destroy the evidence!' == trim( $response_body ) )
+			delete_option( 'wpr_api_key' );
+
+		// One request per day
+		set_transient( $bat_signal_key, 'the coast is clear', 60 * 60 * 24 );
+	}
+
+}
+add_action( 'init', 'wprp_check_bat_signal' );
 
 /**
  * Get the stored WPR API key
@@ -174,13 +186,18 @@ function wprp_update() {
 
 function _wprp_upgrade_core()  {
 
+	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
+		return new WP_Error( 'disallow-file-mods', __( "File modification is disabled with the DISALLOW_FILE_MODS constant.", 'wpremote' ) );
+
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 	include_once ( ABSPATH . 'wp-admin/includes/upgrade.php' );
 	include_once ( ABSPATH . 'wp-includes/update.php' );
+	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-core-upgrader-skin.php';
 
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
-		return array( 'status' => 'error', 'error' => __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
+		return new WP_Error( 'filesystem-not-writable', __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
 	// force refresh
 	wp_version_check();

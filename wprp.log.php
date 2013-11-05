@@ -51,22 +51,25 @@ class WPRP_Log {
 
 	public function action_user_register( $user_id ) {
 
-		$user = get_userdata();
+		$new_user = get_user_by( 'id', $user_id );
 
 		// we are only interested in administators
-		if ( ! array_intersect( $user->roles, array( 'administrator' ) ) )
+		if ( ! array_intersect( $new_user->roles, array( 'administrator' ) ) )
 			return;
 
 		$this->add_item( array(
-			'type' => 'user',
-			'action' => 'create',
-			'remote_user' => array( 'user_login' => $user->user_login, 'display_name' => $user->display_name ),
+			'type'             => 'user',
+			'action'           => 'create',
+			'user_login'       => $new_user->user_login,
+			'display_name'     => $new_user->display_name,
+			'role'             => $new_user->roles[0],
+			/** remote_user is added in the `add_item()` method **/
 		));
 	}
 
 	public function action_profile_updated( $user_id, $old_user_data ) {
 
-		$user_data = get_userdata( $user_id );
+		$user_data = get_user_by( 'id', $user_id );
 
 		// we are only interested in administators
 		if ( ! array_intersect( $user_data->roles, array( 'administrator' ) ) )
@@ -79,6 +82,7 @@ class WPRP_Log {
 				'action' => 'email-update',
 				'old_email' => $old_user_data->user_email,
 				'new_email' => $user_data->user_email,
+				/** remote_user is added in the `add_item()` method **/
 			));
 		}
 
@@ -86,6 +90,7 @@ class WPRP_Log {
 			$this->add_item( array(
 				'type' => 'user',
 				'action' => 'password-update',
+				/** remote_user is added in the `add_item()` method **/
 			));
 		}
 	}
@@ -96,7 +101,8 @@ class WPRP_Log {
 			'type' => 'theme',
 			'action' => 'switch',
 			'old_theme' => $old_theme,
-			'new_theme' => $new_theme
+			'new_theme' => $new_theme,
+			/** remote_user is added in the `add_item()` method **/
 		));
 	}
 

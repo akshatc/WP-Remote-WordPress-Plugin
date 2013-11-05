@@ -70,14 +70,16 @@ function _wprp_get_plugins() {
  */
 function _wprp_update_plugin( $plugin ) {
 
-	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
+	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
+		return new WP_Error( 'disallow-file-mods', __( "File modification is disabled with the DISALLOW_FILE_MODS constant.", 'wpremote' ) );
 
-	if ( ! _wprp_supports_plugin_upgrade() )
-		return array( 'status' => 'error', 'error' => 'WordPress version too old for plugin upgrades' );
+	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
+	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-plugin-upgrader-skin.php';
 
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
-		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );
+		return new WP_Error( 'filesystem-not-writable', __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
 	$skin = new WPRP_Plugin_Upgrader_Skin();
 	$upgrader = new Plugin_Upgrader( $skin );
@@ -94,15 +96,15 @@ function _wprp_update_plugin( $plugin ) {
 
 	if ( ! empty( $skin->error ) )
 
-		return array( 'status' => 'error', 'error' => $upgrader->strings[$skin->error] );
+		return new WP_Error( 'plugin-upgrader-skin', $upgrader->strings[$skin->error] );
 
 	else if ( is_wp_error( $result ) )
 
-		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+		return $result;
 
 	else if ( ( ! $result && ! is_null( $result ) ) || $data )
 
-		return array( 'status' => 'error', 'error' => 'Unknown error updating plugin.' );
+		return new WP_Error( 'plugin-update', __( 'Unknown error updating plugin.', 'wpremote' ) );
 
 	// If the plugin was activited, we have to re-activate it
 	// but if activate_plugin() fatals, then we'll just have to return 500
@@ -117,6 +119,9 @@ function _wprp_update_plugin( $plugin ) {
  */
 function _wprp_install_plugin( $plugin, $args = array() ) {
 
+	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
+		return new WP_Error( 'disallow-file-mods', __( "File modification is disabled with the DISALLOW_FILE_MODS constant.", 'wpremote' ) );
+
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	include_once ABSPATH . 'wp-includes/update.php';
@@ -130,7 +135,7 @@ function _wprp_install_plugin( $plugin, $args = array() ) {
 	$api = plugins_api( 'plugin_information', $api_args );
 
 	if ( is_wp_error( $api ) )
-		return array( 'status' => 'error', 'error' => $api->get_error_code() );
+		return $api;
 
 	$skin = new WPRP_Plugin_Upgrader_Skin();
 	$upgrader = new Plugin_Upgrader( $skin );
@@ -142,9 +147,9 @@ function _wprp_install_plugin( $plugin, $args = array() ) {
 
 	$result = $upgrader->install( $api->download_link );
 	if ( is_wp_error( $result ) )
-		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+		return $result;
 	else if ( ! $result )
-		return array( 'status' => 'error', 'error' => 'Unknown error installing plugin.' );
+		return new WP_Error( 'plugin-install', __( 'Unknown error installing plugin.', 'wpremote' ) );
 
 	return array( 'status' => 'success' );
 }
@@ -156,7 +161,7 @@ function _wprp_activate_plugin( $plugin ) {
 	$result = activate_plugin( $plugin );
 
 	if ( is_wp_error( $result ) )
-		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+		return $result;
 
 	return array( 'status' => 'success' );
 }
@@ -168,10 +173,8 @@ function _wprp_deactivate_plugin( $plugin ) {
 
 	include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-	$result = deactivate_plugins( $plugin );
-
-	if ( is_wp_error( $result ) )
-		return array( 'status' => 'error', 'error' => $result->get_error_code() );
+	if ( is_plugin_active( $plugin ) )
+		deactivate_plugins( $plugin );
 
 	return array( 'status' => 'success' );
 }
@@ -182,16 +185,19 @@ function _wprp_deactivate_plugin( $plugin ) {
 function _wprp_uninstall_plugin( $plugin ) {
 	global $wp_filesystem;
 
+	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
+		return new WP_Error( 'disallow-file-mods', __( "File modification is disabled with the DISALLOW_FILE_MODS constant.", 'wpremote' ) );
+
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	include_once ABSPATH . 'wp-includes/update.php';
 
 	if ( ! _wpr_check_filesystem_access() || ! WP_Filesystem() )
-		return array( 'status' => 'error', 'error' => 'The filesystem is not writable with the supplied credentials' );
+		return new WP_Error( 'filesystem-not-writable', __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
 	$plugins_dir = $wp_filesystem->wp_plugins_dir();
 	if ( empty( $plugins_dir ) )
-		return array( 'status' => 'error', 'error' => 'Unable to locate WordPress Plugin directory.' );
+		return new WP_Error( 'missing-plugin-dir', __( 'Unable to locate WordPress Plugin directory.' , 'wpremote' ) );
 
 	$plugins_dir = trailingslashit( $plugins_dir );
 
@@ -212,22 +218,7 @@ function _wprp_uninstall_plugin( $plugin ) {
 		}
 		return array( 'status' => 'success' );
 	} else {
-		return array( 'status' => 'error', 'error' => 'Plugin uninstalled, but not deleted.' );
+		return new WP_Error( 'plugin-uninstall', __( 'Plugin uninstalled, but not deleted.', 'wpremote' ) );
 	}
-
-}
-
-/**
- * Check if the site can support plugin upgrades
- *
- * @todo should probably check if we have direct filesystem access
- * @todo can we remove support for versions which don't support Plugin_Upgrader
- * @return bool
- */
-function _wprp_supports_plugin_upgrade() {
-
-	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
-
-	return class_exists( 'Plugin_Upgrader' );
 
 }

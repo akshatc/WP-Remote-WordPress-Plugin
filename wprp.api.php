@@ -83,6 +83,8 @@ if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG )
 // TODO what about if admin use doesn't exists?
 wp_set_current_user( 1 );
 
+include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
+
 $actions = array();
 
 foreach( WPR_API_Request::get_actions() as $action ) {
@@ -132,6 +134,23 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			$actions[$action] = _wprp_get_version_control_information();
 
 		break;
+		
+		case 'get_constants':
+
+			$constants = array();
+			if ( is_array( WPR_API_Request::get_arg( 'constants' ) ) ) {
+
+				foreach( WPR_API_Request::get_arg( 'constants' ) as $constant ) {
+					if ( defined( $constant ) )
+						$constants[$constant] = constant( $constant );
+					else
+						$constants[$constant] = null;
+				}
+
+			}
+			$actions[$action] = $constants;
+
+		break;
 
 		case 'upgrade_core' :
 
@@ -141,7 +160,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		case 'get_plugins' :
 
-			$actions[$action] = _wprp_supports_plugin_upgrade() ? _wprp_get_plugins() : 'not-implemented';
+			$actions[$action] = _wprp_get_plugins();
 
 		break;
 
@@ -181,7 +200,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		case 'get_themes' :
 
-			$actions[$action] = _wprp_supports_theme_upgrade() ? _wprp_get_themes() : 'not-implemented';
+			$actions[$action] = _wprp_get_themes();
 
 		break;
 
@@ -196,7 +215,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		case 'activate_theme':
 
-			$actions[$action] = _wprp_activate_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ), $api_args );
+			$actions[$action] = _wprp_activate_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
 
 		break;
 
@@ -214,10 +233,43 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		break;
 
 		case 'do_backup' :
-		case 'delete_backup' :
-		case 'supports_backups' :
+
+			if ( in_array( WPR_API_Request::get_arg( 'backup_type' ), array( 'complete', 'database', 'file' ) ) )
+				WPRP_Backups::get_instance()->set_type( WPR_API_Request::get_arg( 'backup_type' ) );
+
+			if ( WPR_API_Request::get_arg( 'backup_approach' ) && 'file_manifest' == WPR_API_Request::get_arg( 'backup_approach' ) )
+				WPRP_Backups::get_instance()->set_is_using_file_manifest( true );
+
+			$actions[$action] = WPRP_Backups::get_instance()->do_backup();
+
+		break;
+
 		case 'get_backup' :
-			$actions[$action] = function_exists( '_wprp_get_backups_info' ) ? _wprp_backups_api_call( $action ) : 'not-implemented';
+
+			$actions[$action] = WPRP_Backups::get_instance()->get_backup();
+
+		break;
+
+		case 'delete_backup' :
+
+			$actions[$action] = WPRP_Backups::get_instance()->cleanup();
+
+		break;
+
+		case 'backup_heartbeat' :
+
+			WPRP_Backups::get_instance()->set_is_using_file_manifest( true );
+
+			if ( in_array( WPR_API_Request::get_arg( 'backup_type' ), array( 'complete', 'database', 'file' ) ) )
+				WPRP_Backups::get_instance()->set_type( WPR_API_Request::get_arg( 'backup_type' ) );
+
+			$actions[$action] = WPRP_Backups::get_instance()->backup_heartbeat(); 
+
+		break;
+
+		case 'supports_backups' :
+
+			$actions[$action] = true;
 
 		break;
 
