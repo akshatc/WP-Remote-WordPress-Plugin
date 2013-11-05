@@ -177,14 +177,17 @@ function _wprp_update_theme( $theme ) {
 	$data = ob_get_contents();
 	ob_clean();
 
-	if ( ( ! $result && ! is_null( $result ) ) || $data )
-		return array( 'status' => 'error', 'error' => 'file_permissions_error' );
+	if ( ! empty( $skin->error ) )
 
-	elseif ( is_wp_error( $result ) )
+		return new WP_Error( 'theme-upgrader-skin', $upgrader->strings[$skin->error] );
+
+	else if ( is_wp_error( $result ) )
+
 		return $result;
 
-	if ( $skin->error )
-		return new WP_Error( 'theme-upgrade-skin', $skin->error );
+	else if ( ( ! $result && ! is_null( $result ) ) || $data )
+
+		return new WP_Error( 'theme-update', __( 'Unknown error updating theme.', 'wpremote' ) );
 
 	return array( 'status' => 'success' );
 
