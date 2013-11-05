@@ -129,12 +129,6 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
-		case 'get_web_host':
-
-			$actions[$action] = _wprp_integration_get_web_host();
-
-		break;
-
 		case 'upgrade_core' :
 
 			$actions[$action] = _wprp_upgrade_core();
@@ -254,7 +248,8 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 				'site_url'	=> get_site_url(),
 				'home_url'	=> get_home_url(),
 				'admin_url'	=> get_admin_url(),
-				'backups'	=> function_exists( '_wprp_get_backups_info' ) ? _wprp_get_backups_info() : array()
+				'backups'	=> function_exists( '_wprp_get_backups_info' ) ? _wprp_get_backups_info() : array(),
+				'web_host'  => _wprp_integration_get_web_host(),
 			);
 
 		break;
