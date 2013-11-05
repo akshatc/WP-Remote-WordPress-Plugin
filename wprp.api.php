@@ -1,7 +1,5 @@
 <?php
 
-print_r( WPRP_Version_Control::get_instance()->get_version_control_information() );
-exit;
 class WPR_API_Request {
 
 	static $actions = array();
