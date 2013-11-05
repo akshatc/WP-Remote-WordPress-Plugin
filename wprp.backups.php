@@ -484,10 +484,10 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		$times = array();
 
 		if ( file_exists( $heartbeat ) )
-			return (int) file_get_contents( $heartbeat );
+			$times[] = (int) file_get_contents( $heartbeat );
 
 		if ( file_exists( $database ) )
-			return (int) filemtime( $database );
+			$times[] = (int) filemtime( $database );
 
 		if ( $times )
 			return max( $times );
