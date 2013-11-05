@@ -129,6 +129,12 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'get_web_host':
+
+			$actions[$action] = _wprp_integration_get_web_host();
+
+		break;
+
 		case 'upgrade_core' :
 
 			$actions[$action] = _wprp_upgrade_core();
