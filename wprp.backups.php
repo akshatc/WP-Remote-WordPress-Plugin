@@ -129,7 +129,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 			if ( $this->is_backup_still_running() )
 				return new WP_Error( 'error-status', $status );
 			else
-				return new WP_Error( 'backup-failed', __( 'Backup process failed or was killed.', 'wpremote' ) );
+				return new WP_Error( 'backup-process-killed', __( 'Backup process failed or was killed.', 'wpremote' ) );
 		}
 
 		$backup = $this->get_archive_filepath();
@@ -566,6 +566,10 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		// No process means no backup in progress
 		if ( ! $this->get_backup_process_id() )
+			return false;
+
+		// No file manifest means this wasn't a file manifest approach
+		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
 			return false;
 
 		// Check whether there's supposed to be a backup in progress
