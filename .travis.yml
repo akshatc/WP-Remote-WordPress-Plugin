@@ -18,10 +18,10 @@ env:
     - WP_VERSION=3.2 WP_MULTISITE=1
 
 notifications:
-  hipchat: dd6fd66a04b2e8e8c8b2b1fc47f081@WP Remote
+    secure: "gwybVEhn3tYVngWMegtYJ0dfSBjLa1+0LsD9LXypHtyMjkUBuoEu0NWkupkp4HA27Euq5Cryg01vhWhy7+8kUIFeSnkYDqcvIHduPvyYqSwaZFNEgINZ/2OiQOomg23C+/sYxqzmXeFiRChHvR26/9FfhLSDqvGPZ4/n/URRFgg="
 
 before_script:
     - export WP_TESTS_DIR=/tmp/wordpress-tests/
-    - bash bin/install-wp-tests.sh wordpress_test root '' $WP_VERSION 
+    - bash bin/install-wp-tests.sh wordpress_test root '' $WP_VERSION
 
 script: phpunit
