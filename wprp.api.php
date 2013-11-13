@@ -297,6 +297,30 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'get_metadata':
+
+			$actions[$action] = get_metadata( WPR_API_Request::get_arg( 'meta_type' ), WPR_API_Request::get_arg( 'object_id' ), WPR_API_Request::get_arg( 'meta_key' ), false );
+
+		break;
+
+		case 'add_metadata':
+
+			$actions[$action] = add_metadata( WPR_API_Request::get_arg( 'meta_type' ), WPR_API_Request::get_arg( 'object_id' ), WPR_API_Request::get_arg( 'meta_key' ), WPR_API_Request::get_arg( 'meta_value' ) );
+
+		break;
+
+		case 'update_metadata':
+
+			$actions[$action] = update_metadata( WPR_API_Request::get_arg( 'meta_type' ), WPR_API_Request::get_arg( 'object_id' ), WPR_API_Request::get_arg( 'meta_key' ), WPR_API_Request::get_arg( 'meta_value' ) );
+
+		break;
+
+		case 'delete_metadata':
+
+			$actions[$action] = delete_metadata( WPR_API_Request::get_arg( 'meta_type' ), WPR_API_Request::get_arg( 'object_id' ), WPR_API_Request::get_arg( 'meta_key' ) );
+
+		break;
+
 		case 'get_comments':
 
 			$arg_keys = array( 
