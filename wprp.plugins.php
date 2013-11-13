@@ -36,22 +36,36 @@ function _wprp_get_plugins() {
 	else
 		$current = get_option( 'update_plugins' );
 
-	foreach ( (array) $plugins as $plugin_file => $plugin ) {
+	// Premium plugins that have adopted the ManageWP API report new plugins by this filter
+	$manage_wp_updates = apply_filters( 'mwp_premium_update_notification', array() );
 
-		$new_version = isset( $current->response[$plugin_file] ) ? $current->response[$plugin_file]->new_version : null;
+	foreach ( (array) $plugins as $plugin_file => $plugin ) {
 
 	    if ( is_plugin_active( $plugin_file ) )
 	    	$plugins[$plugin_file]['active'] = true;
-
 	    else
 	    	$plugins[$plugin_file]['active'] = false;
 
-	    if ( $new_version ) {
-	    	$plugins[$plugin_file]['latest_version'] = $new_version;
-	    	$plugins[$plugin_file]['latest_package'] = $current->response[$plugin_file]->package;
+	    $manage_wp_plugin_update = false;
+	    foreach( $manage_wp_updates as $manage_wp_update ) {
+
+			if ( ! empty( $manage_wp_update['Name'] ) && $plugin['Name'] == $manage_wp_update['Name'] )
+				$manage_wp_plugin_update = $manage_wp_update;
+
+	    }
+
+	    if ( $manage_wp_plugin_update ) {
+
+			$plugins[$plugin_file]['latest_version'] = $manage_wp_plugin_update['new_version'];
+
+	    } else if ( isset( $current->response[$plugin_file] ) ) {
+
+			$plugins[$plugin_file]['latest_version'] = $current->response[$plugin_file]->new_version;
+			$plugins[$plugin_file]['latest_package'] = $current->response[$plugin_file]->package;
 	    	$plugins[$plugin_file]['slug'] = $current->response[$plugin_file]->slug;
 
 	    } else {
+
 	    	$plugins[$plugin_file]['latest_version'] = $plugin['Version'];
 
 	    }
