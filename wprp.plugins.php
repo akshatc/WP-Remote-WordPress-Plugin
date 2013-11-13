@@ -82,7 +82,8 @@ function _wprp_get_plugins() {
  * @param mixed $plugin
  * @return array
  */
-function _wprp_update_plugin( $plugin ) {
+function _wprp_update_plugin( $plugin_file ) {
+	global $wprp_zip_update;
 
 	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
 		return new WP_Error( 'disallow-file-mods', __( "File modification is disabled with the DISALLOW_FILE_MODS constant.", 'wpremote' ) );
@@ -95,18 +96,50 @@ function _wprp_update_plugin( $plugin ) {
 	if ( ! _wpr_check_filesystem_access() )
 		return new WP_Error( 'filesystem-not-writable', __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
+	$is_active = is_plugin_active( $plugin_file );
+	foreach( get_plugins() as $path => $maybe_plugin ) {
+
+		if ( $path == $plugin_file ) {
+			$plugin = $maybe_plugin;
+			break;
+		}
+
+	}
+
+	// Check to see if this is a premium plugin that supports the ManageWP implementation
+	$manage_wp_updates = apply_filters( 'mwp_premium_perform_update', array() );
+	$manage_wp_plugin_update = false;
+	foreach( $manage_wp_updates as $manage_wp_update ) {
+
+		if ( ! empty( $manage_wp_update['Name'] ) && $plugin['Name'] == $manage_wp_update['Name'] ) {
+			$manage_wp_plugin_update = $manage_wp_update;
+			break;
+		}
+
+	}
+
 	$skin = new WPRP_Plugin_Upgrader_Skin();
 	$upgrader = new Plugin_Upgrader( $skin );
-	$is_active = is_plugin_active( $plugin );
 
-	// Force a plugin update check
-	wp_update_plugins();
+	// Fake out the plugin upgrader with our package url
+	if ( ! empty( $manage_wp_plugin_update['url'] ) ) {
+		$wprp_zip_update = array(
+			'plugin_file'    => $plugin_file,
+			'package'        => $manage_wp_plugin_update['url'],
+		);
+		add_filter( 'pre_site_transient_update_plugins', '_wprp_forcably_filter_update_plugins' );
+	} else {
+		wp_update_plugins();
+	}
 
 	// Do the upgrade
 	ob_start();
-	$result = $upgrader->upgrade( $plugin );
+	$result = $upgrader->upgrade( $plugin_file );
 	$data = ob_get_contents();
 	ob_clean();
+
+	if ( $manage_wp_plugin_update )
+		remove_filter( 'pre_site_transient_update_plugins', '_wprp_forcably_filter_update_plugins' );
 
 	if ( ! empty( $skin->error ) )
 
@@ -123,9 +156,26 @@ function _wprp_update_plugin( $plugin ) {
 	// If the plugin was activited, we have to re-activate it
 	// but if activate_plugin() fatals, then we'll just have to return 500
 	if ( $is_active )
-		activate_plugin( $plugin, '', false, true );
+		activate_plugin( $plugin_file, '', false, true );
 
 	return array( 'status' => 'success' );
+}
+
+/**
+ * Filter `update_plugins` to produce a response it will understand
+ * so we can have the Upgrader skin handle the update
+ */
+function _wprp_forcably_filter_update_plugins() {
+	global $wprp_zip_update;
+
+	$current = new stdClass;
+	$current->response = array();
+
+	$plugin_file = $wprp_zip_update['plugin_file'];
+	$current->response[$plugin_file] = new stdClass;
+	$current->response[$plugin_file]->package = $wprp_zip_update['package'];
+
+	return $current;
 }
 
 /**
