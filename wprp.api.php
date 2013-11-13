@@ -322,10 +322,21 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		// case 'create_comment':
 		case 'update_comment':
 
-			$arg_keys = array( 
+			$arg_keys = array(
+				'comment_post_ID',
+				'comment_author',
+				'comment_author_email',
+				'comment_author_url',
+				'comment_date',
+				'comment_date_gmt',
+				'comment_content',
 				'comment_approved',
+				'comment_type',
+				'comment_parent',
+				'user_id'
 			);
 			$args = array();
 			foreach( $arg_keys as $arg_key ) {
@@ -333,7 +344,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 				if ( $value = WPR_API_Request::get_arg( $arg_key ) )
 					$args[$arg_key] = $value;
 			}
-			$args['comment_id'] = (int)WPR_API_Request::get_arg( 'comment_id' );
+			$args['comment_ID'] = (int)WPR_API_Request::get_arg( 'comment_id' );
 
 			if ( wp_update_comment( $args ) )
 				$actions[$action] = true;
