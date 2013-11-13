@@ -372,6 +372,14 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 			break;
 
+		case 'get_user':
+
+			$user_id = (int)WPR_API_Request::get_arg( 'user_id' );
+			$user_data = get_userdata( $user_id );
+			$actions[$action] = wprp_format_user_obj( $user_data );
+
+		break;
+
 		case 'create_user':
 
 			$args = array(
@@ -404,6 +412,13 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			}
 
 			break;
+
+		case 'delete_user':
+
+			$user_id = (int)WPR_API_Request::get_arg( 'user_id' );
+			$actions[$action] = wp_delete_user( $user_id );
+
+		break;
 			
 		case 'enable_log' :
 			update_option( 'wprp_enable_log', true );
