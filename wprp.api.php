@@ -316,9 +316,25 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		break;
 
 		case 'get_comment':
+		case 'delete_comment':
 
 			$comment_id = (int)WPR_API_Request::get_arg( 'comment_id' );
-			$actions[$action] = get_comment( $comment_id );
+			$comment = get_comment( $comment_id );
+
+			if ( ! $comment ) {
+				$actions[$action] = new WP_Error( 'missing-comment', __( "No comment found.", 'wpremote' ) );
+				break;
+			}
+
+			if ( 'get_comment' == $action ) {
+
+				$actions[$action] = $comment;
+
+			} else if ( 'delete_comment' == $action ) {
+
+				$actions[$action] = wp_delete_comment( $comment_id );
+
+			}
 
 		break;
 
@@ -362,13 +378,6 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 					$actions[$action] = new WP_Error( 'update-comment', __( "Error updating comment.", 'wpremote' ) );
 
 			}
-
-		break;
-
-		case 'delete_comment':
-
-			$comment_id = (int)WPR_API_Request::get_arg( 'comment_id' );
-			$actions[$action] = wp_delete_comment( $comment_id );
 
 		break;
 
