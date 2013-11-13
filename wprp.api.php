@@ -65,7 +65,7 @@ class WPR_API_Request {
 	}
 
 	static function get_arg( $arg ) {
-		return ( isset( self::$args[$arg] ) ) ? self::$args[$arg] : '';
+		return ( isset( self::$args[$arg] ) ) ? self::$args[$arg] : null;
 	}
 }
 
@@ -161,34 +161,34 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		case 'update_plugin' :
 		case 'upgrade_plugin' :
 
-			$actions[$action] = _wprp_update_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+			$actions[$action] = _wprp_update_plugin( sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
 
 		break;
 
 		case 'install_plugin' :
 
 			$api_args = array(
-					'version'      => sanitize_text_field( (string)WPR_API_Request::get_arg( 'version' ) ),
+					'version'      => sanitize_text_field( WPR_API_Request::get_arg( 'version' ) ),
 				);
-			$actions[$action] = _wprp_install_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ), $api_args );
+			$actions[$action] = _wprp_install_plugin( sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ), $api_args );
 
 		break;
 
 		case 'activate_plugin' :
 
-			$actions[$action] = _wprp_activate_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+			$actions[$action] = _wprp_activate_plugin( sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
 
 		break;
 
 		case 'deactivate_plugin' :
 
-			$actions[$action] = _wprp_deactivate_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+			$actions[$action] = _wprp_deactivate_plugin( sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
 
 		break;
 
 		case 'uninstall_plugin' :
 
-			$actions[$action] = _wprp_uninstall_plugin( (string) sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+			$actions[$action] = _wprp_uninstall_plugin( sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
 
 		break;
 
@@ -201,28 +201,28 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		case 'install_theme':
 
 			$api_args = array(
-					'version'      => sanitize_text_field( (string)WPR_API_Request::get_arg( 'version' ) ),
+					'version'      => sanitize_text_field( WPR_API_Request::get_arg( 'version' ) ),
 				);
-			$actions[$action] = _wprp_install_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ), $api_args );
+			$actions[$action] = _wprp_install_theme( sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ), $api_args );
 
 		break;
 
 		case 'activate_theme':
 
-			$actions[$action] = _wprp_activate_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
+			$actions[$action] = _wprp_activate_theme( sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
 
 		break;
 
 		case 'update_theme' :
 		case 'upgrade_theme' : // 'upgrade' is deprecated
 
-			$actions[$action] = _wprp_update_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
+			$actions[$action] = _wprp_update_theme( sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
 
 		break;
 
 		case 'delete_theme':
 
-			$actions[$action] = _wprp_delete_theme( (string) sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
+			$actions[$action] = _wprp_delete_theme( sanitize_text_field( WPR_API_Request::get_arg( 'theme' ) ) );
 
 		break;
 
@@ -297,6 +297,119 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'get_metadata':
+
+			$actions[$action] = get_metadata( WPR_API_Request::get_arg( 'meta_type' ), WPR_API_Request::get_arg( 'object_id' ), WPR_API_Request::get_arg( 'meta_key' ), false );
+
+		break;
+
+		case 'add_metadata':
+
+			$actions[$action] = add_metadata( WPR_API_Request::get_arg( 'meta_type' ), WPR_API_Request::get_arg( 'object_id' ), WPR_API_Request::get_arg( 'meta_key' ), WPR_API_Request::get_arg( 'meta_value' ) );
+
+		break;
+
+		case 'update_metadata':
+
+			$actions[$action] = update_metadata( WPR_API_Request::get_arg( 'meta_type' ), WPR_API_Request::get_arg( 'object_id' ), WPR_API_Request::get_arg( 'meta_key' ), WPR_API_Request::get_arg( 'meta_value' ) );
+
+		break;
+
+		case 'delete_metadata':
+
+			$actions[$action] = delete_metadata( WPR_API_Request::get_arg( 'meta_type' ), WPR_API_Request::get_arg( 'object_id' ), WPR_API_Request::get_arg( 'meta_key' ) );
+
+		break;
+
+		case 'get_comments':
+
+			$arg_keys = array( 
+				'status',
+				'orderby',
+				'order',
+				'post_id',
+			);
+			$args = array();
+			foreach( $arg_keys as $arg_key ) {
+				// Note: get_comments() supports validation / sanitization
+				if ( null !== ( $value = WPR_API_Request::get_arg( $arg_key ) ) )
+					$args[$arg_key] = $value;
+			}
+			$actions[$action] = get_comments( $args );
+
+		break;
+
+		case 'get_comment':
+		case 'delete_comment':
+
+			$comment_id = (int)WPR_API_Request::get_arg( 'comment_id' );
+			$comment = get_comment( $comment_id );
+
+			if ( ! $comment ) {
+				$actions[$action] = new WP_Error( 'missing-comment', __( "No comment found.", 'wpremote' ) );
+				break;
+			}
+
+			if ( 'get_comment' == $action ) {
+
+				$actions[$action] = $comment;
+
+			} else if ( 'delete_comment' == $action ) {
+
+				$actions[$action] = wp_delete_comment( $comment_id );
+
+			}
+
+		break;
+
+		case 'create_comment':
+		case 'update_comment':
+
+			$arg_keys = array(
+				'comment_post_ID',
+				'comment_author',
+				'comment_author_email',
+				'comment_author_url',
+				'comment_date',
+				'comment_date_gmt',
+				'comment_content',
+				'comment_approved',
+				'comment_type',
+				'comment_parent',
+				'user_id'
+			);
+			$args = array();
+			foreach( $arg_keys as $arg_key ) {
+				// Note: wp_update_comment() supports validation / sanitization
+				if ( null !== ( $value = WPR_API_Request::get_arg( $arg_key ) ) )
+					$args[$arg_key] = $value;
+			}
+
+			if ( 'create_comment' == $action ) {
+
+				if ( $comment_id = wp_insert_comment( $args ) )
+					$actions[$action] = get_comment( $comment_id );
+				else
+					$actions[$action] = new WP_Error( 'create-comment', __( "Error creating comment.", 'wpremote' ) );
+
+			} else if ( 'update_comment' == $action ) {
+			
+				$args['comment_ID'] = (int)WPR_API_Request::get_arg( 'comment_id' );
+
+				if ( ! get_comment( $args['comment_ID'] ) ) {
+					$actions[$action] = new WP_Error( 'missing-comment', __( "No comment found.", 'wpremote' ) );
+					break;
+				}
+
+				if ( wp_update_comment( $args ) )
+					$actions[$action] = get_comment( $args['comment_ID'] );
+				else
+					$actions[$action] = new WP_Error( 'update-comment', __( "Error updating comment.", 'wpremote' ) );
+
+			}
+
+		break;
+
 		case 'get_users':
 
 			$arg_keys = array( 
@@ -320,6 +433,58 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 			break;
 
+		case 'get_user':
+		case 'update_user':
+		case 'delete_user':
+
+			$user_id = (int)WPR_API_Request::get_arg( 'user_id' );
+			$user = get_user_by( 'id', $user_id );
+
+			if ( ! $user ) {
+				$actions[$action] = new WP_Error( 'missing-user', "No user found." );
+				break;
+			}
+
+			require_once ABSPATH . '/wp-admin/includes/user.php';
+			
+			if ( 'get_user' == $action ) {
+
+				$actions[$action] = wprp_format_user_obj( $user );
+			
+			} else if ( 'update_user' == $action ) {
+
+				$fields = array(
+					'user_email',
+					'display_name',
+					'first_name',
+					'last_name',
+					'user_nicename',
+					'user_pass',
+					'user_url',
+					'description'
+				);
+				$args = array();
+				foreach( $fields as $field ) {
+					// Note: wp_update_user() handles sanitization / validation
+					if ( null !== ( $value = WPR_API_Request::get_arg( $field ) ) )
+						$args[$field] = $value;
+				}
+				$args['ID'] = $user->ID;
+				$ret = wp_update_user( $args );
+				if ( is_wp_error( $ret ) )
+					$actions[$action] = $ret;
+				else
+					$actions[$action] = wprp_format_user_obj( get_user_by( 'id', $ret ) );
+
+			} else if ( 'delete_user' == $action ) {
+
+				$actions[$action] = wp_delete_user( $user->ID );
+
+			}
+
+
+		break;
+
 		case 'create_user':
 
 			$args = array(
@@ -333,14 +498,12 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 				);
 			foreach( $args as $key => $value ) {
 				// Note: wp_insert_user() handles sanitization / validation
-				if ( $new_value = WPR_API_Request::get_arg( $key ) )
+				if ( null !== ( $new_value = WPR_API_Request::get_arg( $key ) ) )
 					$args[$key] = $new_value;
 			}
 
 			if ( ! $args['user_pass'] ) {
-				$args['user_pass'] = $generated_password = wp_generate_password();
-			} else {
-				$generated_password = false;
+				$args['user_pass'] = wp_generate_password();
 			}
 
 			$user_id = wp_insert_user( $args );
@@ -348,7 +511,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			if ( is_wp_error( $user_id ) ) {
 				$actions[$action] =  array( 'status' => 'error', 'error' => $user_id->get_error_message() );
 			} else {
-				$actions[$action] = new WP_Error( 'log-not-enabled', 'Logging is not enabled' );
+				$actions[$action] = wprp_format_user_obj( get_user_by( 'id', $user_id ) );
 			}
 
 			break;
