@@ -297,6 +297,58 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'get_comments':
+
+			$arg_keys = array( 
+				'status',
+				'orderby',
+				'order',
+				'post_id',
+			);
+			$args = array();
+			foreach( $arg_keys as $arg_key ) {
+				// Note: get_comments() supports validation / sanitization
+				if ( $value = WPR_API_Request::get_arg( $arg_key ) )
+					$args[$arg_key] = $value;
+			}
+			$actions[$action] = get_comments( $args );
+
+		break;
+
+		case 'get_comment':
+
+			$comment_id = (int)WPR_API_Request::get_arg( 'comment_id' );
+			$actions[$action] = get_comment( $comment_id );
+
+		break;
+
+		case 'update_comment':
+
+			$arg_keys = array( 
+				'comment_approved',
+			);
+			$args = array();
+			foreach( $arg_keys as $arg_key ) {
+				// Note: wp_update_comment() supports validation / sanitization
+				if ( $value = WPR_API_Request::get_arg( $arg_key ) )
+					$args[$arg_key] = $value;
+			}
+			$args['comment_id'] = (int)WPR_API_Request::get_arg( 'comment_id' );
+
+			if ( wp_update_comment( $args ) )
+				$actions[$action] = true;
+			else
+				$actions[$action] = new WP_Error( 'update-comment', __( "Error updating comment.", 'wpremote' ) );
+
+		break;
+
+		case 'delete_comment':
+
+			$comment_id = (int)WPR_API_Request::get_arg( 'comment_id' );
+			$actions[$action] = wp_delete_comment( $comment_id );
+
+		break;
+
 		case 'get_users':
 
 			$arg_keys = array( 
