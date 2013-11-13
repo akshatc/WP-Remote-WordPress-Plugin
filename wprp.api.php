@@ -347,8 +347,6 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 			if ( 'create_comment' == $action ) {
 
-				error_log( var_export( $args, true ) );
-
 				if ( $comment_id = wp_insert_comment( $args ) )
 					$actions[$action] = get_comment( $comment_id );
 				else
