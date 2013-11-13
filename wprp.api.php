@@ -372,6 +372,11 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			
 				$args['comment_ID'] = (int)WPR_API_Request::get_arg( 'comment_id' );
 
+				if ( ! get_comment( $args['comment_ID'] ) ) {
+					$actions[$action] = new WP_Error( 'missing-comment', __( "No comment found.", 'wpremote' ) );
+					break;
+				}
+
 				if ( wp_update_comment( $args ) )
 					$actions[$action] = get_comment( $args['comment_ID'] );
 				else
