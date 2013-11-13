@@ -82,7 +82,7 @@ function _wprp_get_plugins() {
  * @param mixed $plugin
  * @return array
  */
-function _wprp_update_plugin( $plugin_file ) {
+function _wprp_update_plugin( $plugin_file, $args ) {
 	global $wprp_zip_update;
 
 	if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS )
@@ -106,14 +106,25 @@ function _wprp_update_plugin( $plugin_file ) {
 
 	}
 
-	// Check to see if this is a premium plugin that supports the ManageWP implementation
-	$manage_wp_updates = apply_filters( 'mwp_premium_perform_update', array() );
-	$manage_wp_plugin_update = false;
-	foreach( $manage_wp_updates as $manage_wp_update ) {
+	// Permit specifying a zip URL to update the plugin with
+	if ( ! empty( $args['zip_url'] ) ) {
 
-		if ( ! empty( $manage_wp_update['Name'] ) && $plugin['Name'] == $manage_wp_update['Name'] ) {
-			$manage_wp_plugin_update = $manage_wp_update;
-			break;
+		$zip_url = $args['zip_url'];
+
+	} else {
+
+		// Check to see if this is a premium plugin that supports the ManageWP implementation
+		$manage_wp_updates = apply_filters( 'mwp_premium_perform_update', array() );
+		$manage_wp_plugin_update = false;
+		foreach( $manage_wp_updates as $manage_wp_update ) {
+
+			if ( ! empty( $manage_wp_update['Name'] )
+				&& $plugin['Name'] == $manage_wp_update['Name']
+				&& ! empty( $manage_wp_update['url'] ) ) {
+				$zip_url = $manage_wp_update['url'];
+				break;
+			}
+
 		}
 
 	}
@@ -122,10 +133,10 @@ function _wprp_update_plugin( $plugin_file ) {
 	$upgrader = new Plugin_Upgrader( $skin );
 
 	// Fake out the plugin upgrader with our package url
-	if ( ! empty( $manage_wp_plugin_update['url'] ) ) {
+	if ( ! empty( $zip_url ) ) {
 		$wprp_zip_update = array(
 			'plugin_file'    => $plugin_file,
-			'package'        => $manage_wp_plugin_update['url'],
+			'package'        => $zip_url,
 		);
 		add_filter( 'pre_site_transient_update_plugins', '_wprp_forcably_filter_update_plugins' );
 	} else {
