@@ -65,7 +65,7 @@ class WPR_API_Request {
 	}
 
 	static function get_arg( $arg ) {
-		return ( isset( self::$args[$arg] ) ) ? self::$args[$arg] : '';
+		return ( isset( self::$args[$arg] ) ) ? self::$args[$arg] : null;
 	}
 }
 
@@ -308,7 +308,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			$args = array();
 			foreach( $arg_keys as $arg_key ) {
 				// Note: get_comments() supports validation / sanitization
-				if ( $value = WPR_API_Request::get_arg( $arg_key ) )
+				if ( null !== ( $value = WPR_API_Request::get_arg( $arg_key ) ) )
 					$args[$arg_key] = $value;
 			}
 			$actions[$action] = get_comments( $args );
@@ -341,7 +341,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			$args = array();
 			foreach( $arg_keys as $arg_key ) {
 				// Note: wp_update_comment() supports validation / sanitization
-				if ( $value = WPR_API_Request::get_arg( $arg_key ) )
+				if ( null !== ( $value = WPR_API_Request::get_arg( $arg_key ) ) )
 					$args[$arg_key] = $value;
 			}
 
@@ -428,7 +428,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 				$args = array();
 				foreach( $fields as $field ) {
 					// Note: wp_update_user() handles sanitization / validation
-					if ( $value = WPR_API_Request::get_arg( $field ) )
+					if ( null !== ( $value = WPR_API_Request::get_arg( $field ) ) )
 						$args[$field] = $value;
 				}
 				$args['ID'] = $user->ID;
@@ -460,7 +460,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 				);
 			foreach( $args as $key => $value ) {
 				// Note: wp_insert_user() handles sanitization / validation
-				if ( $new_value = WPR_API_Request::get_arg( $key ) )
+				if ( null !== ( $new_value = WPR_API_Request::get_arg( $key ) ) )
 					$args[$key] = $new_value;
 			}
 
