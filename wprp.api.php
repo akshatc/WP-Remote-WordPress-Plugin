@@ -384,10 +384,54 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			break;
 
 		case 'get_user':
+		case 'update_user':
+		case 'delete_user':
 
 			$user_id = (int)WPR_API_Request::get_arg( 'user_id' );
-			$user_data = get_userdata( $user_id );
-			$actions[$action] = wprp_format_user_obj( $user_data );
+			$user = get_user_by( 'id', $user_id );
+
+			if ( ! $user ) {
+				$actions[$action] = new WP_Error( 'missing-user', "No user found." );
+				break;
+			}
+
+			require_once ABSPATH . '/wp-admin/includes/user.php';
+			
+			if ( 'get_user' == $action ) {
+
+				$actions[$action] = wprp_format_user_obj( $user );
+			
+			} else if ( 'update_user' == $action ) {
+
+				$fields = array(
+					'user_email',
+					'display_name',
+					'first_name',
+					'last_name',
+					'user_nicename',
+					'user_pass',
+					'user_url',
+					'description'
+				);
+				$args = array();
+				foreach( $fields as $field ) {
+					// Note: wp_update_user() handles sanitization / validation
+					if ( $value = WPR_API_Request::get_arg( $field ) )
+						$args[$field] = $value;
+				}
+				$args['ID'] = $user->ID;
+				$ret = wp_update_user( $args );
+				if ( is_wp_error( $ret ) )
+					$actions[$action] = $ret;
+				else
+					$actions[$action] = wprp_format_user_obj( get_user_by( 'id', $ret ) );
+
+			} else if ( 'delete_user' == $action ) {
+
+				$actions[$action] = wp_delete_user( $user->ID );
+
+			}
+
 
 		break;
 
@@ -423,13 +467,6 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			}
 
 			break;
-
-		case 'delete_user':
-
-			$user_id = (int)WPR_API_Request::get_arg( 'user_id' );
-			$actions[$action] = wp_delete_user( $user_id );
-
-		break;
 			
 		case 'enable_log' :
 			update_option( 'wprp_enable_log', true );
