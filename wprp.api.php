@@ -322,7 +322,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
-		// case 'create_comment':
+		case 'create_comment':
 		case 'update_comment':
 
 			$arg_keys = array(
@@ -344,12 +344,26 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 				if ( $value = WPR_API_Request::get_arg( $arg_key ) )
 					$args[$arg_key] = $value;
 			}
-			$args['comment_ID'] = (int)WPR_API_Request::get_arg( 'comment_id' );
 
-			if ( wp_update_comment( $args ) )
-				$actions[$action] = true;
-			else
-				$actions[$action] = new WP_Error( 'update-comment', __( "Error updating comment.", 'wpremote' ) );
+			if ( 'create_comment' == $action ) {
+
+				error_log( var_export( $args, true ) );
+
+				if ( $comment_id = wp_insert_comment( $args ) )
+					$actions[$action] = get_comment( $comment_id );
+				else
+					$actions[$action] = new WP_Error( 'create-comment', __( "Error creating comment.", 'wpremote' ) );
+
+			} else if ( 'update_comment' == $action ) {
+			
+				$args['comment_ID'] = (int)WPR_API_Request::get_arg( 'comment_id' );
+
+				if ( wp_update_comment( $args ) )
+					$actions[$action] = get_comment( $args['comment_ID'] );
+				else
+					$actions[$action] = new WP_Error( 'update-comment', __( "Error updating comment.", 'wpremote' ) );
+
+			}
 
 		break;
 
