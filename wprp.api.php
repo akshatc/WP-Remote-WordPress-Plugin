@@ -453,9 +453,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			}
 
 			if ( ! $args['user_pass'] ) {
-				$args['user_pass'] = $generated_password = wp_generate_password();
-			} else {
-				$generated_password = false;
+				$args['user_pass'] = wp_generate_password();
 			}
 
 			$user_id = wp_insert_user( $args );
@@ -463,7 +461,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 			if ( is_wp_error( $user_id ) ) {
 				$actions[$action] =  array( 'status' => 'error', 'error' => $user_id->get_error_message() );
 			} else {
-				$actions[$action] = new WP_Error( 'log-not-enabled', 'Logging is not enabled' );
+				$actions[$action] = wprp_format_user_obj( get_user_by( 'id', $user_id ) );
 			}
 
 			break;
