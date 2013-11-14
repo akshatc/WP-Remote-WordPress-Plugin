@@ -187,6 +187,13 @@ class WPRP_HM_Backup {
 	private $pclzip = false;
 
 	/**
+	 * Path to the 'sed' command
+	 *
+	 * @var string
+	 */
+	protected $sed_command_path = '';
+
+	/**
 	 * Check whether safe mode is active or not
 	 *
 	 * @param string $ini_get_callback
@@ -589,20 +596,26 @@ class WPRP_HM_Backup {
 
 	protected function update_file_manifest_sed() {
 
+		$sed = $this->sed_command_path;
+
 		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
 			return false;
 
-		$files = file( $this->get_file_manifest_filepath() );
+		foreach ( $this->file_manifest_already_archived as $file ) {
 
-		foreach ( $files as $file ) {
-			$pattern = escapeshellarg( $file );
-			$manifest    = $this->get_file_manifest_filepath();
+			// match any file in the same directory
+			$dirname = dirname( $file );
+
+			if ( '.' != $dirname )
+				$pattern = escapeshellarg( $dirname );
+			else
+				$pattern = escapeshellarg( $file );
+
+			$manifest = $this->get_file_manifest_filepath();
 			$command = "sed -i '/^$pattern/ d' $manifest";
-			$output  = shell_exec( $command );
+			$output = shell_exec( $command );
 		}
 
-		$this->file_manifest_remaining = count( $files );
-		error_log( var_export(count($files)));
 		$this->file_manifest_already_archived = array();
 	}
 
@@ -1100,7 +1113,7 @@ class WPRP_HM_Backup {
 			// Update the file manifest with these files that were archived
 			$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
 
-			if ( function_exists( 'shell_exec' ) )
+			if ( $this->is_shell_exec_available() )
 				$this->update_file_manifest_sed();
 			else
 				$this->update_file_manifest();
@@ -2213,6 +2226,47 @@ class WPRP_HM_Backup {
 
 		return false;
 
+	}
+
+	public function get_sed_command_path() {
+
+			// Check shell_exec is available
+			if ( ! self::is_shell_exec_available() )
+				return '';
+
+			// Return now if it's already been set
+			if ( isset( $this->sed_command_path ) )
+				return $this->sed_command_path;
+
+			$this->sed_command_path = '';
+
+			// Does sed work
+			if ( ! is_null( shell_exec( 'echo day | sed s/day/night/' ) ) ) {
+
+				// If so store it for later
+				$this->set_sed_command_path( 'sed' );
+
+				// And return now
+				return $this->sed_command_path;
+			}
+
+			// List of possible mysqldump locations
+			$sed_locations = array(
+				'/usr/local/bin/sed',
+				'/usr/bin/sed',
+				'/bin/sed'
+			);
+
+			// Find the one which works
+			foreach ( $sed_locations as $location )
+				if ( @is_executable( self::conform_dir( $location ) ) )
+					$this->set_sed_command_path( $location );
+
+			return $this->sed_command_path;
+	}
+
+	protected function set_sed_command_path( $path ) {
+		$this->sed_command_path = $path;
 	}
 
 }
