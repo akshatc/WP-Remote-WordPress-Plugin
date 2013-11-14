@@ -20,4 +20,8 @@ class WPRP_Plugin_Upgrader_Skin extends Plugin_Installer_Skin {
 	function header() { }
 
 	function footer() { }
+
+	function bulk_header() { }
+
+	function bulk_footer() { }
 }

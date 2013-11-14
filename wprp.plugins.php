@@ -88,9 +88,11 @@ function _wprp_update_plugin( $plugin ) {
 	// Force a plugin update check
 	wp_update_plugins();
 
+	$plugins = array( $plugin );
+
 	// Do the upgrade
 	ob_start();
-	$result = $upgrader->upgrade( $plugin );
+	$result = $upgrader->bulk_upgrade( $plugins );
 	$data = ob_get_contents();
 	ob_clean();
 
