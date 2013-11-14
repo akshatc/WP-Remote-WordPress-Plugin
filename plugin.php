@@ -97,7 +97,8 @@ function wprp_catch_api_call() {
 	exit;
 
 }
-add_action( 'init', 'wprp_catch_api_call', 1 );
+add_action( 'init', 'wprp_catch_api_call', 100 );
+
 
 /**
  * Check for a bat signal from the mothership
