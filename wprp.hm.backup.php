@@ -587,6 +587,24 @@ class WPRP_HM_Backup {
 		$this->file_manifest_already_archived = array();
 	}
 
+	protected function update_file_manifest_sed() {
+
+		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
+			return false;
+
+		$files = file( $this->get_file_manifest_filepath() );
+
+		foreach ( $files as $file ) {
+			$pattern = escapeshellarg( $file );
+			$manifest    = $this->get_file_manifest_filepath();
+			$command = "sed -i '/^$pattern/ d' $manifest";
+			$output  = shell_exec( $command );
+		}
+
+		$this->file_manifest_remaining = count( $files );
+		error_log( var_export(count($files)));
+		$this->file_manifest_already_archived = array();
+	}
 
 	/**
 	 * Get the path to the file manifest
@@ -1081,7 +1099,11 @@ class WPRP_HM_Backup {
 
 			// Update the file manifest with these files that were archived
 			$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
-			$this->update_file_manifest();
+
+			if ( function_exists( 'shell_exec' ) )
+				$this->update_file_manifest_sed();
+			else
+				$this->update_file_manifest();
 
 			// Get the next set of files to archive
 			$next_files = $this->get_next_files_from_file_manifest( $this->file_manifest_per_batch );
