@@ -355,9 +355,10 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 				if ( null !== ( $value = WPR_API_Request::get_arg( $arg_key ) ) )
 					$args[$arg_key] = $value;
 			}
-			$query = new WP_Query( );
 
-			$actions[$action] = count( $query->posts ) ? $query->posts : array();
+			$query = new WP_Query;
+			$query->query( $args );
+			$actions[$action] = $query->posts;
 
 		break;
 
