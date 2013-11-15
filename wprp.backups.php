@@ -25,7 +25,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		if ( empty( self::$instance ) ) {
 			self::$instance = new WPRP_Backups();
-			self::$instance->set_is_using_file_manifest( apply_filters( 'wprp_backups_use_file_manifest', '__return_false' ) );
+			self::$instance->set_is_using_file_manifest( apply_filters( 'wprp_backups_use_file_manifest', false ) );
+
 		}
 
 		return self::$instance;
@@ -556,8 +557,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		if ( false == ( $process_id = $this->get_backup_process_id() ) )
 			return false;
 
-		// If it hasn't been modified in the last 300 seconds, we're likely dead
-		if ( ( time() - $this->get_heartbeat_timestamp() ) > 300 )
+		// If it hasn't been modified in the last 90 seconds, we're likely dead
+		if ( ( time() - $this->get_heartbeat_timestamp() ) > 90 )
 			return false;
 
 		return true;
