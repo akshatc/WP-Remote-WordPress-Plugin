@@ -626,19 +626,8 @@ class WPRP_HM_Backup {
 		$files = glob( $this->get_file_manifest_dirpath() . '/*.txt' );
 		$this->current_file_manifest = array_shift( $files );
 
-		if ( ! $handle = @fopen( $this->current_file_manifest, 'r' ) )
-			return array();
-
-		$files = array();
-		do {
-			$file = fgets( $handle );
-
-			if ( ! empty( $file ) && ! in_array( $file, $this->file_manifest_already_archived ) )
-				$files[] = trim( $file );
-
-		} while ( $file && count( $files ) < $batch_size );
-
-		@fclose( $handle );
+		$files = file_get_contents( $this->current_file_manifest );
+		$files = array_map( 'trim', explode( PHP_EOL, $files ) );
 
 		$this->file_manifest_remaining = (int)file_get_contents( $this->get_path() . '/.file-manifest-remaining' );
 
