@@ -541,7 +541,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		// @todo Check if there's a ZipArchive file being modified.
 
-		return true;
+		return false;
 	}
 
 	/**
