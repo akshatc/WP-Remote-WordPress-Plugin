@@ -187,6 +187,13 @@ class WPRP_HM_Backup {
 	private $pclzip = false;
 
 	/**
+	 * Path to the 'sed' command
+	 *
+	 * @var string
+	 */
+	protected $sed_command_path;
+
+	/**
 	 * Check whether safe mode is active or not
 	 *
 	 * @param string $ini_get_callback
@@ -591,6 +598,30 @@ class WPRP_HM_Backup {
 		$this->do_action( 'hmbkp_update_file_manifest_ended' );
 	}
 
+	protected function update_file_manifest_sed() {
+
+		$sed = $this->get_sed_command_path();
+
+		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
+			return false;
+
+		foreach ( $this->file_manifest_already_archived as $file ) {
+
+			// match any file in the same directory
+			$dirname = dirname( $file );
+
+			if ( '.' != $dirname )
+				$pattern = escapeshellarg( $dirname );
+			else
+				$pattern = escapeshellarg( $file );
+
+			$manifest = $this->get_file_manifest_filepath();
+			$stderr = shell_exec( "$sed -i '/^$pattern/ d' $manifest" );
+
+		}
+
+		$this->file_manifest_already_archived = array();
+	}
 
 	/**
 	 * Get the path to the file manifest
@@ -1085,7 +1116,11 @@ class WPRP_HM_Backup {
 
 			// Update the file manifest with these files that were archived
 			$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
-			$this->update_file_manifest();
+
+			if ( $this->is_shell_exec_available() )
+				$this->update_file_manifest_sed();
+			else
+				$this->update_file_manifest();
 
 			// Get the next set of files to archive
 			$next_files = $this->get_next_files_from_file_manifest( $this->file_manifest_per_batch );
@@ -2195,6 +2230,47 @@ class WPRP_HM_Backup {
 
 		return false;
 
+	}
+
+	public function get_sed_command_path() {
+
+			// Check shell_exec is available
+			if ( ! self::is_shell_exec_available() )
+				return '';
+
+			// Return now if it's already been set
+			if ( isset( $this->sed_command_path ) )
+				return $this->sed_command_path;
+
+			$this->sed_command_path = '';
+
+			// Does sed work
+			if ( ! is_null( shell_exec( 'echo day | sed s/day/night/' ) ) ) {
+
+				// If so store it for later
+				$this->set_sed_command_path( 'sed' );
+
+				// And return now
+				return $this->sed_command_path;
+			}
+
+			// List of possible sed locations
+			$sed_locations = array(
+				'/usr/local/bin/sed',
+				'/usr/bin/sed',
+				'/bin/sed'
+			);
+
+			// Find the one which works
+			foreach ( $sed_locations as $location )
+				if ( @is_executable( self::conform_dir( $location ) ) )
+					$this->set_sed_command_path( $location );
+
+			return $this->sed_command_path;
+	}
+
+	protected function set_sed_command_path( $path ) {
+		$this->sed_command_path = $path;
 	}
 
 }
