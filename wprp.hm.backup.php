@@ -1153,8 +1153,8 @@ class WPRP_HM_Backup {
 		$this->verify_archive();
 
 		// Remove the file manifest
-		if ( file_exists( $this->get_file_manifest_filepath() ) )
-			unlink( $this->get_file_manifest_filepath() );
+		if ( is_dir( $this->get_file_manifest_dirpath() ) )
+			$this->rmdir_recursive( $this->get_file_manifest_dirpath() );
 
 		// Delete the database dump file
 		if ( file_exists( $this->get_database_dump_filepath() ) )
