@@ -2197,6 +2197,37 @@ class WPRP_HM_Backup {
 
 	}
 
+	/**
+	 * Recursively delete a directory including
+	 * all the files and sub-directories.
+	 *
+	 * @param string $dir
+	 * @return bool
+	 */
+	public static function rmdir_recursive( $dir ) {
+
+		if ( is_file( $dir ) )
+			@unlink( $dir );
+
+	    if ( ! is_dir( $dir ) )
+	    	return false;
+
+	    $files = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $dir ), RecursiveIteratorIterator::CHILD_FIRST, RecursiveIteratorIterator::CATCH_GET_CHILD );
+
+		foreach ( $files as $file ) {
+
+			if ( $file->isDir() )
+				@rmdir( $file->getPathname() );
+
+			else
+				@unlink( $file->getPathname() );
+
+		}
+
+		@rmdir( $dir );
+
+	}
+
 }
 
 /**
