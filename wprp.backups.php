@@ -176,6 +176,17 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	}
 
 	/**
+	 * Cleanup old ZipArchive partials that may have been left by old processes
+	 */
+	public function cleanup_ziparchive_partials() {
+
+		foreach( glob( $this->get_path() . '/*.zip.*' ) as $ziparchive_partial ) {
+			unlink( $ziparchive_partial );
+		}
+
+	}
+
+	/**
 	 * Get the estimated size of the sites files and database
 	 *
 	 * If the size hasn't been calculated yet then it fires an API request
@@ -588,6 +599,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 			return false;
 
 		// Uh oh, needs to be restarted
+		$this->cleanup_ziparchive_partials();
+
 		$this->save_backup_process_id();
 
 		$this->restart_archive();
