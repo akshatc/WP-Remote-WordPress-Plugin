@@ -34,37 +34,6 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	}
 
 	/**
-	 * Recursively delete a directory including
-	 * all the files and sub-directories.
-	 *
-	 * @param string $dir
-	 * @return bool
-	 */
-	public static function rmdir_recursive( $dir ) {
-
-		if ( is_file( $dir ) )
-			@unlink( $dir );
-
-	    if ( ! is_dir( $dir ) )
-	    	return false;
-
-	    $files = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $dir ), RecursiveIteratorIterator::CHILD_FIRST, RecursiveIteratorIterator::CATCH_GET_CHILD );
-
-		foreach ( $files as $file ) {
-
-			if ( $file->isDir() )
-				@rmdir( $file->getPathname() );
-
-			else
-				@unlink( $file->getPathname() );
-
-		}
-
-		@rmdir( $dir );
-
-	}
-
-	/**
 	 * Setup HM Backup
 	 *
 	 * @access publics
@@ -491,18 +460,9 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	private function get_heartbeat_timestamp() {
 
 		$heartbeat = $this->get_path() . '/.heartbeat-timestamp';
-		$database = $this->get_database_dump_filepath();
-
-		$times = array();
 
 		if ( file_exists( $heartbeat ) )
-			$times[] = (int) file_get_contents( $heartbeat );
-
-		if ( file_exists( $database ) )
-			$times[] = (int) filemtime( $database );
-
-		if ( $times )
-			return max( $times );
+			return (int) file_get_contents( $heartbeat );
 
 		return false;
 	}
@@ -568,11 +528,30 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		if ( false == ( $process_id = $this->get_backup_process_id() ) )
 			return false;
 
-		// If it hasn't been modified in the last 90 seconds, we're likely dead
-		if ( ( time() - $this->get_heartbeat_timestamp() ) > 90 )
-			return false;
+		$time_to_wait = 120;
 
-		return true;
+		// If the heartbeat has been modified in the last 90 seconds, we might not be dead
+		if ( ( time() - $this->get_heartbeat_timestamp() ) < $time_to_wait )
+			return true;
+
+		// Check if the database archive was modified recently
+		$database = $this->get_database_dump_filepath();
+		if ( file_exists( $database ) && ( ( time() - filemtime( $database ) ) < $time_to_wait ) )
+			return true;
+
+		// Check if there's a ZipArchive file being modified.
+		$ziparchive_files = glob( $this->get_path() . '/*.zip.*' );
+		$ziparchive_mtimes = array();
+		foreach( $ziparchive_files as $ziparchive_file ) {
+			$ziparchive_mtimes[] = filemtime( $ziparchive_file );
+		}
+		if ( ! empty( $ziparchive_mtimes ) ) {
+			$latest_ziparchive_mtime = max( $ziparchive_mtimes );
+			if ( ( time() - $latest_ziparchive_mtime ) < $time_to_wait )
+				return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -590,8 +569,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		if ( ! $this->get_backup_process_id() )
 			return false;
 
-		// No file manifest means this wasn't a file manifest approach
-		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
+		// No file manifest directory means this wasn't a file manifest approach
+		if ( ! is_dir( $this->get_file_manifest_dirpath() ) )
 			return false;
 
 		// Check whether there's supposed to be a backup in progress
