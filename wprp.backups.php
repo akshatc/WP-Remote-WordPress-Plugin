@@ -460,18 +460,9 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	private function get_heartbeat_timestamp() {
 
 		$heartbeat = $this->get_path() . '/.heartbeat-timestamp';
-		$database = $this->get_database_dump_filepath();
-
-		$times = array();
 
 		if ( file_exists( $heartbeat ) )
-			$times[] = (int) file_get_contents( $heartbeat );
-
-		if ( file_exists( $database ) )
-			$times[] = (int) filemtime( $database );
-
-		if ( $times )
-			return max( $times );
+			return (int) file_get_contents( $heartbeat );
 
 		return false;
 	}
@@ -537,9 +528,18 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		if ( false == ( $process_id = $this->get_backup_process_id() ) )
 			return false;
 
-		// If it hasn't been modified in the last 90 seconds, we're likely dead
-		if ( ( time() - $this->get_heartbeat_timestamp() ) > 90 )
-			return false;
+		$time_to_wait = 120;
+
+		// If the heartbeat has been modified in the last 90 seconds, we might not be dead
+		if ( ( time() - $this->get_heartbeat_timestamp() ) < $time_to_wait )
+			return true;
+
+		// Check if the database archive was modified recently
+		$database = $this->get_database_dump_filepath();
+		if ( file_exists( $database ) && ( ( time() - filemtime( $database ) ) < $time_to_wait ) )
+			return true;
+
+		// @todo Check if there's a ZipArchive file being modified.
 
 		return true;
 	}
