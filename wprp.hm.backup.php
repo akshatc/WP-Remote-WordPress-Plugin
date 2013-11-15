@@ -514,6 +514,13 @@ class WPRP_HM_Backup {
 		if ( is_dir( $this->get_file_manifest_dirpath() ) )
 			$this->rmdir_recursive( $this->get_file_manifest_dirpath() );
 
+		mkdir( $this->get_file_manifest_dirpath(), 0755 );
+
+		// Protect against directory browsing by including a index.html file
+		$index = $this->get_file_manifest_dirpath() . '/index.html';
+		if ( ! file_exists( $index ) && is_writable( $this->get_file_manifest_dirpath() ) )
+			file_put_contents( $index, '' );
+
 		$excludes = $this->exclude_string( 'regex' );
 
 		$file_manifest = array();
