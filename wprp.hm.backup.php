@@ -626,10 +626,15 @@ class WPRP_HM_Backup {
 			return array();
 
 		$files = glob( $this->get_file_manifest_dirpath() . '/*.txt' );
+		if ( empty( $files ) )
+			return array();
+
 		$this->current_file_manifest = array_shift( $files );
 
 		$files = file_get_contents( $this->current_file_manifest );
 		$files = array_map( 'trim', explode( PHP_EOL, $files ) );
+		if ( empty( $files ) )
+			return array();
 
 		$this->file_manifest_remaining = (int)file_get_contents( $this->get_path() . '/.file-manifest-remaining' );
 
