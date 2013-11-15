@@ -596,6 +596,8 @@ class WPRP_HM_Backup {
 
 		// Update the count of remaining files.
 		$this->file_manifest_remaining = $this->file_manifest_remaining - count( $this->file_manifest_already_archived );
+		if ( $this->file_manifest_remaining < 0 )
+			$this->file_manifest_remaining = 0;
 		file_put_contents( $this->get_path() . '/.file-manifest-remaining', $this->file_manifest_remaining );
 
 		$this->file_manifest_already_archived = array();
