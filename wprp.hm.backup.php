@@ -556,7 +556,7 @@ class WPRP_HM_Backup {
 			}
 
 			// Create a new file manifest
-			if ( ! $current_file ) {
+			if ( empty( $current_file ) ) {
 
 				$file_manifest_file_count++;
 				$file_manifest_filename = str_pad( $file_manifest_file_count, 10, "0", STR_PAD_LEFT );
