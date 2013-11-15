@@ -564,6 +564,8 @@ class WPRP_HM_Backup {
 		if ( ! $new_handle = @fopen( $tmp_path, 'w' ) )
 			return false;
 
+		$this->do_action( 'hmbkp_update_file_manifest_started' );
+
 		$i = 0;
 		while( ( $file = fgets( $old_handle ) ) !== false ) {
 
@@ -585,6 +587,8 @@ class WPRP_HM_Backup {
 
 		@rename( $tmp_path, $this->get_file_manifest_filepath() );
 		$this->file_manifest_already_archived = array();
+
+		$this->do_action( 'hmbkp_update_file_manifest_ended' );
 	}
 
 
