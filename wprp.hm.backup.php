@@ -191,7 +191,7 @@ class WPRP_HM_Backup {
 	 *
 	 * @var string
 	 */
-	protected $sed_command_path = '';
+	protected $sed_command_path;
 
 	/**
 	 * Check whether safe mode is active or not
@@ -596,7 +596,7 @@ class WPRP_HM_Backup {
 
 	protected function update_file_manifest_sed() {
 
-		$sed = $this->sed_command_path;
+		$sed = $this->get_sed_command_path();
 
 		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
 			return false;
@@ -612,8 +612,8 @@ class WPRP_HM_Backup {
 				$pattern = escapeshellarg( $file );
 
 			$manifest = $this->get_file_manifest_filepath();
-			$command = "sed -i '/^$pattern/ d' $manifest";
-			$output = shell_exec( $command );
+			$stderr = shell_exec( "$sed -i '/^$pattern/ d' $manifest" );
+
 		}
 
 		$this->file_manifest_already_archived = array();
@@ -2250,7 +2250,7 @@ class WPRP_HM_Backup {
 				return $this->sed_command_path;
 			}
 
-			// List of possible mysqldump locations
+			// List of possible sed locations
 			$sed_locations = array(
 				'/usr/local/bin/sed',
 				'/usr/bin/sed',
