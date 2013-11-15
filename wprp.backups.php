@@ -539,7 +539,17 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		if ( file_exists( $database ) && ( ( time() - filemtime( $database ) ) < $time_to_wait ) )
 			return true;
 
-		// @todo Check if there's a ZipArchive file being modified.
+		// Check if there's a ZipArchive file being modified.
+		$ziparchive_files = glob( $this->get_path() . '/*.zip.*' );
+		$ziparchive_mtimes = array();
+		foreach( $ziparchive_files as $ziparchive_file ) {
+			$ziparchive_mtimes[] = filemtime( $ziparchive_file );
+		}
+		if ( ! empty( $ziparchive_mtimes ) ) {
+			$latest_ziparchive_mtime = max( $ziparchive_mtimes );
+			if ( ( time() - $latest_ziparchive_mtime ) < $time_to_wait )
+				return true;
+		}
 
 		return false;
 	}
