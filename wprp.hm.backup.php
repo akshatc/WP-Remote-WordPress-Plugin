@@ -548,7 +548,7 @@ class WPRP_HM_Backup {
 				$line = str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) );
 
 			// File manifest is full
-			if ( $current_batch >= $this->file_manifest_per_batch ) {
+			if ( ! empty( $current_file ) && $current_batch >= $this->file_manifest_per_batch ) {
 
 				@fclose( $current_file );
 				$current_file = false;
