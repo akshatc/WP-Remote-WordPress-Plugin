@@ -300,6 +300,95 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'get_posts':
+
+			$arg_keys = array(
+				/** Author **/
+				'author',
+				'author_name',
+				'author__in',
+				'author__not_in',
+
+				/** Category **/
+				'cat',
+				'category_name',
+				'category__and',
+				'category__in',
+				'category__not_in',
+
+				/** Tag **/
+				'tag',
+				'tag_id',
+				'tag__and',
+				'tag__in',
+				'tag__not_in',
+				'tag_slug__and',
+				'tag_slug__in',
+
+				/** Search **/
+				's',
+
+				/** Post Attributes **/
+				'name',
+				'pagename',
+				'post_parent',
+				'post_parent__in',
+				'post_parent__not_in',
+				'post__in',
+				'post__not_in',
+				'post_status',
+				'post_type',
+
+				/** Order / Pagination / Etc. **/
+				'order',
+				'orderby',
+				'nopaging',
+				'posts_per_page',
+				'offset',
+				'paged',
+				'page',
+				'ignore_sticky_posts',
+			);
+			$args = array();
+			foreach( $arg_keys as $arg_key ) {
+				// Note: WP_Query() supports validation / sanitization
+				if ( null !== ( $value = WPR_API_Request::get_arg( $arg_key ) ) )
+					$args[$arg_key] = $value;
+			}
+			$query = new WP_Query( );
+
+			$actions[$action] = count( $query->posts ) ? $query->posts : array();
+
+		break;
+
+		case 'get_post':
+		case 'delete_post':
+
+			$post_id = (int)WPR_API_Request::get_arg( 'post_id' );
+			$post = get_post( $post_id );
+
+			if ( ! $post ) {
+				$actions[$action] = new WP_Error( 'missing-post', __( "No post found.", 'wpremote' ) );
+				break;
+			}
+
+			if ( 'get_post' == $action ) {
+
+				$actions[$action] = $post;
+
+			} else if ( 'delete_post' == $action ) {
+
+				$actions[$action] = wp_delete_post( $post_id );
+
+			}
+
+		break;
+
+		case 'create_post':
+		case 'update_post':
+
+		break;
+
 		case 'get_metadata':
 
 			$actions[$action] = get_metadata( WPR_API_Request::get_arg( 'meta_type' ), WPR_API_Request::get_arg( 'object_id' ), WPR_API_Request::get_arg( 'meta_key' ), false );
