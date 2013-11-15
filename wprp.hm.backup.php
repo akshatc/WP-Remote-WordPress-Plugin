@@ -155,6 +155,14 @@ class WPRP_HM_Backup {
 	private $using_file_manifest = false;
 
 	/**
+	 * The current file manifest file.
+	 * 
+	 * @access private
+	 */
+	private $current_file_manifest = false;
+
+
+	/**
 	 * Files of the file manifest that have already been archived
 	 * 
 	 * @access private
@@ -167,7 +175,7 @@ class WPRP_HM_Backup {
 	 * 
 	 * @access private
 	 */
-	private $file_manifest_per_batch = 300;
+	private $file_manifest_per_batch = 200;
 
 	/**
 	 * Files remaining to be achived in the file manifest.
@@ -497,22 +505,21 @@ class WPRP_HM_Backup {
 	}
 
 	/**
-	 * Create a file manifest for the backup
+	 * Create a series of file manifests for the backup
 	 * 
 	 * @access private
 	 */
-	private function create_file_manifest() {
+	private function create_file_manifests() {
 
-		if ( file_exists( $this->get_file_manifest_filepath() ) )
-			unlink( $this->get_file_manifest_filepath() );
-
-		if ( ! $handle = @fopen( $this->get_file_manifest_filepath(), 'w' ) )
-			return false;
+		if ( is_dir( $this->get_file_manifest_dirpath() ) )
+			$this->rmdir_recursive( $this->get_file_manifest_dirpath() );
 
 		$excludes = $this->exclude_string( 'regex' );
 
 		$file_manifest = array();
 		$this->file_manifest_remaining = 0;
+		$file_manifest_file_count = 0;
+		$current_batch = 0;
 		foreach( $this->get_files() as $file ) {
 
 			// Skip dot files, they should only exist on versions of PHP between 5.2.11 -> 5.3
@@ -533,72 +540,69 @@ class WPRP_HM_Backup {
 			elseif ( $file->isFile() )
 				$line = str_ireplace( trailingslashit( $this->get_root() ), '', self::conform_dir( $file->getPathname() ) );
 
+			// File manifest is full
+			if ( $current_batch >= $this->file_manifest_per_batch ) {
+
+				@fclose( $current_file );
+				$current_file = false;
+
+			}
+
+			// Create a new file manifest
+			if ( ! $current_file ) {
+
+				$file_manifest_file_count++;
+				$file_manifest_filename = str_pad( $file_manifest_file_count, 10, "0", STR_PAD_LEFT );
+				if ( ! $current_file = @fopen( $this->get_file_manifest_dirpath() . '/' . $file_manifest_filename . '.txt', 'w' ) )
+					return false;
+
+				$current_batch = 0;
+			}
+
+			// Write the line to the file manifest if it isn't empty for some reason
 			if ( ! empty( $line ) ) {
-				@fwrite( $handle, $line . PHP_EOL );
+				@fwrite( $current_file, $line . PHP_EOL );
 				unset( $line );
 				$this->file_manifest_remaining++;
+				$current_batch++;
 			}
 
 		}
 
-		@fclose( $handle );
+		@file_put_contents( $this->get_path() . '/.file-manifest-remaining', $this->file_manifest_remaining );
 
 		return true;
 	}
 
 	/**
-	 * Update the contents of the file manifest based
-	 * on what's already been archived
+	 * Delete the current file manifest
 	 * 
 	 * @access private
 	 */
-	private function update_file_manifest() {
+	private function delete_current_file_manifest() {
 
-		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
+		if ( ! file_exists( $this->current_file_manifest ) )
 			return false;
 
-		if ( ! $old_handle = @fopen( $this->get_file_manifest_filepath(), 'r' ) )
-			return false;
+		// Remove the file manifest because it's already been archived
+		unlink( $this->current_file_manifest );
 
-		$tmp_path = $this->get_path() . '/.file-manifest-new';
-		if ( ! $new_handle = @fopen( $tmp_path, 'w' ) )
-			return false;
+		// Update the count of remaining files.
+		$this->file_manifest_remaining = $this->file_manifest_remaining - count( $this->file_manifest_already_archived );
+		file_put_contents( $this->get_path() . '/.file-manifest-remaining', $this->file_manifest_remaining );
 
-		$this->do_action( 'hmbkp_update_file_manifest_started' );
-
-		$i = 0;
-		while( ( $file = fgets( $old_handle ) ) !== false ) {
-
-			if ( empty( $file ) )
-				continue;
-
-			$file = trim( $file ); // will include a line ending
-
-			if ( in_array( $file, $this->file_manifest_already_archived ) )
-				continue;
-
-			@fwrite( $new_handle, $file . PHP_EOL );
-			$i++;
-		}
-		$this->file_manifest_remaining = $i;
-
-		@fclose( $old_handle );
-		@fclose( $new_handle );
-
-		@rename( $tmp_path, $this->get_file_manifest_filepath() );
 		$this->file_manifest_already_archived = array();
 
-		$this->do_action( 'hmbkp_update_file_manifest_ended' );
 	}
 
 
 	/**
-	 * Get the path to the file manifest
+	 * Get the path to the file manifest directory
 	 * 
 	 * @access private
 	 */
-	protected function get_file_manifest_filepath() {
-		return $this->get_path() . '/.file-manifest';
+	protected function get_file_manifest_dirpath() {
+		return $this->get_path() . '/.file-manifests';
 	}
 
 	/**
@@ -607,12 +611,15 @@ class WPRP_HM_Backup {
 	 * 
 	 * @access private
 	 */
-	private function get_next_files_from_file_manifest( $batch_size ) {
+	private function get_next_files_from_file_manifest() {
 
-		if ( ! file_exists( $this->get_file_manifest_filepath() ) )
+		if ( ! is_dir( $this->get_file_manifest_dirpath() ) )
 			return array();
 
-		if ( ! $handle = @fopen( $this->get_file_manifest_filepath(), 'r' ) )
+		$files = glob( $this->get_file_manifest_dirpath() . '/*.txt' );
+		$this->current_file_manifest = array_shift( $files );
+
+		if ( ! $handle = @fopen( $this->current_file_manifest, 'r' ) )
 			return array();
 
 		$files = array();
@@ -625,6 +632,8 @@ class WPRP_HM_Backup {
 		} while ( $file && count( $files ) < $batch_size );
 
 		@fclose( $handle );
+
+		$this->file_manifest_remaining = (int)file_get_contents( $this->get_path() . '/.file-manifest-remaining' );
 
 		return $files;
 	}
@@ -1028,7 +1037,7 @@ class WPRP_HM_Backup {
 		// If using a manifest, perform the backup in chunks
 		if ( 'database' !== $this->get_type()
 			&& $this->is_using_file_manifest()
-			&& $this->create_file_manifest() ) {
+			&& $this->create_file_manifests() ) {
 			
 			$this->archive_via_file_manifest();
 
@@ -1050,7 +1059,7 @@ class WPRP_HM_Backup {
 		$errors = array();
 
 		// Back up files from the file manifest in chunks
-		$next_files = $this->get_next_files_from_file_manifest( $this->file_manifest_per_batch );
+		$next_files = $this->get_next_files_from_file_manifest();
 		do {
 
 			$this->do_action( 'hmbkp_archive_started' );
@@ -1085,10 +1094,10 @@ class WPRP_HM_Backup {
 
 			// Update the file manifest with these files that were archived
 			$this->file_manifest_already_archived = array_merge( $this->file_manifest_already_archived, $next_files );
-			$this->update_file_manifest();
+			$this->delete_current_file_manifest();
 
 			// Get the next set of files to archive
-			$next_files = $this->get_next_files_from_file_manifest( $this->file_manifest_per_batch );
+			$next_files = $this->get_next_files_from_file_manifest();
 
 		} while( ! empty( $next_files ) );
 
