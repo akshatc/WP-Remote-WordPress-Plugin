@@ -388,6 +388,53 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		case 'create_post':
 		case 'update_post':
 
+			$arg_keys = array(
+				'menu_order',
+				'comment_status',
+				'ping_status',
+				'post_author',
+				'post_content',
+				'post_date',
+				'post_date_gmt',
+				'post_excerpt',
+				'post_name',
+				'post_parent',
+				'post_password',
+				'post_status',
+				'post_title',
+				'post_type',
+				'tags_input',
+			);
+			$args = array();
+			foreach( $arg_keys as $arg_key ) {
+				// Note: wp_update_post() supports validation / sanitization
+				if ( null !== ( $value = WPR_API_Request::get_arg( $arg_key ) ) )
+					$args[$arg_key] = $value;
+			}
+
+			if ( 'create_post' == $action ) {
+
+				if ( $post_id = wp_insert_post( $args ) )
+					$actions[$action] = get_post( $post_id );
+				else
+					$actions[$action] = new WP_Error( 'create-post', __( "Error creating post.", 'wpremote' ) );
+
+			} else if ( 'update_post' == $action ) {
+			
+				$args['ID'] = (int)WPR_API_Request::get_arg( 'post_id' );
+
+				if ( ! get_post( $args['ID'] ) ) {
+					$actions[$action] = new WP_Error( 'missing-post', __( "No post found.", 'wpremote' ) );
+					break;
+				}
+
+				if ( wp_update_post( $args ) )
+					$actions[$action] = get_post( $args['ID'] );
+				else
+					$actions[$action] = new WP_Error( 'update-post', __( "Error updating post.", 'wpremote' ) );
+
+			}
+
 		break;
 
 		case 'get_metadata':
