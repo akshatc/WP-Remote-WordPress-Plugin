@@ -300,6 +300,143 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+		case 'get_posts':
+
+			$arg_keys = array(
+				/** Author **/
+				'author',
+				'author_name',
+				'author__in',
+				'author__not_in',
+
+				/** Category **/
+				'cat',
+				'category_name',
+				'category__and',
+				'category__in',
+				'category__not_in',
+
+				/** Tag **/
+				'tag',
+				'tag_id',
+				'tag__and',
+				'tag__in',
+				'tag__not_in',
+				'tag_slug__and',
+				'tag_slug__in',
+
+				/** Search **/
+				's',
+
+				/** Post Attributes **/
+				'name',
+				'pagename',
+				'post_parent',
+				'post_parent__in',
+				'post_parent__not_in',
+				'post__in',
+				'post__not_in',
+				'post_status',
+				'post_type',
+
+				/** Order / Pagination / Etc. **/
+				'order',
+				'orderby',
+				'nopaging',
+				'posts_per_page',
+				'offset',
+				'paged',
+				'page',
+				'ignore_sticky_posts',
+			);
+			$args = array();
+			foreach( $arg_keys as $arg_key ) {
+				// Note: WP_Query() supports validation / sanitization
+				if ( null !== ( $value = WPR_API_Request::get_arg( $arg_key ) ) )
+					$args[$arg_key] = $value;
+			}
+
+			$query = new WP_Query;
+			$query->query( $args );
+			$actions[$action] = $query->posts;
+
+		break;
+
+		case 'get_post':
+		case 'delete_post':
+
+			$post_id = (int)WPR_API_Request::get_arg( 'post_id' );
+			$post = get_post( $post_id );
+
+			if ( ! $post ) {
+				$actions[$action] = new WP_Error( 'missing-post', __( "No post found.", 'wpremote' ) );
+				break;
+			}
+
+			if ( 'get_post' == $action ) {
+
+				$actions[$action] = $post;
+
+			} else if ( 'delete_post' == $action ) {
+
+				$actions[$action] = wp_delete_post( $post_id );
+
+			}
+
+		break;
+
+		case 'create_post':
+		case 'update_post':
+
+			$arg_keys = array(
+				'menu_order',
+				'comment_status',
+				'ping_status',
+				'post_author',
+				'post_content',
+				'post_date',
+				'post_date_gmt',
+				'post_excerpt',
+				'post_name',
+				'post_parent',
+				'post_password',
+				'post_status',
+				'post_title',
+				'post_type',
+				'tags_input',
+			);
+			$args = array();
+			foreach( $arg_keys as $arg_key ) {
+				// Note: wp_update_post() supports validation / sanitization
+				if ( null !== ( $value = WPR_API_Request::get_arg( $arg_key ) ) )
+					$args[$arg_key] = $value;
+			}
+
+			if ( 'create_post' == $action ) {
+
+				if ( $post_id = wp_insert_post( $args ) )
+					$actions[$action] = get_post( $post_id );
+				else
+					$actions[$action] = new WP_Error( 'create-post', __( "Error creating post.", 'wpremote' ) );
+
+			} else if ( 'update_post' == $action ) {
+			
+				$args['ID'] = (int)WPR_API_Request::get_arg( 'post_id' );
+
+				if ( ! get_post( $args['ID'] ) ) {
+					$actions[$action] = new WP_Error( 'missing-post', __( "No post found.", 'wpremote' ) );
+					break;
+				}
+
+				if ( wp_update_post( $args ) )
+					$actions[$action] = get_post( $args['ID'] );
+				else
+					$actions[$action] = new WP_Error( 'update-post', __( "Error updating post.", 'wpremote' ) );
+
+			}
+
+		break;
+
 		case 'get_metadata':
 
 			$actions[$action] = get_metadata( WPR_API_Request::get_arg( 'meta_type' ), WPR_API_Request::get_arg( 'object_id' ), WPR_API_Request::get_arg( 'meta_key' ), false );
