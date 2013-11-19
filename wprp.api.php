@@ -79,6 +79,10 @@ if ( class_exists( 'WPRP_Log' ) )
 if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG )
 	error_reporting( 0 );
 
+// Temp hack so our requests to verify file size are signed.
+global $wprp_noauth_nonce;
+$wprp_noauth_nonce = wp_create_nonce( 'wprp_calculate_backup_size' );
+
 // Log in as admin
 // TODO what about if admin use doesn't exists?
 wp_set_current_user( 1 );
