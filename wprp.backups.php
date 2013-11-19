@@ -181,7 +181,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 
 		// we dont know the size yet, fire off a remote request to get it for later
 		// it can take some time so we have a small timeout then return "Calculating"
-		wp_remote_get( add_query_arg( array( 'action' => 'wprp_calculate_backup_size', 'backup_excludes' => $this->get_excludes() ), admin_url( 'admin-ajax.php' ) ), array( 'timeout' => 0.1, 'sslverify' => false ) );
+		global $wprp_noauth_nonce;
+		wp_remote_get( add_query_arg( array( 'action' => 'wprp_calculate_backup_size', 'backup_excludes' => $this->get_excludes() ), add_query_arg( '_wpnonce', $wprp_noauth_nonce, admin_url( 'admin-ajax.php' ) ) ), array( 'timeout' => 0.1, 'sslverify' => false ) );
 
 		return __( 'Calculating', 'wpremote' );
 
@@ -663,3 +664,19 @@ function _wprp_get_backups_info() {
 	);
 
 }
+
+/**
+ * Calculate the filesize of the site
+ *
+ * The calculated size is stored in a transient
+ */
+function wprp_ajax_calculate_backup_size() {
+
+	if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'wprp_calculate_backup_size' ) )
+		exit;
+
+	WPRP_Backups::get_instance()->get_filesize();
+
+	exit;
+}
+add_action( 'wp_ajax_nopriv_wprp_calculate_backup_size', 'wprp_ajax_calculate_backup_size' );
