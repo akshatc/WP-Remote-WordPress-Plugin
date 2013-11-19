@@ -1109,7 +1109,7 @@ class WPRP_HM_Backup {
 
 			switch ( $this->archive_method ) {
 
-				case 'ziparchive':
+				case 'zip_archive_files':
 
 					$zip = &$this->setup_ziparchive();
 
@@ -1119,13 +1119,13 @@ class WPRP_HM_Backup {
 
 					break;
 
-				case 'zip':
+				case 'zip_files':
 
 					$error = shell_exec( 'cd ' . escapeshellarg( $this->get_path() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -uq ' . escapeshellarg( $this->get_archive_filepath() ) . ' ' . escapeshellarg( $this->get_database_dump_filename() ) . ' 2>&1' );
 
 					break;
 
-				case 'pclzip':
+				case 'pcl_zip_files':
 
 					$pclzip = &$this->setup_pclzip();
 
