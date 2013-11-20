@@ -37,6 +37,8 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### ??? (?? ???? ????)
+
 #### 2.7.0 (19 November 2013)
 
 * Improved durability of backups where the backup process can take more than 90 seconds.
