@@ -200,6 +200,8 @@ function _wprp_install_plugin( $plugin, $args = array() ) {
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	include_once ABSPATH . 'wp-includes/update.php';
+	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-plugin-upgrader-skin.php';
 
 	// Access the plugins_api() helper function
 	include_once ABSPATH . 'wp-admin/includes/plugin-install.php';

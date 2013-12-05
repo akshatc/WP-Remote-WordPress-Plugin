@@ -105,6 +105,8 @@ function _wprp_install_theme( $theme, $args = array() ) {
 	include_once ABSPATH . 'wp-admin/includes/admin.php';
 	include_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	include_once ABSPATH . 'wp-includes/update.php';
+	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-theme-upgrader-skin.php';
 
 	// Access the themes_api() helper function
 	include_once ABSPATH . 'wp-admin/includes/theme-install.php';
