@@ -492,7 +492,7 @@ class WPRP_HM_Backup {
 	 * @access public
 	 */
 	public function is_using_file_manifest() {
-		return (bool)$this->using_file_manifest;
+		return apply_filters( 'hmbkp_use_file_manifest', (bool)$this->using_file_manifest );
 	}
 
 	/**
