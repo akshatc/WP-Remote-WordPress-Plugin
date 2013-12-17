@@ -9,7 +9,7 @@
 function _wprp_integration_get_web_host() {
 
 	// WP Engine
-	if ( defined( 'IS_WPE' ) && IS_WPE )
+	if ( defined( 'WPE_APIKEY' ) && WPE_APIKEY )
 		return 'wpengine';
 
 	return 'unknown';
