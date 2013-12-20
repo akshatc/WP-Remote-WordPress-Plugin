@@ -531,7 +531,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 			return false;
 
 		// When safe mode is enabled, WPRP can't modify max_execution_time
-		$time_to_wait = ( ini_get( 'safe_mode' ) ) ? ini_get( 'max_execution_time' ) : 90;
+		$time_to_wait = ( self::is_safe_mode_active() ) ? ini_get( 'max_execution_time' ) : 90;
 
 		// If the heartbeat has been modified in the last 90 seconds, we might not be dead
 		if ( ( time() - $this->get_heartbeat_timestamp() ) < $time_to_wait )
