@@ -40,6 +40,7 @@ You can email us at support@wpremote.com for support.
 #### 2.7.1 (?? ???? ????)
 
 * Bug fix: Restore plugin and theme installation mechanism.
+* Bug fix: On some hosts where `getmypid()` wasn't permitted, the backup process would be prematurely reported as killed.
 
 #### 2.7.0 (19 November 2013)
 
