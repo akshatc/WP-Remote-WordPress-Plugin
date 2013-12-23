@@ -527,7 +527,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	private function is_backup_still_running() {
 
 		// Check whether there's supposed to be a backup in progress
-		if ( false == ( $process_id = $this->get_backup_process_id() ) )
+		if ( false === ( $process_id = $this->get_backup_process_id() ) )
 			return false;
 
 		// When safe mode is enabled, WPRP can't modify max_execution_time
