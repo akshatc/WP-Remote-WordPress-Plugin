@@ -39,6 +39,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 */
 	public function __construct() {
 
+		parent::__construct();
+
 		// Set the backup path
 		$this->set_path( $this->path() );
 
