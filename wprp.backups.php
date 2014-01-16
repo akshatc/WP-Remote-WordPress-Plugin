@@ -526,7 +526,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 * 
 	 * @access private
 	 */
-	private function is_backup_still_running() {
+	private function is_backup_still_running( $context = 'get_backup' ) {
 
 		// Check whether there's supposed to be a backup in progress
 		if ( false === ( $process_id = $this->get_backup_process_id() ) )
@@ -537,6 +537,10 @@ class WPRP_Backups extends WPRP_HM_Backup {
 			$time_to_wait = ini_get( 'max_execution_time' );
 		else
 			$time_to_wait = 90;
+
+		// Give heartbeat requests a little bit of time to restart
+		if ( 'get_backup' == $context )
+			$time_to_wait += 15;
 
 		// If the heartbeat has been modified in the last 90 seconds, we might not be dead
 		if ( ( time() - $this->get_heartbeat_timestamp() ) < $time_to_wait )
@@ -582,7 +586,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 			return false;
 
 		// Check whether there's supposed to be a backup in progress
-		if ( $this->get_backup_process_id() && $this->is_backup_still_running() )
+		if ( $this->get_backup_process_id() && $this->is_backup_still_running( 'backup_heartbeat' ) )
 			return false;
 
 		// Uh oh, needs to be restarted
