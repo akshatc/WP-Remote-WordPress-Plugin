@@ -37,6 +37,8 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### 2.7.2 (?? ???? ???)
+
 #### 2.7.1 (23 December 2013)
 
 * Bug fix: Restore plugin and theme installation mechanism.
