@@ -546,24 +546,29 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		if ( ( time() - $this->get_heartbeat_timestamp() ) < $time_to_wait )
 			return true;
 
-		// Check if the database archive was modified recently
-		$database = $this->get_database_dump_filepath();
-		if ( file_exists( $database ) && ( ( time() - filemtime( $database ) ) < $time_to_wait ) )
-			return true;
+		// Check if there's any file being modified.
+		$backup_file_dirs = array( $this->get_path() );
 
-		// Check if there's a ZipArchive file being modified.
-		$ziparchive_files = glob( $this->get_path() . '/*.zip.*' );
-		$ziparchive_mtimes = array();
-		foreach( $ziparchive_files as $ziparchive_file ) {
-			$ziparchive_mtimes[] = filemtime( $ziparchive_file );
+		if ( $this->is_using_file_manifest() ) {
+			$backup_file_dirs[] = $this->get_file_manifest_dirpath();
 		}
-		if ( ! empty( $ziparchive_mtimes ) ) {
-			$latest_ziparchive_mtime = max( $ziparchive_mtimes );
-			if ( ( time() - $latest_ziparchive_mtime ) < $time_to_wait )
+
+		foreach ( $backup_file_dirs as $backup_file_dir ) {
+			$backup_files = glob( $backup_file_dir . '/*' );
+
+			$file_mtimes = array();
+			foreach( $backup_files as $backup_file ) {
+				$file_mtimes[] = filemtime( $backup_file );
+		}
+			if ( ! empty( $file_mtimes ) ) {
+				$latest_file_mtime = max( $file_mtimes );
+				if ( ( time() - $latest_file_mtime ) < $time_to_wait )
 				return true;
 		}
+		} 
 
 		return false;
+		
 	}
 
 	/**
