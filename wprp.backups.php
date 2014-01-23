@@ -355,14 +355,14 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 */
 	private function path_default() {
 
-		if ( empty( $path ) )
-			$path = parent::conform_dir( trailingslashit( WP_CONTENT_DIR ) . substr( $this->key(), 0, 10 ) . '-backups' );
+		$dirname = substr( $this->key(), 0, 10 ) . '-wprbackups';
+		$path = parent::conform_dir( trailingslashit( WP_CONTENT_DIR ) . $dirname );
 
 		$upload_dir = wp_upload_dir();
 
 		// If the backups dir can't be created in WP_CONTENT_DIR then fallback to uploads
 		if ( ( ( ! is_dir( $path ) && ! is_writable( dirname( $path ) ) ) || ( is_dir( $path ) && ! is_writable( $path ) ) ) && strpos( $path, $upload_dir['basedir'] ) === false )
-			$path = parent::conform_dir( trailingslashit( $upload_dir['basedir'] ) . substr( $this->key(), 0, 10 ) . '-backups' );
+			$path = parent::conform_dir( trailingslashit( $upload_dir['basedir'] ) . $dirname );
 
 		return $path;
 	}
