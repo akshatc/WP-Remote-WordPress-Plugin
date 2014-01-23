@@ -40,6 +40,7 @@ You can email us at support@wpremote.com for support.
 #### 2.7.2 (?? ???? ???)
 
 * Misc improvements to the accuracy of the backup restart mechanism.
+* Inline styles to insure the API key prompt always appears, even if a theme or plugin may hide admin notices.
 
 #### 2.7.1 (23 December 2013)
 
