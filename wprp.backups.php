@@ -39,6 +39,8 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 */
 	public function __construct() {
 
+		parent::__construct();
+
 		// Set the backup path
 		$this->set_path( $this->path() );
 
@@ -524,7 +526,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 	 * 
 	 * @access private
 	 */
-	private function is_backup_still_running() {
+	private function is_backup_still_running( $context = 'get_backup' ) {
 
 		// Check whether there's supposed to be a backup in progress
 		if ( false === ( $process_id = $this->get_backup_process_id() ) )
@@ -536,28 +538,37 @@ class WPRP_Backups extends WPRP_HM_Backup {
 		else
 			$time_to_wait = 90;
 
+		// Give heartbeat requests a little bit of time to restart
+		if ( 'get_backup' == $context )
+			$time_to_wait += 15;
+
 		// If the heartbeat has been modified in the last 90 seconds, we might not be dead
 		if ( ( time() - $this->get_heartbeat_timestamp() ) < $time_to_wait )
 			return true;
 
-		// Check if the database archive was modified recently
-		$database = $this->get_database_dump_filepath();
-		if ( file_exists( $database ) && ( ( time() - filemtime( $database ) ) < $time_to_wait ) )
-			return true;
+		// Check if there's any file being modified.
+		$backup_file_dirs = array( $this->get_path() );
 
-		// Check if there's a ZipArchive file being modified.
-		$ziparchive_files = glob( $this->get_path() . '/*.zip.*' );
-		$ziparchive_mtimes = array();
-		foreach( $ziparchive_files as $ziparchive_file ) {
-			$ziparchive_mtimes[] = filemtime( $ziparchive_file );
+		if ( $this->is_using_file_manifest() ) {
+			$backup_file_dirs[] = $this->get_file_manifest_dirpath();
 		}
-		if ( ! empty( $ziparchive_mtimes ) ) {
-			$latest_ziparchive_mtime = max( $ziparchive_mtimes );
-			if ( ( time() - $latest_ziparchive_mtime ) < $time_to_wait )
+
+		foreach ( $backup_file_dirs as $backup_file_dir ) {
+			$backup_files = glob( $backup_file_dir . '/*' );
+
+			$file_mtimes = array();
+			foreach( $backup_files as $backup_file ) {
+				$file_mtimes[] = filemtime( $backup_file );
+		}
+			if ( ! empty( $file_mtimes ) ) {
+				$latest_file_mtime = max( $file_mtimes );
+				if ( ( time() - $latest_file_mtime ) < $time_to_wait )
 				return true;
 		}
+		} 
 
 		return false;
+		
 	}
 
 	/**
@@ -580,7 +591,7 @@ class WPRP_Backups extends WPRP_HM_Backup {
 			return false;
 
 		// Check whether there's supposed to be a backup in progress
-		if ( $this->get_backup_process_id() && $this->is_backup_still_running() )
+		if ( $this->get_backup_process_id() && $this->is_backup_still_running( 'backup_heartbeat' ) )
 			return false;
 
 		// Uh oh, needs to be restarted

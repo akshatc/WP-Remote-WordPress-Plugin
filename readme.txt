@@ -39,6 +39,8 @@ You can email us at support@wpremote.com for support.
 
 #### 2.7.2 (?? ???? ???)
 
+* Misc improvements to the accuracy of the backup restart mechanism.
+
 #### 2.7.1 (23 December 2013)
 
 * Bug fix: Restore plugin and theme installation mechanism.

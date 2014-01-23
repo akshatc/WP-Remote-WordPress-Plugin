@@ -1067,8 +1067,14 @@ class WPRP_HM_Backup {
 
 			$this->do_action( 'hmbkp_archive_started' );
 
-			// ZipArchive is the fastest for chunked backups
-			if ( class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) ) {
+			// `zip` is the most performant archive method
+			if ( $this->get_zip_command_path() ) {
+				$this->archive_method = 'zip_files';
+				$error = $this->zip_files( $next_files );
+			}
+
+			// ZipArchive is also pretty fast for chunked backups
+			else if ( class_exists( 'ZipArchive' ) && empty( $this->skip_zip_archive ) ) {
 				$this->archive_method = 'zip_archive_files';
 
 				$ret = $this->zip_archive_files( $next_files );
@@ -1076,12 +1082,6 @@ class WPRP_HM_Backup {
 					$this->skip_zip_archive = true;
 					continue;
 				}
-			}
-
-			// Fall back to `zip` if ZipArchive doesn't exist
-			else if ( $this->get_zip_command_path() ) {
-				$this->archive_method = 'zip_files';
-				$error = $this->zip_files( $next_files );
 			}
 
 			// Last opportunity
