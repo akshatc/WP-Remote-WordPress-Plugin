@@ -20,7 +20,7 @@ add_action( 'admin_menu', 'wprp_setup_admin' );
  */
 function wprp_add_api_key_admin_notice() { ?>
 
-	<div id="wprp-message" class="updated">
+	<div id="wprp-message" class="updated" style="display:block !important;">
 
 		<form method="post" action="options.php">
 
