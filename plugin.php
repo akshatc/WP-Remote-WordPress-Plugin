@@ -91,6 +91,7 @@ function wprp_catch_api_call() {
 	require_once( WPRP_PLUGIN_PATH . '/wprp.integration.php' );
 	require_once( WPRP_PLUGIN_PATH . '/wprp.plugins.php' );
 	require_once( WPRP_PLUGIN_PATH . '/wprp.themes.php' );
+	require_once( WPRP_PLUGIN_PATH . '/wprp.content.php' );
 
 	require_once( WPRP_PLUGIN_PATH . '/wprp.api.php' );
 
