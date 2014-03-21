@@ -92,7 +92,7 @@ include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 $actions = array();
 
 foreach( WPR_API_Request::get_actions() as $action ) {
-error_log($action);	
+	
 	// TODO Instead should just fire actions which we hook into.
 	// TODO should namespace api methods?
 	switch( $action ) {
@@ -284,12 +284,7 @@ error_log($action);
 				'web_host'     => _wprp_integration_get_web_host(),
 				'summary'      => _wprp_get_content_summary(),
 			);
-			
-			
-error_log( get_site_url() . " in get_site_info" );
-
-error_log( var_export(_wprp_get_content_summary() , true ));
-		
+	
 		break;
 
 		case 'get_option':
