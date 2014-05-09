@@ -92,7 +92,7 @@ include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 $actions = array();
 
 foreach( WPR_API_Request::get_actions() as $action ) {
-
+	
 	// TODO Instead should just fire actions which we hook into.
 	// TODO should namespace api methods?
 	switch( $action ) {
@@ -275,15 +275,16 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 		break;
 
 		case 'get_site_info' :
-
-			$actions[$action] = array(
-				'site_url'	=> get_site_url(),
-				'home_url'	=> get_home_url(),
-				'admin_url'	=> get_admin_url(),
-				'backups'	=> function_exists( '_wprp_get_backups_info' ) ? _wprp_get_backups_info() : array(),
-				'web_host'  => _wprp_integration_get_web_host(),
+			
+			$actions[$action]  = array(
+				'site_url'	   => get_site_url(),
+				'home_url'	   => get_home_url(),
+				'admin_url'	   => get_admin_url(),
+				'backups'	   => function_exists( '_wprp_get_backups_info' ) ? _wprp_get_backups_info() : array(),
+				'web_host'     => _wprp_integration_get_web_host(),
+				'summary'      => _wprp_get_content_summary(),
 			);
-
+	
 		break;
 
 		case 'get_option':
