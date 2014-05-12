@@ -16,13 +16,13 @@ function _wprp_get_content_summary() {
 	$num_users           = count_users();
 
 	$content_summary     = array(
-		'post_count'          => $num_posts->publish,
-		'page_count'          => $num_pages->publish,
+		'post_count'          => ( ! empty( $num_posts->publish ) ) ? $num_posts->publish : 0,
+		'page_count'          => ( ! empty( $num_pages->publish ) ) ? $num_pages->publish : 0,
 		'category_count'      => $num_categories,
-		'comment_count'       => $num_comments->total_comments,
+		'comment_count'       => ( ! empty( $num_comments->total_comments ) ) ? $num_comments->total_comments: 0,
 		'theme_count'         => $num_themes,
 		'plugin_count'        => $num_plugins,
-		'user_count'          => $num_users['total_users']
+		'user_count'          => ( ! empty( $num_users['total_users'] ) ) ? $num_users['total_users'] : 0
 	);
 
 	return $content_summary;
