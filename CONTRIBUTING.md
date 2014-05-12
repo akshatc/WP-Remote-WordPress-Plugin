@@ -4,8 +4,8 @@
 
 * Develop on a feature branch and send a pull request for review.
 * Assign the pull request to one of the following contacts:
-    * Primary: Daniel Bachhuber [@danielbachhuber](https://github.com/danielbachhuber)
-    * Secondary: 
+    * Primary: Theo Savage [@tcrsavage](https://github.com/tcrsavage)
+    * Secondary: Joe Hoyle [@joe_hoyle](https://github.com/joehoyle)
 	
 ## Coding Standards ##
 
