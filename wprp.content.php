@@ -14,10 +14,9 @@ function _wprp_get_content_summary() {
 	$num_themes          = count( wp_get_themes() );
 	$num_plugins         = count( get_plugins() );
 	$num_users           = count_users();
-	$site_size           = 1;
-	$database_size       = 2;
-	$wordpress_size      = 3;
-	$uploads_size        = 4;
+	$database_size       = get_database_size();
+	$wordpress_size      = foldersize( get_core_dir() );
+	$uploads_size        = foldersize( get_uploads_dir() );
 
 	$content_summary     = array(
 		'post_count'          => ( ! empty( $num_posts->publish ) ) ? $num_posts->publish : 0,
@@ -27,13 +26,66 @@ function _wprp_get_content_summary() {
 		'theme_count'         => $num_themes,
 		'plugin_count'        => $num_plugins,
 		'user_count'          => ( ! empty( $num_users['total_users'] ) ) ? $num_users['total_users'] : 0,
-		'site_size'           => $site_size,
-		'database_size'       => $database_size,
-		'wordpress_size'      => $wordpress_size,
-		'uploads_size'        => $uploads_size
+		'database_size'       => format_size( $database_size ),
+		'wordpress_size'      => format_size( $wordpress_size ),
+		'uploads_size'        => format_size( $uploads_size )
 	);
 
 	return $content_summary;
 }
 
+function foldersize( $path ) {
+	
+	$total_size = 0;
+	$files      = scandir( $path );
 
+	foreach( $files as $t ) {
+		if ( is_dir( rtrim( $path, '/' ) . '/' . $t ) ) {
+			if ( $t<>"." && $t<>".." ) {
+				$size = foldersize( rtrim( $path, '/' ) . '/' . $t );
+				$total_size += $size;
+			}
+		} else {
+		$size        = filesize( rtrim( $path, '/' ) . '/' . $t );
+		$total_size += $size;
+		}
+	}
+
+	return $total_size;
+}
+
+function get_database_size() {
+
+	global $wpdb;
+	
+	$size = 0;
+	$res  = $wpdb->get_results( 'SHOW TABLE STATUS FROM `' . DB_NAME . '`', ARRAY_A );
+
+	foreach ( $res as $r ) {
+		$size += (float) $r['Data_length'];
+	}
+
+	return $size;
+}
+
+function format_size( $size ) {
+
+	$mod   = 1024;
+	$units = explode( ' ','B KB MB GB TB PB' );
+
+	for ( $i = 0; $size > $mod; $i++ ) {
+		$size /= $mod;
+	}
+
+	return round( $size, 2 ) . ' ' . $units[$i];
+}
+
+// TODO determine paths
+function get_core_dir() {
+///srv/www/wpremote.dev/wordpress/
+	return( ABSPATH );
+}
+
+function get_uploads_dir() {
+	return( "/srv/www/wpremote.dev/content/uploads" );
+}
