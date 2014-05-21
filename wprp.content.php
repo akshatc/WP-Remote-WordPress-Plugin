@@ -14,6 +14,10 @@ function _wprp_get_content_summary() {
 	$num_themes          = count( wp_get_themes() );
 	$num_plugins         = count( get_plugins() );
 	$num_users           = count_users();
+	$site_size           = 1;
+	$database_size       = 2;
+	$wordpress_size      = 3;
+	$uploads_size        = 4;
 
 	$content_summary     = array(
 		'post_count'          => ( ! empty( $num_posts->publish ) ) ? $num_posts->publish : 0,
@@ -22,7 +26,11 @@ function _wprp_get_content_summary() {
 		'comment_count'       => ( ! empty( $num_comments->total_comments ) ) ? $num_comments->total_comments: 0,
 		'theme_count'         => $num_themes,
 		'plugin_count'        => $num_plugins,
-		'user_count'          => ( ! empty( $num_users['total_users'] ) ) ? $num_users['total_users'] : 0
+		'user_count'          => ( ! empty( $num_users['total_users'] ) ) ? $num_users['total_users'] : 0,
+		'site_size'           => $site_size,
+		'database_size'       => $database_size,
+		'wordpress_size'      => $wordpress_size,
+		'uploads_size'        => $uploads_size
 	);
 
 	return $content_summary;
