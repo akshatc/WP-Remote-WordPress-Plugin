@@ -48,7 +48,7 @@ If this is the case then just give it a little more time and try again later.
  
 Backups are stored on Amazon S3 using AES-256 Server Side Encryption.
  
-**What if I want I want to back up my site to another destination?**
+**What if I want to back up my site to another destination?**
  
 You can also store your backups on your own Amazon S3, Dropbox or you can upload backups to your own server via FTP or SFTP.
  
