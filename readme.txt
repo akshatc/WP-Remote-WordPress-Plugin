@@ -29,6 +29,41 @@ You can email us at support@wpremote.com for support.
 2. Activate the plugin.
 3. Sign up for an account at wpremote.com and add your site.
 
+== Frequently Asked Questions ==
+
+** I've forgotten my password **
+Use the “I’ve forgotten my password” link on the log-in screen to generate an email with a link to reset your password.
+
+https://wpremote.com/login/lost-password/
+ 
+** How do I fix the “Does not appear to be a valid URL” message? **
+
+1. If the domain name has been typed incorrectly:
+The easiest way to ensure you have the correct domain name is to open your site in a different browser window and then copy and paste the site address.
+
+2. If you have made recent changes to your DNS/Nameservers records:
+If this is the case then just give it a little more time and try again later.
+ 
+**Where does WP Remote store the Automatic Backup files?**
+ 
+Backups are stored on Amazon S3 using AES-256 Server Side Encryption.
+ 
+**What if I want to back up my site to another destination?**
+ 
+You can also store your backups on your own Amazon S3, Dropbox or you can upload backups to your own server via FTP or SFTP.
+ 
+**How do I restore my site from a backup?**
+ 
+WP Remote does not provide an automated way to restore your site. We recommend downloading a copy of your backup, unzipping it and then uploading to your site's server via FTP/SSH. Database importing can be done via your PHPMyAdmin interface or a similar tool - Your database backup can be found in the root folder of your downloaded backup zip.
+ 
+**Further Support & Feedback**
+
+General support questions should be posted in the <a href="http://wordpress.org/support/plugin/wpremote">WordPress support forums.</a>
+
+For development issues, feature requests or anybody wishing to help out with development checkout <a href="https://github.com/humanmade/backupwordpress/">BackUpWordPress on GitHub.</a>
+
+You can email us at support@wpremote.com for support.
+
 == Screenshots ==
 
 1. The WP Remote dashboard at wpremote.com
