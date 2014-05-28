@@ -63,6 +63,7 @@ function get_database_size() {
 
 	foreach ( $res as $r ) {
 		$size += (float) $r['Data_length'];
+		$size += (float) $r['Index_length'];
 	}
 
 	return $size;
