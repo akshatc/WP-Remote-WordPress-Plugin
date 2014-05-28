@@ -57,7 +57,7 @@ function foldersize( $path ) {
 function get_database_size() {
 
 	global $wpdb;
-	
+
 	$size = 0;
 	$res  = $wpdb->get_results( 'SHOW TABLE STATUS FROM `' . DB_NAME . '`', ARRAY_A );
 
@@ -80,12 +80,13 @@ function format_size( $size ) {
 	return round( $size, 2 ) . ' ' . $units[$i];
 }
 
-// TODO determine paths
 function get_core_dir() {
-///srv/www/wpremote.dev/wordpress/
 	return( ABSPATH );
 }
 
 function get_uploads_dir() {
-	return( "/srv/www/wpremote.dev/content/uploads" );
+
+	$uploads_dir = wp_upload_dir();
+
+	return( $uploads_dir['basedir'] );
 }
