@@ -7,9 +7,8 @@ function wprp_get_incompatible_plugins() {
 
 	// Plugins to check for.
 	$security_plugins = array(
-		__( 'BulletProof Security', 'wpremote' ),
 		__( 'Wordfence Security', 'wpremote' ),
-		__( 'Better WP Security', 'wpremote' ),
+		__( 'iThemes Security', 'wpremote' ),
 		__( 'Wordpress Firewall 2', 'wpremote' )
 	);
 
@@ -51,7 +50,7 @@ function wprp_security_admin_notice() {
 
 				<?php _e( 'The plugin', 'wpremote' );?> <strong><?php echo esc_attr( $plugin_name ); ?></strong> <?php _e( 'may cause issues with WP Remote.', 'wpremote' ); ?>
 
-				<a href="https://wpremote.com/support-center/troubleshooting/my-site-is-showing-up-as-red/#<?php echo esc_attr( $plugin_name ); ?>" title="WPRemote Support Center"> <?php _e( 'Click here for instructions on how to resolve this issue', 'wpremote' ); ?> </a>
+				<a href="https://wpremote.com/support-center/troubleshooting/incorrect-version-numbers-false-positives/" target="_blank"> <?php _e( 'Click here for instructions on how to resolve this issue', 'wpremote' ); ?> </a>
 
 			</p>
 
