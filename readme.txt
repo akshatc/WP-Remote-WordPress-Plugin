@@ -75,6 +75,8 @@ You can email us at support@wpremote.com for support.
 #### 2.7.5 (10 Sept 2014)
 
 * Fixed WordPress 4.0 issues with json_encode of a WP_Error object which would result in malformed responses from the WP_Remote WordPress plugin
+* Added FAQ to readme
+* Updated incompatible plugins list
 
 #### 2.7.3 (12 May 2014)
 
