@@ -692,6 +692,16 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 }
 
+foreach ( $actions as $key => $action ) {
+
+	if ( is_wp_error( $action ) ) {
+
+		$actions[$key] = (object) array(
+			'errors' => $action->errors
+		);
+	}
+}
+
 echo json_encode( $actions );
 
 exit;
