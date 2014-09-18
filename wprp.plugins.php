@@ -96,7 +96,9 @@ function _wprp_update_plugin( $plugin_file, $args ) {
 	if ( ! _wpr_check_filesystem_access() )
 		return new WP_Error( 'filesystem-not-writable', __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
-	$is_active = is_plugin_active( $plugin_file );
+	$is_active         = is_plugin_active( $plugin_file );
+	$is_active_network = is_plugin_active_for_network( $plugin_file );
+
 	foreach( get_plugins() as $path => $maybe_plugin ) {
 
 		if ( $path == $plugin_file ) {
@@ -167,7 +169,7 @@ function _wprp_update_plugin( $plugin_file, $args ) {
 	// If the plugin was activited, we have to re-activate it
 	// but if activate_plugin() fatals, then we'll just have to return 500
 	if ( $is_active )
-		activate_plugin( $plugin_file, '', false, true );
+		activate_plugin( $plugin_file, '', $is_active_network, true );
 
 	return array( 'status' => 'success' );
 }
