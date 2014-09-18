@@ -44,7 +44,8 @@ function _wprp_get_themes() {
 		// WordPress 3.4+
 		if ( is_object( $theme ) && is_a( $theme, 'WP_Theme' ) ) {
 
-			$new_version = isset( $current->response[$theme['Template']] ) ? $current->response[$theme['Template']]['new_version'] : null;
+			/* @var $theme WP_Theme */
+			$new_version = isset( $current->response[$theme->get_stylesheet()] ) ? $current->response[$theme->get_stylesheet()]['new_version'] : null;
 
 			$theme_array = array(
 				'Name'           => $theme->get( 'Name' ),
@@ -63,7 +64,7 @@ function _wprp_get_themes() {
 
 		} else {
 
-			$new_version = isset( $current->response[$theme['Template']] ) ? $current->response[$theme['Template']]['new_version'] : null;
+			$new_version = isset( $current->response[$theme['Stylesheet']] ) ? $current->response[$theme['Stylesheet']]['new_version'] : null;
 
 			if ( $active == $theme['Name'] )
 				$themes[$key]['active'] = true;
