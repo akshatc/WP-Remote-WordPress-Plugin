@@ -72,6 +72,11 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### 2.7.6 (18 Sept 2014)
+
+* Fixed issue with plugins not being reactivated when updated on an MU WordPress install
+* Fixed issue with child themes reporting an available update whenever the parent theme has an available update
+
 #### 2.7.5 (10 Sept 2014)
 
 * Fixed WordPress 4.0 issues with json_encode of a WP_Error object which would result in malformed responses from the WP_Remote WordPress plugin
