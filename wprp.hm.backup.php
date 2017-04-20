@@ -443,11 +443,20 @@ class WPRP_HM_Backup {
     public function get_path() {
 
 		if ( empty( $this->path ) )
-			$this->set_path( self::conform_dir( hmbkp_path_default() ) );
+			$this->set_path( self::conform_dir( self::get_path_default() ) );
 
         return $this->path;
 
     }
+
+	/**
+	 * Get default backup path to save to.
+	 *
+	 * @return string
+	 */
+	protected function get_path_default() {
+		return WP_CONTENT_DIR . '/backups';
+	}
 
 	/**
 	 * Set the directory backups are saved to
