@@ -205,26 +205,37 @@ function _wprp_install_plugin( $plugin, $args = array() ) {
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-plugin-upgrader-skin.php';
 
-	// Access the plugins_api() helper function
-	include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-	$api_args = array(
-		'slug' => $plugin,
-		'fields' => array( 'sections' => false )
-		);
-	$api = plugins_api( 'plugin_information', $api_args );
+	if ( ! empty( $args['zip_url'] ) ) {
 
-	if ( is_wp_error( $api ) )
-		return $api;
+		$zip_url = $args['zip_url'];
+
+	} else {
+
+		// Access the plugins_api() helper function
+		include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+		$api_args = array(
+			'slug' => $plugin,
+			'fields' => array( 'sections' => false )
+			);
+		$api = plugins_api( 'plugin_information', $api_args );
+
+		if ( is_wp_error( $api ) )
+			return $api;
+
+		$zip_url = $api->download_link;
+
+		// The best way to get a download link for a specific version :(
+		// Fortunately, we can depend on a relatively consistent naming pattern
+		if ( ! empty( $args['version'] ) && 'stable' != $args['version'] )
+			$zip_url = str_replace( $api->version . '.zip', $args['version'] . '.zip', $zip_url );
+
+	}
 
 	$skin = new WPRP_Plugin_Upgrader_Skin();
 	$upgrader = new Plugin_Upgrader( $skin );
 
-	// The best way to get a download link for a specific version :(
-	// Fortunately, we can depend on a relatively consistent naming pattern
-	if ( ! empty( $args['version'] ) && 'stable' != $args['version'] )
-		$api->download_link = str_replace( $api->version . '.zip', $args['version'] . '.zip', $api->download_link );
+	$result = $upgrader->install( $zip_url );
 
-	$result = $upgrader->install( $api->download_link );
 	if ( is_wp_error( $result ) )
 		return $result;
 	else if ( ! $result )

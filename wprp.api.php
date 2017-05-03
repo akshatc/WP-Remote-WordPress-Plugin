@@ -176,6 +176,7 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 			$api_args = array(
 					'version'      => sanitize_text_field( WPR_API_Request::get_arg( 'version' ) ),
+					'zip_url'      => esc_url_raw( WPR_API_Request::get_arg( 'zip_url' ) ),
 				);
 			$actions[$action] = _wprp_install_plugin( sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ), $api_args );
 
