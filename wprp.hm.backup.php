@@ -1987,7 +1987,7 @@ class WPRP_HM_Backup {
 	    // Checks whether the field is an integer or not
 	    for ( $j = 0; $j < $fields_cnt; $j++ ) {
 
-	    	$field_obj = mysqli_fetch_field_direct( $result, $j )
+	    	$field_obj = mysqli_fetch_field_direct( $result, $j );
 
 	    	$field_set[$j] = $this->sql_backquote( $field_obj->name );
 	    	$type = $field_obj->type;
