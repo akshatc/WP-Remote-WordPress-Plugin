@@ -1,9 +1,9 @@
 === The WP Remote WordPress Plugin ===
-Contributors: humanmade, willmot, joehoyle, danielbachhuber, mattheu, pauldewouters, cuvelier, tcrsavage
+Contributors: jeramynirodha, humanmade, willmot, joehoyle, danielbachhuber, mattheu, pauldewouters, cuvelier, tcrsavage
 Tags: wpremote, remote administration, multiple wordpress
 Requires at least: 3.0
-Tested up to: 4.7
-Stable tag: 2.7.7
+Tested up to: 4.8
+Stable tag: 2.7.8
 
 WP Remote is a free web app that enables you to easily manage all of your WordPress powered sites from one place.
 
@@ -71,6 +71,10 @@ You can email us at support@wpremote.com for support.
 3. Download nightly Automatic Backups (Premium feature).
 
 == Changelog ==
+
+#### 2.7.8 (20 July 2017)
+
+* Replaced mysql class and functions with mysqli
 
 #### 2.7.7 (20 April 2017)
 

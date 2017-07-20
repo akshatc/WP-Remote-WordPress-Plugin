@@ -3,12 +3,12 @@
 /*
 Plugin Name: WP Remote
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>. <strong>Deactivate to clear your API Key.</strong>
-Version: 2.7.7
-Author: Human Made Limited
-Author URI: http://hmn.md/
+Version: 2.7.8
+Author: maekit
+Author URI: https://maek.it/
 */
 
-/*  Copyright 2011 Human Made Limited  (email : hello@humanmade.co.uk)
+/*  Copyright 2017 maekit  (email : hello@maek.it)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
