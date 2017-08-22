@@ -84,8 +84,15 @@ global $wprp_noauth_nonce;
 $wprp_noauth_nonce = wp_create_nonce( 'wprp_calculate_backup_size' );
 
 // Log in as admin
-// TODO what about if admin use doesn't exists?
-wp_set_current_user( 1 );
+$users_query = new WP_User_Query( array(
+    'role' => 'administrator',
+    'orderby' => 'ID'
+) );
+foreach ($users_query->get_results() as $user) {
+    if (!$user) continue;
+    wp_set_current_user( $user->ID );
+    break;
+}
 
 include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 
