@@ -88,10 +88,18 @@ $users_query = new WP_User_Query( array(
     'role' => 'administrator',
     'orderby' => 'ID'
 ) );
-foreach ($users_query->get_results() as $user) {
-    if (!$user) continue;
-    wp_set_current_user( $user->ID );
-    break;
+wp_set_current_user(1);
+if ($users_query->get_total()) {
+    foreach ($users_query->get_results() as $user) {
+        if (!$user) {
+            continue;
+        }
+        wp_set_current_user($user->ID);
+        break;
+    }
+    if (empty(wp_get_current_user())) {
+        wp_set_current_user(1);
+    }
 }
 
 include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
