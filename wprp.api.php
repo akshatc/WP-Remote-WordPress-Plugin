@@ -94,10 +94,10 @@ if ($users_query->get_total()) {
         if (!$user) {
             continue;
         }
-        wp_set_current_user($user->ID);
+        $currentUser = wp_set_current_user($user->ID);
         break;
     }
-    if (empty(wp_get_current_user())) {
+    if (empty($currentUser)) {
         wp_set_current_user(1);
     }
 }
