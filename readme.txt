@@ -72,6 +72,10 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
+#### 2.8.0 (30 August 2017)
+
+* Modify plugin activation and return plugin active status to WP Remote
+
 #### 2.7.9.2 (25 August 2017)
 
 * Bug fix for php 5.4 and lower

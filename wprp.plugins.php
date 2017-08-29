@@ -151,27 +151,30 @@ function _wprp_update_plugin( $plugin_file, $args ) {
 	$data = ob_get_contents();
 	ob_clean();
 
-	if ( $manage_wp_plugin_update )
+	if ( isset($manage_wp_plugin_update) && $manage_wp_plugin_update )
 		remove_filter( 'pre_site_transient_update_plugins', '_wprp_forcably_filter_update_plugins' );
 
-	if ( ! empty( $skin->error ) )
+    // If the plugin was activited, we have to re-activate it
+    // but if activate_plugin() fatals, then we'll just have to return 500
+    if ( $is_active )
+        activate_plugin( $plugin_file, '', $is_active_network, true );
 
-		return new WP_Error( 'plugin-upgrader-skin', $upgrader->strings[$skin->error] );
+	if ( ! empty( $skin->error ) ) {
+        return new WP_Error('plugin-upgrader-skin', $upgrader->strings[$skin->error]);
+    } else if ( is_wp_error( $result ) ) {
+        return $result;
+    } else if ( ( ! $result && ! is_null( $result ) ) || $data ) {
+        return new WP_Error('plugin-update', __('Unknown error updating plugin.', 'wpremote'));
+    }
 
-	else if ( is_wp_error( $result ) )
+    $active_status = [
+        'was_active'            => $is_active,
+        'was_active_network'    => $is_active_network,
+        'is_active'             =>  is_plugin_active( $plugin_file ),
+        'is_active_network'     =>  is_plugin_active_for_network( $plugin_file ),
+    ];
 
-		return $result;
-
-	else if ( ( ! $result && ! is_null( $result ) ) || $data )
-
-		return new WP_Error( 'plugin-update', __( 'Unknown error updating plugin.', 'wpremote' ) );
-
-	// If the plugin was activited, we have to re-activate it
-	// but if activate_plugin() fatals, then we'll just have to return 500
-	if ( $is_active )
-		activate_plugin( $plugin_file, '', $is_active_network, true );
-
-	return array( 'status' => 'success' );
+	return array( 'status' => 'success', 'active_status' => $active_status );
 }
 
 /**
