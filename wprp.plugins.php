@@ -167,12 +167,12 @@ function _wprp_update_plugin( $plugin_file, $args ) {
         return new WP_Error('plugin-update', __('Unknown error updating plugin.', 'wpremote'));
     }
 
-    $active_status = [
+    $active_status = array(
         'was_active'            => $is_active,
         'was_active_network'    => $is_active_network,
         'is_active'             =>  is_plugin_active( $plugin_file ),
         'is_active_network'     =>  is_plugin_active_for_network( $plugin_file ),
-    ];
+    );
 
 	return array( 'status' => 'success', 'active_status' => $active_status );
 }
