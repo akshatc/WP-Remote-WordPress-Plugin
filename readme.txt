@@ -9,15 +9,18 @@ WP Remote is a free web app that enables you to easily manage all of your WordPr
 
 == Description ==
 
-The WP Remote WordPress Plugin works with [WP Remote](https://wpremote.com/) to enable you to remotely manage all your WordPress sites.
+The WP Remote WordPress Plugin works with [WP Remote](https://wpremote.com/) to enable you to remotely manage and update all your WordPress sites.
 
 = Features =
 
-* Track all your WordPress sites from one place.
-* Track the WordPress version each site is running and easily update.
-* Track all your plugins and themes and 1 click update them.
 * Free to monitor and update an unlimited number of sites.
-* Back up your database and files.
+* Track and update all of your WordPress sites from one place.
+* Track and update all of your WordPress plugins and themes from one place.
+* Schedule automatic backups to AWS, SFTP, FTP.
+* Perform manual backups of your WordPress database and files.
+* Download previous backups from the one place.
+* Install and activate plugins and themes from the one place.
+* Early beta access to [maekit](https://maek.it/) web design business platform.
 
 = Support =
 
@@ -46,7 +49,7 @@ If this is the case then just give it a little more time and try again later.
  
 **What if I want to back up my site to another destination?**
  
-You can also store your backups on your own Amazon S3, Dropbox or you can upload backups to your own server via FTP or SFTP.
+You can also store your backups on your own Amazon S3 or you can upload backups to your own server via FTP or SFTP.
  
 **How do I restore my site from a backup?**
  
@@ -255,4 +258,4 @@ You can email us at support@wpremote.com for support.
 
 ## Contribution guidelines ##
 
-see https://github.com/humanmade/WP-Remote-WordPress-Plugin/blob/master/CONTRIBUTING.md
+see https://github.com/MyWorkAus/WP-Remote-WordPress-Plugin/blob/master/CONTRIBUTING.md
