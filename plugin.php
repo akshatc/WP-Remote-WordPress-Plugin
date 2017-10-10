@@ -2,8 +2,8 @@
 
 /*
 Plugin Name: WP Remote
-Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>. <strong>Deactivate to clear your API Key.</strong>
-Version: 2.8.0.1
+Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
+Version: 2.8.1
 Author: maekit
 Author URI: https://maek.it/
 */
@@ -26,6 +26,7 @@ Author URI: https://maek.it/
 */
 
 define( 'WPRP_PLUGIN_SLUG', 'wpremote' );
+define( 'WPRP_PLUGIN_BASE',  plugin_basename(__FILE__) );
 define( 'WPRP_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
 if ( ! defined( 'WPR_URL' ) )

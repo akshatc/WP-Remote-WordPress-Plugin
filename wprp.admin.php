@@ -79,9 +79,36 @@ add_action( 'admin_notices', 'wprp_api_key_added_admin_notice' );
  *
  * @return null
  */
-function wprp_deactivate() {
+function delete_wpr_options() {
 	delete_option( 'wpr_api_key' );
 }
-// Plugin activation and deactivation
-add_action( 'activate_' . WPRP_PLUGIN_SLUG . '/plugin.php', 'wprp_deactivate' );
-add_action( 'deactivate_' . WPRP_PLUGIN_SLUG . '/plugin.php', 'wprp_deactivate' );
+// Plugin uninstall hook
+register_uninstall_hook(WPRP_PLUGIN_BASE, 'delete_wpr_options');
+
+/**
+ * Clear API key from plugin page setting link
+ */
+function plugin_add_settings_link( $links ) {
+    $settings_link = '<a href="options-general.php?page=wpremote">' . __( 'Clear API key' ) . '</a>';
+    array_unshift($links, $settings_link);
+    return $links;
+}
+
+add_filter( "plugin_action_links_" . WPRP_PLUGIN_BASE, 'plugin_add_settings_link' );
+
+/**
+ * Register WPR Pages
+ */
+function wpr_register_pages() {
+    add_submenu_page( null, __('WP Remote Settings'), __('WP Remote Settings'), 'activate_plugins', 'wpremote', 'wpr_settings_page' );
+}
+add_action('admin_menu', 'wpr_register_pages');
+
+/**
+ * Show settings page
+ *  TODO: Implement a more comprehensive setting page
+ */
+function wpr_settings_page( ) {
+    delete_wpr_options();
+    exit( wp_redirect( admin_url( 'plugins.php' ) ) );
+}

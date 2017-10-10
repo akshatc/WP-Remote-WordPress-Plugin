@@ -3,7 +3,7 @@ Contributors: jeramynirodha, bmett, humanmade, willmot, joehoyle, danielbachhube
 Tags: wpremote, remote administration, multiple wordpress
 Requires at least: 3.0
 Tested up to: 4.8.1
-Stable tag: 2.8.0.1
+Stable tag: 2.8.1
 
 WP Remote is a free web app that enables you to easily manage all of your WordPress powered sites from one place.
 
@@ -44,10 +44,6 @@ The easiest way to ensure you have the correct domain name is to open your site 
 2. If you have made recent changes to your DNS/Nameservers records:
 If this is the case then just give it a little more time and try again later.
  
-**Where does WP Remote store the Automatic Backup files?**
- 
-Backups are stored on Amazon S3 using AES-256 Server Side Encryption.
- 
 **What if I want to back up my site to another destination?**
  
 You can also store your backups on your own Amazon S3, Dropbox or you can upload backups to your own server via FTP or SFTP.
@@ -60,17 +56,21 @@ WP Remote does not provide an automated way to restore your site. We recommend d
 
 General support questions should be posted in the <a href="http://wordpress.org/support/plugin/wpremote">WordPress support forums.</a>
 
-For development issues, feature requests or anybody wishing to help out with development checkout <a href="https://github.com/humanmade/backupwordpress/">BackUpWordPress on GitHub.</a>
-
 You can email us at support@wpremote.com for support.
 
 == Screenshots ==
 
 1. The WP Remote dashboard at wpremote.com
 2. See all of the plugins and themes needing update across all Sites in one view.
-3. Download nightly Automatic Backups (Premium feature).
+3. Download nightly Automatic Backups.
 
 == Changelog ==
+
+#### 2.8.1 (10 October 2017)
+
+* Add link to clear API key from the plugin settings page.
+* Prevent WP Remote from clearing the API key on deactivation
+* Clear API key on uninstall
 
 #### 2.8.0.1 (31 August 2017)
 
