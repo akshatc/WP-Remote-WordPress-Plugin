@@ -88,13 +88,13 @@ register_uninstall_hook(WPRP_PLUGIN_BASE, 'delete_wpr_options');
 /**
  * Clear API key from plugin page setting link
  */
-function plugin_add_settings_link( $links ) {
+function wprp_plugin_add_settings_link( $links ) {
     $settings_link = '<a href="options-general.php?page=wpremote">' . __( 'Clear API key' ) . '</a>';
     array_unshift($links, $settings_link);
     return $links;
 }
 
-add_filter( "plugin_action_links_" . WPRP_PLUGIN_BASE, 'plugin_add_settings_link' );
+add_filter( "plugin_action_links_" . WPRP_PLUGIN_BASE, 'wprp_plugin_add_settings_link' );
 
 /**
  * Register WPR Pages
