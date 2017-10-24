@@ -309,3 +309,8 @@ function wprp_format_user_obj( $user_obj ) {
 
 	return $new_user_obj;
 }
+
+// == CLI == //
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+    require_once 'cli/wprp.cli.php';
+}
