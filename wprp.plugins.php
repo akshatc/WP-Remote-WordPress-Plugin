@@ -160,6 +160,9 @@ function _wprp_update_plugin( $plugin_file, $args ) {
         activate_plugin( $plugin_file, '', $is_active_network, true );
 
 	if ( ! empty( $skin->error ) ) {
+        if ( is_wp_error( $skin->error ) ) {
+            return $skin->error;
+        }
         return new WP_Error('plugin-upgrader-skin', $upgrader->strings[$skin->error]);
     } else if ( is_wp_error( $result ) ) {
         return $result;
