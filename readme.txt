@@ -69,9 +69,11 @@ You can email us at support@wpremote.com for support.
 
 == Changelog ==
 
-#### 2.8.3
+#### 2.8.3 (21 November 2017)
 
-*
+* Add endpoint to validate plugin update
+* Improved error handling
+* Fix 'Clear Api' redirect
 
 #### 2.8.2 (25 October 2017)
 
