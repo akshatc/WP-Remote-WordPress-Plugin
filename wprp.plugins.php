@@ -79,8 +79,9 @@ function _wprp_get_plugins() {
  * Update a plugin
  *
  * @access private
- * @param mixed $plugin
- * @return array
+ * @param $plugin_file
+ * @param $args
+ * @return array|WP_Error
  */
 function _wprp_update_plugin( $plugin_file, $args ) {
 	global $wprp_zip_update;
@@ -159,8 +160,15 @@ function _wprp_update_plugin( $plugin_file, $args ) {
     if ( $is_active )
         activate_plugin( $plugin_file, '', $is_active_network, true );
 
-	if ( ! empty( $skin->error ) ) {
-        return new WP_Error('plugin-upgrader-skin', $upgrader->strings[$skin->error]);
+    if ( ! empty( $skin->error ) ) {
+        $msg = $upgrader->strings[$skin->error];
+        if (is_wp_error($skin->error)) {
+            $msg = $skin->error->get_error_message();
+        }
+        if (empty($msg)) {
+            $msg = __('Unknown error updating plugin.', 'wpremote');
+        }
+        return new WP_Error('plugin-upgrader-skin', $msg);
     } else if ( is_wp_error( $result ) ) {
         return $result;
     } else if ( ( ! $result && ! is_null( $result ) ) || $data ) {
@@ -175,6 +183,30 @@ function _wprp_update_plugin( $plugin_file, $args ) {
     );
 
 	return array( 'status' => 'success', 'active_status' => $active_status );
+}
+
+/**
+ * Validate Plugin Update
+ *
+ * @param $plugin_file
+ * @return array|WP_Error
+ */
+function _wprp_validate($plugin_file)
+{
+    $plugin_status = false;
+    foreach( get_plugins() as $path => $maybe_plugin ) {
+        if ( $path == $plugin_file ) {
+            $plugin_status = true;
+            break;
+        }
+    }
+    if (!$plugin_status) {
+        return new WP_Error('plugin-missing', __('Plugin has gone missing.', 'wpremote'));
+    }
+    return array(
+        'status' => 'success',
+        'plugin_status' => is_plugin_active( $plugin_file )
+    );
 }
 
 /**

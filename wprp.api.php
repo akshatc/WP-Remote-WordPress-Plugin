@@ -187,6 +187,10 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		break;
 
+        case 'validate_plugin' :
+            $actions[$action] = _wprp_validate( sanitize_text_field( WPR_API_Request::get_arg( 'plugin' ) ) );
+        break;
+
 		case 'install_plugin' :
 
 			$api_args = array(

@@ -110,5 +110,7 @@ add_action('admin_menu', 'wpr_register_pages');
  */
 function wpr_settings_page( ) {
     delete_wpr_options();
-    exit( wp_redirect( admin_url( 'plugins.php' ) ) );
+    // TODO : Build proper settings page
+    echo 'Successfully cleared API key. Redirecting back to the plugins page...';
+    echo '<meta http-equiv="refresh" content="0; url=' . admin_url( 'plugins.php' ) . '" />';
 }
