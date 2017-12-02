@@ -164,7 +164,14 @@ function _wprp_update_plugin( $plugin_file, $args ) {
         if (is_wp_error($skin->error)) {
             return $skin->error;
         }
-        return new WP_Error('plugin-upgrader-skin', __('Unknown error updating plugin.', 'wpremote'));
+        if ($skin->error == 'up_to_date') {
+            return new WP_Error('up_to_date', __('Plugin already up to date.', 'wpremote'));
+        }
+        $msg = __('Unknown error updating plugin.', 'wpremote');
+        if (is_string($skin->error)) {
+            $msg = $skin->error;
+        }
+        return new WP_Error('plugin-upgrader-skin', $msg);
     } else if ( is_wp_error( $result ) ) {
         return $result;
     } else if ( ( ! $result && ! is_null( $result ) ) || $data ) {
