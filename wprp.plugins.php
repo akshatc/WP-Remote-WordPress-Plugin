@@ -161,14 +161,10 @@ function _wprp_update_plugin( $plugin_file, $args ) {
         activate_plugin( $plugin_file, '', $is_active_network, true );
 
     if ( ! empty( $skin->error ) ) {
-        $msg = $upgrader->strings[$skin->error];
         if (is_wp_error($skin->error)) {
-            $msg = $skin->error->get_error_message();
+            return $skin->error;
         }
-        if (empty($msg)) {
-            $msg = __('Unknown error updating plugin.', 'wpremote');
-        }
-        return new WP_Error('plugin-upgrader-skin', $msg);
+        return new WP_Error('plugin-upgrader-skin', __('Unknown error updating plugin.', 'wpremote'));
     } else if ( is_wp_error( $result ) ) {
         return $result;
     } else if ( ( ! $result && ! is_null( $result ) ) || $data ) {
