@@ -71,7 +71,7 @@ You can email us at support@wpremote.com for support.
 
 #### 2.8.4.1 (3 December 2017)
 
-* Modify error message response in certain situations
+* Correct handling of up_to_date error
 
 #### 2.8.4 (3 December 2017)
 
