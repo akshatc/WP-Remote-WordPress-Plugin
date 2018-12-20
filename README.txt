@@ -8,6 +8,9 @@ Stable tag: 3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
+PLEASE NOTE: This branch is still in development. DO NOT use it in production.
+Use the master branch if you need to work on the current version of the plugin.
+
 WP Remote is a free web app that enables you to easily manage all of your WordPress powered sites from one place.
 
 == Description ==
