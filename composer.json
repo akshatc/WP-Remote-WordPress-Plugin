@@ -1,0 +1,16 @@
+{
+    "name": "mywork/wpremote",
+    "description": "Remote backup and update manager",
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.2"
+    },
+    "autoload" : {
+        "classmap": [
+            "includes/",
+            "admin/",
+            "public/",
+            "repo/"
+        ]
+    }
+}
