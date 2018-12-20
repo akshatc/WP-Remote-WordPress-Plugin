@@ -19,8 +19,8 @@ class WPRP_Api_Endpoints {
     protected function plugin_api_endpoints()
     {
         $this->base = [
-            'path' => 'plugins',
-            'facade' => 'WPRP_PluginsFacade'
+            'path' => 'plugin',
+            'facade' => 'WPRP_PluginFacade'
         ];
 
         $this->route(

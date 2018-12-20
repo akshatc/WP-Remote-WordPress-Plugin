@@ -47,7 +47,7 @@ class WPRP_Facade {
     }
 }
 
-class WPRP_PluginsFacade extends WPRP_Facade {}
+class WPRP_PluginFacade extends WPRP_Facade {}
 
 class WPRP_BackupFacade extends WPRP_Facade {}
 

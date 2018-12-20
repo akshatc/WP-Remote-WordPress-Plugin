@@ -1,6 +1,6 @@
 <?php
 
-class WPRP_Plugins {
+class WPRP_Plugin {
 
     /**
      * Get Currently Installed Plugins
