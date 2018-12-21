@@ -29,4 +29,5 @@ return array(
     'WPRP_ThemeFacade' => $baseDir . '/repo/wprp-facade.php',
     'WPRP_Theme_Upgrader_Skin' => $baseDir . '/includes/class-wprp-theme-upgrader-skin.php',
     'WPRP_i18n' => $baseDir . '/includes/class-wprp-i18n.php',
+    'WPRP_scheduled_backup' => $baseDir . '/repo/wprp-scheduled-backup.php',
 );
