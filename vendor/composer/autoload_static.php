@@ -22,10 +22,13 @@ class ComposerStaticInit3a6a418b880000e159ffc437222682c5
         'WPRP_Facade' => __DIR__ . '/../..' . '/repo/wprp-facade.php',
         'WPRP_HM_Backup' => __DIR__ . '/../..' . '/repo/wprp-hm-backup.php',
         'WPRP_Loader' => __DIR__ . '/../..' . '/includes/class-wprp-loader.php',
+        'WPRP_Plugin' => __DIR__ . '/../..' . '/repo/wprp-plugin.php',
+        'WPRP_PluginFacade' => __DIR__ . '/../..' . '/repo/wprp-facade.php',
         'WPRP_Plugin_Upgrader_Skin' => __DIR__ . '/../..' . '/includes/class-wprp-plugin-upgrader-skin.php',
-        'WPRP_Plugins' => __DIR__ . '/../..' . '/repo/wprp-plugins.php',
-        'WPRP_PluginsFacade' => __DIR__ . '/../..' . '/repo/wprp-facade.php',
         'WPRP_Public' => __DIR__ . '/../..' . '/public/class-wprp-public.php',
+        'WPRP_Theme' => __DIR__ . '/../..' . '/repo/wprp-themes.php',
+        'WPRP_ThemeFacade' => __DIR__ . '/../..' . '/repo/wprp-facade.php',
+        'WPRP_Theme_Upgrader_Skin' => __DIR__ . '/../..' . '/includes/class-wprp-theme-upgrader-skin.php',
         'WPRP_i18n' => __DIR__ . '/../..' . '/includes/class-wprp-i18n.php',
     );
 

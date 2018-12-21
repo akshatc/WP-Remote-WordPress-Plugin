@@ -11,6 +11,7 @@ class WPRP_Api_Endpoints {
 	public function wprp_register_routes() {
         $this->plugin_api_endpoints();
         $this->backup_api_endpoints();
+        $this->theme_api_endpoints();
 	}
 
     /**
@@ -53,6 +54,37 @@ class WPRP_Api_Endpoints {
                 ],
             ]
         );
+    }
+
+
+
+    /**
+     * Plugin API Endpoints
+     */
+    protected function theme_api_endpoints()
+    {
+        $this->base = [
+            'path' => 'theme',
+            'facade' => 'WPRP_ThemeFacade'
+        ];
+
+        $this->route(
+            'list',
+            WP_REST_Server::READABLE,
+            'get_themes'
+        );
+
+        $this->route(
+            'update',
+            WP_REST_Server::READABLE,
+            'do_theme_update',
+            [
+                'theme' => [
+                    'required' => true
+                ],
+            ]
+        );
+
     }
 
 

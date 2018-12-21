@@ -83,7 +83,14 @@ class WPRP_Backup extends WPRP_HM_Backup {
         return true;
     }
 
-    public function do_plugin_backup()
+    /**
+     * Do Plugin Update
+     *
+     * @param $plugin
+     * @return bool|WP_Error
+     * @throws Exception
+     */
+    public function do_plugin_backup( $plugin )
     {
         @ignore_user_abort( true );
 
@@ -91,7 +98,44 @@ class WPRP_Backup extends WPRP_HM_Backup {
 
         $this->set_type('plugin');
 
-        $this->setPluginDetails();
+        $this->setPluginDetails( $plugin );
+
+        $this->set_start_timestamp();
+
+        $this->backup();
+
+        if ( ! file_exists( $this->get_archive_filepath() ) ) {
+            $errors = $this->get_errors();
+            if ( ! empty( $errors ) ) {
+                return new WP_Error('backup-failed', implode(', ', $errors));
+            }
+            return new WP_Error('backup-failed', __('Backup file is missing.', 'wpremote'));
+        }
+
+        return true;
+
+    }
+
+    /**
+     * Do Theme Update
+     *
+     * @param $theme
+     * @return bool|WP_Error
+     * @throws Exception
+     */
+    public function do_theme_backup($theme)
+    {
+        @ignore_user_abort( true );
+
+        $this->set_status( 'Starting backup...' );
+
+        // TODO : find type checks and update for themes
+        $this->set_type('theme');
+
+        $result = $this->setThemeDetails($theme); // TODO : fixup
+        if (is_wp_error($result)) {
+            return $result;
+        }
 
         $this->set_start_timestamp();
 
@@ -660,9 +704,9 @@ class WPRP_Backup extends WPRP_HM_Backup {
 
     }
 
-    public function setPluginDetails()
+    public function setPluginDetails( $plugin )
     {
-        $plugin_path = rtrim(plugin_dir_path($_GET['plugin']), '/');
+        $plugin_path = rtrim(plugin_dir_path($plugin), '/');
 
         $root = WP_PLUGIN_DIR . '/' . $plugin_path;
 
@@ -671,5 +715,22 @@ class WPRP_Backup extends WPRP_HM_Backup {
         $this->set_archive_filename($archive);
 
         $this->set_root($root);
+    }
+
+
+    public function setThemeDetails($theme)
+    {
+        $theme_path = get_theme_root() . '/' . $theme;
+
+        if ( ! is_dir($theme_path) ) {
+            return new WP_Error('theme-missing', 'Could not find the selected theme.');
+        }
+
+        $archive = 'theme-tmp-backup-' . $theme . '.zip';
+
+        $this->set_archive_filename($archive);
+
+        $this->set_root($theme_path);
+        return true;
     }
 }

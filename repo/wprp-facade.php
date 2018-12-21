@@ -21,7 +21,7 @@ class WPRP_Facade {
     {
         $class = get_called_class();
 
-        $class = rtrim($class, 'Facade');
+        $class = str_replace('Facade', '', $class);
 
         $instance = new $class();
 
@@ -48,6 +48,8 @@ class WPRP_Facade {
 }
 
 class WPRP_PluginFacade extends WPRP_Facade {}
+
+class WPRP_ThemeFacade extends WPRP_Facade {}
 
 class WPRP_BackupFacade extends WPRP_Facade {}
 

@@ -83,7 +83,7 @@ class WPRP_Plugin {
         $plugin_file = $request->get_param('plugin');
 
         $backupClass = new WPRP_Backup();
-        $backupClass->do_plugin_backup();
+        $backupClass->do_plugin_backup($plugin_file);
 
         try {
             $response = $this->update_plugin( $request );
@@ -118,7 +118,7 @@ class WPRP_Plugin {
         $plugin_file = $request->get_param('plugin');
 
         $backupClass = new WPRP_Backup();
-        $backupClass->do_plugin_backup();
+        $backupClass->do_plugin_backup( $plugin_file );
 
         try {
             $response = $this->update_plugin( $request );

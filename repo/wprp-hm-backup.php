@@ -674,7 +674,7 @@ class WPRP_HM_Backup {
      */
     public function set_type( $type ) {
 
-        if ( ! is_string( $type ) || ! in_array( $type, array( 'file', 'database', 'complete', 'plugin' ) ) ) {
+        if ( ! is_string( $type ) || ! in_array( $type, array( 'file', 'database', 'complete', 'plugin', 'theme' ) ) ) {
             throw new Exception(
                 sprintf(__('Invalid backup type %s must be one of (string) file, database or complete',
                 'wpremote'), '<code>' . $type . '</code>'));
@@ -893,7 +893,7 @@ class WPRP_HM_Backup {
         $this->do_action( 'hmbkp_backup_started' );
 
         // Backup database
-        if ( $this->get_type() !== 'file' && $this->get_type() !== 'plugin' ) {
+        if ( $this->get_type() === 'complete' || $this->get_type() === 'database' ) {
             $this->dump_database();
         }
 
