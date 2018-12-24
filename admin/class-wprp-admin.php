@@ -52,7 +52,8 @@ class WPRP_Admin {
 		$this->loader = $wprp->get_loader();
 		$this->plugin_name = $wprp->get_plugin_name();
 		$this->version = $wprp->get_version();
-	}
+        require_once plugin_dir_path( __FILE__ ) . '../vendor/autoload.php';
+    }
 
 	/**
 	 * Initialize core functions and hooks
@@ -66,7 +67,7 @@ class WPRP_Admin {
 	 * Add Hooks
 	 */
 	public function add_hooks() {
-//		$this->loader->add_action( 'admin_bar_menu', $this, 'add_plugins_link_to_admin_toolbar' );
+		$this->loader->add_action( 'admin_bar_menu', $this, 'add_plugins_link_to_admin_toolbar' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $this, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $this, 'enqueue_scripts' );
 

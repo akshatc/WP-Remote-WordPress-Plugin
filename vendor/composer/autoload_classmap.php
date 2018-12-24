@@ -25,9 +25,10 @@ return array(
     'WPRP_PluginFacade' => $baseDir . '/repo/wprp-facade.php',
     'WPRP_Plugin_Upgrader_Skin' => $baseDir . '/includes/class-wprp-plugin-upgrader-skin.php',
     'WPRP_Public' => $baseDir . '/public/class-wprp-public.php',
+    'WPRP_Remote_Backup' => $baseDir . '/repo/wprp-remote-backup.php',
+    'WPRP_Schedule' => $baseDir . '/repo/wprp-schedule.php',
     'WPRP_Theme' => $baseDir . '/repo/wprp-themes.php',
     'WPRP_ThemeFacade' => $baseDir . '/repo/wprp-facade.php',
     'WPRP_Theme_Upgrader_Skin' => $baseDir . '/includes/class-wprp-theme-upgrader-skin.php',
     'WPRP_i18n' => $baseDir . '/includes/class-wprp-i18n.php',
-    'WPRP_scheduled_backup' => $baseDir . '/repo/wprp-scheduled-backup.php',
 );

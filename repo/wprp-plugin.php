@@ -2,6 +2,11 @@
 
 class WPRP_Plugin {
 
+    protected $is_active;
+    protected $is_active_network;
+    protected $plugin_file;
+
+
     /**
      * Get Currently Installed Plugins
      *
@@ -78,35 +83,6 @@ class WPRP_Plugin {
 		return $plugins;
 	}
 
-	public function do_zip_update ( WP_REST_Request $request )
-    {
-        $plugin_file = $request->get_param('plugin');
-
-        $backupClass = new WPRP_Backup();
-        $backupClass->do_plugin_backup($plugin_file);
-
-        try {
-            $response = $this->update_plugin( $request );
-        } catch (\Exception $e) {
-            if (empty($response)) {
-                $response = new WP_Error('unknown-error', 'An unknown error occurred');
-            }
-        }
-
-        // == if plugin no longer exists, restore == //
-        $archive = $backupClass->get_path() . '/' . $backupClass->get_archive_filename();
-        if ( ! file_exists(WP_PLUGIN_DIR . '/' . $plugin_file) ){
-            $plugin_path = rtrim(plugin_dir_path($_GET['plugin']), '/');
-            $root = WP_PLUGIN_DIR . '/' . $plugin_path;
-            $backupClass->do_unzip($archive, $root);
-            unlink($archive);
-            return new WP_Error('rollback','Plugin update failed. The update has been rolled back.');
-        }
-        unlink($archive);
-
-        return $response;
-    }
-
     /**
      * Do Plugin Update
      *
@@ -115,31 +91,56 @@ class WPRP_Plugin {
      */
 	public function do_plugin_update ( WP_REST_Request $request )
     {
-        $plugin_file = $request->get_param('plugin');
+        $this->plugin_file = $request->get_param('plugin');
 
         $backupClass = new WPRP_Backup();
-        $backupClass->do_plugin_backup( $plugin_file );
+        $backup_response = $backupClass->do_plugin_backup( $this->plugin_file );
 
+        // Do we have a backup before continuing?
+        if ( is_wp_error($backup_response) ) {
+            return $backup_response;
+        }
+
+        $this->set_is_active();
+
+        // Wrap update in a try/catch so we can handle the failures with grace
         try {
             $response = $this->update_plugin( $request );
-        } catch (\Exception $e) {
-            if (empty($response)) {
-                $response = new WP_Error('unknown-error', 'An unknown error occurred');
-            }
+        } catch ( \Exception $e ) {}
+        if (empty($response)) {
+            $response = new WP_Error('unknown-error', 'An unknown error occurred');
         }
 
         // == if plugin no longer exists, restore == //
-        $archive = $backupClass->get_path() . '/' . $backupClass->get_archive_filename();
-        if ( ! file_exists(WP_PLUGIN_DIR . '/' . $plugin_file) ){
-            $plugin_path = rtrim(plugin_dir_path($_GET['plugin']), '/');
-            $root = WP_PLUGIN_DIR . '/' . $plugin_path;
-            $backupClass->do_unzip($archive, $root);
-            unlink($archive);
-            return new WP_Error('rollback','Plugin update failed. The update has been rolled back.');
+        $error = $this->validate_plugin_update( $backupClass );
+        if ( is_wp_error( $error )) {
+            return $error;
         }
-        unlink($archive);
 
         return $response;
+    }
+
+    /**
+     * Validate Plugin Update
+     *
+     * @param WPRP_Backup $backupClass
+     * @return bool|WP_Error
+     */
+    protected function validate_plugin_update( WPRP_Backup $backupClass )
+    {
+        $archive = $backupClass->get_path() . '/' . $backupClass->get_archive_filename();
+        $error = false;
+        if ( ! file_exists(WP_PLUGIN_DIR . '/' . $this->plugin_file) ){
+            $plugin_path = rtrim(plugin_dir_path($this->plugin_file), '/');
+
+            $backupClass->do_unzip($archive, WP_PLUGIN_DIR . '/' . $plugin_path);
+
+            $this->reActivate();
+
+            $error = new WP_Error('rollback','Plugin update failed. The update has been rolled back.');
+        }
+        unlink($archive);
+        return $error;
     }
 
     /**
@@ -148,10 +149,8 @@ class WPRP_Plugin {
      * @param WP_REST_Request $request
      * @return array|WP_Error
      */
-    public function update_plugin( WP_REST_Request $request ) {
-        $plugin_file = $request->get_param('plugin');
-
-        if ( ! file_exists(WP_PLUGIN_DIR . '/' . $plugin_file) ){
+    protected function update_plugin( WP_REST_Request $request ) {
+        if ( ! file_exists(WP_PLUGIN_DIR . '/' . $this->plugin_file) ){
             return new WP_Error('404', 'Plugin not found');
         }
 
@@ -163,8 +162,7 @@ class WPRP_Plugin {
         include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
         require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
-        $is_active         = is_plugin_active( $plugin_file );
-        $is_active_network = is_plugin_active_for_network( $plugin_file );
+        $this->set_is_active();
 
         $skin = new WPRP_Plugin_Upgrader_Skin();
         $upgrader = new Plugin_Upgrader( $skin );
@@ -176,7 +174,7 @@ class WPRP_Plugin {
 
         // Do the plugin upgrade
         ob_start();
-        $result = $upgrader->upgrade( $plugin_file );
+        $result = $upgrader->upgrade( $this->plugin_file );
         if ($data = ob_get_contents()) ob_end_clean();
 
         if (is_wp_error(
@@ -192,30 +190,31 @@ class WPRP_Plugin {
         $result = $lang_upgrader->upgrade( $upgrader );
         if ($data2 = ob_get_contents()) ob_end_clean();
 
-        // If the plugin was activited, we have to re-activate it
-        // but if activate_plugin() fatals, then we'll just have to return 500
-        if ( $is_active ) {
-            activate_plugin( $plugin_file, '', $is_active_network, true );
-        }
+        $this->reActivate();
 
         return array(
             'status' => 'success',
             'active_status' => array(
-                'was_active'            => $is_active,
-                'was_active_network'    => $is_active_network,
-                'is_active'             =>  is_plugin_active( $plugin_file ),
-                'is_active_network'     =>  is_plugin_active_for_network( $plugin_file ),
+                'was_active'            => $this->is_active,
+                'was_active_network'    => $this->is_active_network,
+                'is_active'             =>  is_plugin_active( $this->plugin_file ),
+                'is_active_network'     =>  is_plugin_active_for_network( $this->plugin_file ),
             ),
             'data' => $data
         );
     }
 
+    /**
+     * Refresh plugins or attach the zip file
+     *
+     * @param WP_REST_Request $request
+     */
     protected function refresh_plugins( WP_REST_Request $request )
     {
         if ( !empty($request->get_param('zip_url')) ) {
             global $wprp_zip_update;
             $wprp_zip_update = array(
-                'plugin_file' => $request->get_param('plugin'),
+                'plugin_file' => $this->plugin_file,
                 'package' => $request->get_param('zip_url'),
             );
             add_filter('pre_site_transient_update_plugins', [self::class, '_wprp_forcably_filter_update_plugins']);
@@ -242,35 +241,13 @@ class WPRP_Plugin {
         return $current;
     }
 
-
     /**
-     * Validate Plugin Update
+     * Handle any update errors and return them
      *
-     * @param $plugin_file
-     * @return array|WP_Error
-     */
-    public function validate( $plugin_file )
-    {
-        $plugin_status = false;
-        foreach( get_plugins() as $path => $maybe_plugin ) {
-            if ( $path == $plugin_file ) {
-                $plugin_status = true;
-                break;
-            }
-        }
-        if (!$plugin_status) {
-            return new WP_Error('plugin-missing', __('Plugin has gone missing.', 'wpremote'));
-        }
-        return array(
-            'status' => 'success',
-            'plugin_status' => is_plugin_active( $plugin_file )
-        );
-    }
-
-    /**
      * @param $skin
      * @param $result
      * @param $data
+     * @return WP_Error|null
      */
     protected function handleErrors($skin, $result, $data)
     {
@@ -295,6 +272,7 @@ class WPRP_Plugin {
                 }
             }
         }
+        return null;
     }
 
     /**
@@ -318,6 +296,25 @@ class WPRP_Plugin {
             }
         }
         rmdir($dirPath);
+    }
+
+    /**
+     * Reactive if active
+     */
+    protected function reActivate()
+    {
+        if ($this->is_active) {
+            activate_plugin($this->plugin_file, '', $this->is_active_network, true);
+        }
+    }
+
+    /**
+     * Set the is_active vars
+     */
+    protected function set_is_active()
+    {
+        $this->is_active = is_plugin_active($this->plugin_file);
+        $this->is_active_network = is_plugin_active_for_network($this->plugin_file);
     }
 
 }

@@ -88,7 +88,6 @@ class WPRP_Backup extends WPRP_HM_Backup {
      *
      * @param $plugin
      * @return bool|WP_Error
-     * @throws Exception
      */
     public function do_plugin_backup( $plugin )
     {

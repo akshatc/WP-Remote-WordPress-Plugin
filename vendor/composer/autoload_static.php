@@ -123,11 +123,12 @@ class ComposerStaticInit3a6a418b880000e159ffc437222682c5
         'WPRP_PluginFacade' => __DIR__ . '/../..' . '/repo/wprp-facade.php',
         'WPRP_Plugin_Upgrader_Skin' => __DIR__ . '/../..' . '/includes/class-wprp-plugin-upgrader-skin.php',
         'WPRP_Public' => __DIR__ . '/../..' . '/public/class-wprp-public.php',
+        'WPRP_Remote_Backup' => __DIR__ . '/../..' . '/repo/wprp-remote-backup.php',
+        'WPRP_Schedule' => __DIR__ . '/../..' . '/repo/wprp-schedule.php',
         'WPRP_Theme' => __DIR__ . '/../..' . '/repo/wprp-themes.php',
         'WPRP_ThemeFacade' => __DIR__ . '/../..' . '/repo/wprp-facade.php',
         'WPRP_Theme_Upgrader_Skin' => __DIR__ . '/../..' . '/includes/class-wprp-theme-upgrader-skin.php',
         'WPRP_i18n' => __DIR__ . '/../..' . '/includes/class-wprp-i18n.php',
-        'WPRP_scheduled_backup' => __DIR__ . '/../..' . '/repo/wprp-scheduled-backup.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

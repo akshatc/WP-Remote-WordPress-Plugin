@@ -668,20 +668,10 @@ class WPRP_HM_Backup {
     /**
      * Set the backup type
      *
-     * $type must be one of complete, database or file
      * @param string $type
-     * @throws Exception
      */
     public function set_type( $type ) {
-
-        if ( ! is_string( $type ) || ! in_array( $type, array( 'file', 'database', 'complete', 'plugin', 'theme' ) ) ) {
-            throw new Exception(
-                sprintf(__('Invalid backup type %s must be one of (string) file, database or complete',
-                'wpremote'), '<code>' . $type . '</code>'));
-        }
-
         $this->type = $type;
-
     }
 
     /**

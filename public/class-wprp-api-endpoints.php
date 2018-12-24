@@ -44,7 +44,7 @@ class WPRP_Api_Endpoints {
         $this->route(
             'update/zip',
             WP_REST_Server::READABLE,
-            'do_zip_update',
+            'do_plugin_update',
             [
                 'plugin' => [
                     'required' => true

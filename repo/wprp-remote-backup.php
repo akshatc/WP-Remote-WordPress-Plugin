@@ -54,20 +54,17 @@ class WPRP_Remote_Backup {
     /**
      * Get the current config
      *
-     * @return array
+     * @param $name
+     * @return array|string
      * @throws \Exception
      */
-    protected function config() : array
+    protected function config( $name = false )
     {
-        // GET CONFIG
-       /* $config = [
-            'type' => 's3',
-            'credentials' => [
-
-            ]
-        ];*/
        if (empty($this->config)) {
            throw new Exception('Config information not set');
+       }
+       if ( $name ) {
+           return $this->config[ $name ];
        }
        return $this->config;
     }
@@ -75,26 +72,22 @@ class WPRP_Remote_Backup {
     /**
      * Get Basic Config
      *
-     * @param $type
      * @return array|bool
      */
-    public function basicConfig( $type )
+    public static function basic_config( $type = false)
     {
-        if ($type == 's3') {
-            return [
-                'credentials' => [
-                    'key'    => 'your-key',
-                    'secret' => 'your-secret',
-                ],
+        $config = [
+            's3' => [
+                'key'    => 'your-key',
+                'secret' => 'your-secret',
                 'region' => 'your-region',
-                'version' => 'latest|version',
-            ];
-        } elseif ($type == 'dropbox') {
-            return [
+                'bucket' => 'your-bucket-name',
+                'version' => 'latest',
+            ],
+            'dropbox' => [
                 'authorizationToken' => 'your-api-token'
-            ];
-        } elseif ($type == 'sftp') {
-            return [
+            ],
+            'sftp' => [
                 'host' => 'example.com',
                 'port' => 22,
                 'username' => 'username',
@@ -102,9 +95,12 @@ class WPRP_Remote_Backup {
                 'privateKey' => 'path/to/or/contents/of/privatekey',
                 'root' => '/path/to/root',
                 'timeout' => 10,
-            ];
+            ]
+        ];
+        if ( ! $type ) {
+            return $config;
         }
-        return false;
+        return $config[$type] ?? false;
     }
 
     /**
@@ -121,20 +117,11 @@ class WPRP_Remote_Backup {
      * @return Filesystem
      */
     protected function s3() {
-        /*
-        $client = S3Client::factory([
-            'credentials' => [
-                'key'    => 'your-key',
-                'secret' => 'your-secret',
-            ],
-            'region' => 'your-region',
-            'version' => 'latest|version',
-        ]);
-        */
+        $client = S3Client::factory($this->config());
 
-        $client = S3Client::factory($this->config()['credentials']);
+//        $region = $client->determineBucketRegion($this->config('bucket'));
 
-        $adapter = new AwsS3Adapter($client, 'your-bucket-name', 'optional/path/prefix');
+        $adapter = new AwsS3Adapter($client, $this->config('bucket'), '');
 
         $filesystem = new Filesystem($adapter);
 
