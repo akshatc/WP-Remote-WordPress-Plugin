@@ -230,6 +230,13 @@ class WPRP_Admin_Settings {
             'wprp_s3_backup'
         );
 
+        add_settings_field(
+            's3_enabled',
+            __( 'Enabled', 'wprp' ),
+            array( $this, 'checkbox_s3_enabled_callback'),
+            'wprp_s3_backup',
+            'wprp_s3_backup'
+        );
 
         add_settings_section(
             'wprp_dropbox_backup',
@@ -242,6 +249,14 @@ class WPRP_Admin_Settings {
             'dropbox_authorizationToken',
             __( 'Authorization Token', 'wprp' ),
             array( $this, 'input_dropbox_authorizationToken_callback'),
+            'wprp_dropbox_backup',
+            'wprp_dropbox_backup'
+        );
+
+        add_settings_field(
+            'dropbox_enabled',
+            __( 'Enabled', 'wprp' ),
+            array( $this, 'checkbox_dropbox_enabled_callback'),
             'wprp_dropbox_backup',
             'wprp_dropbox_backup'
         );
@@ -300,6 +315,14 @@ class WPRP_Admin_Settings {
             'wprp_sftp_backup'
         );
 
+        add_settings_field(
+            'sftp_enabled',
+            __( 'Enabled', 'wprp' ),
+            array( $this, 'checkbox_sftp_enabled_callback'),
+            'wprp_sftp_backup',
+            'wprp_sftp_backup'
+        );
+
         register_setting(
             'wprp_s3_backup',
             'wprp_s3_backup',
@@ -351,62 +374,26 @@ class WPRP_Admin_Settings {
             $this->input_element_callback($name, $type);
             return true;
         }
+
+        if (strpos('x'  . $name, 'checkbox')) {
+            $name = str_replace(['checkbox_', '_callback'], '', $name);
+            list($type, $name) = explode('_', $name);
+            $this->checkbox_element_callback($name, $type);
+            return true;
+        }
+
         if (method_exists($this, $name)) {
             return call_user_func_array($name, $arguments);
         }
     }
 
-    public function textarea_element_callback() {
+	public function checkbox_element_callback($name, $type)
+    {
+        $options = get_option( 'wprp_' . $type . '_backup' );
 
-		$options = get_option( 'wprp_input_examples' );
-
-		// Render the output
-		echo '<textarea id="textarea_example" name="wprp_input_examples[textarea_example]" rows="5" cols="50">' . $options['textarea_example'] . '</textarea>';
-
-	} // end textarea_element_callback
-
-	public function checkbox_element_callback() {
-
-		$options = get_option( 'wprp_input_examples' );
-
-		$html = '<input type="checkbox" id="checkbox_example" name="wprp_input_examples[checkbox_example]" value="1"' . checked( 1, $options['checkbox_example'], false ) . '/>';
-		$html .= '&nbsp;';
-		$html .= '<label for="checkbox_example">This is an example of a checkbox</label>';
+		$html = '<input type="checkbox" id="wprp_backup_' . $name . '" name="wprp_' . $type . '_backup[' . $name . ']" value="1"' . checked( 1, $options[$name], false ) . '/>';
 
 		echo $html;
-
-	} // end checkbox_element_callback
-
-	public function radio_element_callback() {
-
-		$options = get_option( 'wprp_input_examples' );
-
-		$html = '<input type="radio" id="radio_example_one" name="wprp_input_examples[radio_example]" value="1"' . checked( 1, $options['radio_example'], false ) . '/>';
-		$html .= '&nbsp;';
-		$html .= '<label for="radio_example_one">Option One</label>';
-		$html .= '&nbsp;';
-		$html .= '<input type="radio" id="radio_example_two" name="wprp_input_examples[radio_example]" value="2"' . checked( 2, $options['radio_example'], false ) . '/>';
-		$html .= '&nbsp;';
-		$html .= '<label for="radio_example_two">Option Two</label>';
-
-		echo $html;
-
-	} // end radio_element_callback
-
-	public function backup_config( $type ) {
-
-		$bacic_config = WPRP_Remote_Backup::basic_config();
-		$options = array_keys($bacic_config);
-
-		$html = '<select id="' . $type . '_backup_type" name="wprp_backup_' . $type . '_config[type]">';
-        $html .= '<option value="">' . __( 'Select a backup location...', 'wprp' ) . '</option>';
-        foreach ($options as $option) {
-            $html .= '<option value="' . $option . '">' . __( $option, 'wprp' ) . '</option>';
-        }
-		$html .= '</select>';
-
-		echo $html;
-
 	}
 
 	public function primary_backup_select()

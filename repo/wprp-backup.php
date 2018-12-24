@@ -115,6 +115,52 @@ class WPRP_Backup extends WPRP_HM_Backup {
 
     }
 
+    public function run_remote()
+    {
+        $backupClass = new WPRP_Backup();
+        $backupClass->do_backup();
+
+        $archive = $backupClass->get_path() . '/' . $backupClass->get_archive_filename();
+        $contents = file_get_contents( $archive);
+
+        $remote = new WPRP_Remote_Backup();
+
+        $path = $this->get_unique_path();
+        $full_path = $path . $backupClass->get_archive_filename();
+
+        $errors = [];
+
+        if ( $remote->setType( 's3' ) ) {
+            if ( ! $remote->upload($full_path, $contents) ){
+                $errors[] = new WP_Error('backup-failed', 'S3 backup failed');
+            }
+        }
+
+        if ( $remote->setType( 'dropbox' ) ) {
+            if ( ! $remote->upload($full_path, $contents) ){
+                $errors[] = new WP_Error('backup-failed', 'Dropbox backup failed');
+            }        }
+
+        if ( $remote->setType( 'sftp' ) ) {
+            if ( ! $remote->upload($full_path, $contents) ){
+                $errors[] = new WP_Error('backup-failed', 'SFTP backup failed');
+            }
+        }
+
+        if ( !empty($errors) ) {
+            return $errors;
+        }
+        return true;
+    }
+
+    protected function get_unique_path()
+    {
+        $url = rtrim(get_site_url() , '/');
+        $url = str_ireplace(['https://', 'http://'], '', $url);
+        $url = str_replace(['.', '/'], '_', $url);
+        return $url . '/';
+    }
+
     /**
      * Do Theme Update
      *

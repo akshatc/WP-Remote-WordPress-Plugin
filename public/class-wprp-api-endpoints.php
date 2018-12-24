@@ -105,6 +105,12 @@ class WPRP_Api_Endpoints {
         );
 
         $this->route(
+            'run/remote',
+            WP_REST_Server::READABLE,
+            'run_remote'
+        );
+
+        $this->route(
             'run',
             WP_REST_Server::READABLE,
             'do_backup'

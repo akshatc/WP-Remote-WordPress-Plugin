@@ -10,6 +10,15 @@ use League\Flysystem\Sftp\SftpAdapter;
 class WPRP_Remote_Backup {
 
     protected $config;
+    protected $type;
+
+    public function setType( $type )
+    {
+        $this->type = $type;
+        $option = get_option( 'wprp_' . $this->type . '_backup' );
+        $this->setConfig( $option );
+        return (bool)$option && (bool)($option['enabled'] ?? false);
+    }
 
     /**
      * Upload the file
@@ -23,6 +32,7 @@ class WPRP_Remote_Backup {
         try {
             $response = $this->getAdapter()->write($path, $contents);
         } catch (\Exception $exception) {
+            echo $exception->getMessage();
             return false;
         }
 
@@ -108,7 +118,7 @@ class WPRP_Remote_Backup {
      */
     protected function getAdapter() : Filesystem
     {
-        return $this->{$this->config()['type']};
+        return $this->{$this->type}();
     }
 
     /**
@@ -117,9 +127,25 @@ class WPRP_Remote_Backup {
      * @return Filesystem
      */
     protected function s3() {
-        $client = S3Client::factory($this->config());
+        $client = S3Client::factory([
+            'credentials' => [
+                'key' => $this->config('key'),
+                'secret' => $this->config('secret'),
+            ],
+            'version' => 'latest',
+            'region' => 'us-east-1',
+        ]);
 
-//        $region = $client->determineBucketRegion($this->config('bucket'));
+        $region = $client->determineBucketRegion($this->config('bucket'));
+
+        $client = S3Client::factory([
+            'credentials' => [
+                'key' => $this->config('key'),
+                'secret' => $this->config('secret'),
+            ],
+            'version' => 'latest',
+            'region' => $region,
+        ]);
 
         $adapter = new AwsS3Adapter($client, $this->config('bucket'), '');
 

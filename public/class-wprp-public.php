@@ -66,5 +66,11 @@ class WPRP_Public {
 	{
 		$api_endpoints = new WPRP_Api_Endpoints();
 		$this->loader->add_action( 'rest_api_init', $api_endpoints, 'wprp_register_routes' );
-	}
+
+        $schedule = new WPRP_Schedule();
+//        $this->loader->add_action('wprp_backup_schedule', $schedule, 'wprp_backup_schedule');
+
+//        add_action( 'wprp_backup_schedule', [self::class, 'backup_upload'] );
+//        wp_schedule_event( time(), 'daily', 'wprp_backup_schedule' );
+    }
 }
