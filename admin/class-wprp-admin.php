@@ -72,11 +72,8 @@ class WPRP_Admin {
 		$this->loader->add_action( 'admin_enqueue_scripts', $this, 'enqueue_scripts' );
 
 		$plugin_settings = new WPRP_Admin_Settings( $this->plugin_name, $this->version );
-
 		$this->loader->add_action( 'admin_menu', $plugin_settings, 'setup_plugin_options_menu' );
-		$this->loader->add_action( 'admin_init', $plugin_settings, 'initialize_display_options' );
-		$this->loader->add_action( 'admin_init', $plugin_settings, 'initialize_social_options' );
-		$this->loader->add_action( 'admin_init', $plugin_settings, 'initialize_input_examples' );
+		$this->loader->add_action( 'admin_init', $plugin_settings, 'setup_tabs' );
 
 		$plugin_settings = new WPRP_Admin_Settings( $this->plugin_name, $this->version );
 		$this->loader->add_action( 'rest_api_init', $plugin_settings, 'initialize_input_examples' );

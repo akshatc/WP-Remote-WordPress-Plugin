@@ -73,7 +73,6 @@ class WPRP_Admin_Settings {
 	public function default_input_options( $type ) {
 
 	    $config = WPRP_Remote_Backup::basic_config( $type );
-
         return $config ?: [];
 
 	}
@@ -86,7 +85,7 @@ class WPRP_Admin_Settings {
 		<!-- Create a header in the default WordPress 'wrap' container -->
 		<div class="wrap">
 
-			<h2><?php _e( 'WP Remote', 'wprp' ); ?></h2>
+			<h2><?php _e( 'WPRemote', 'wprp' ); ?></h2>
 			<?php settings_errors(); ?>
 
 			<?php if( isset( $_GET[ 'tab' ] ) ) {
@@ -98,7 +97,8 @@ class WPRP_Admin_Settings {
 			} // end if/else ?>
 
 			<h2 class="nav-tab-wrapper">
-				<a href="?page=wprp_options&tab=display_options" class="nav-tab <?php echo $active_tab == 'display_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Welcome', 'wprp' ); ?></a>
+				<a href="?page=wprp_options&tab=display_options" class="nav-tab <?php echo $active_tab == 'display_options' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Basic Settings', 'wprp' ); ?></a>
+                <a href="?page=wprp_options&tab=wprp_schedule" class="nav-tab <?php echo $active_tab == 'wprp_schedule' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Schedule Backup', 'wprp' ); ?></a>
 				<a href="?page=wprp_options&tab=wprp_s3_backup" class="nav-tab <?php echo $active_tab == 'wprp_s3_backup' ? 'nav-tab-active' : ''; ?>"><?php _e( 'S3', 'wprp' ); ?></a>
                 <a href="?page=wprp_options&tab=wprp_dropbox_backup" class="nav-tab <?php echo $active_tab == 'wprp_dropbox_backup' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Dropbox', 'wprp' ); ?></a>
                 <a href="?page=wprp_options&tab=wprp_sftp_backup" class="nav-tab <?php echo $active_tab == 'wprp_sftp_backup' ? 'nav-tab-active' : ''; ?>"><?php _e( 'SFTP', 'wprp' ); ?></a>
@@ -108,9 +108,14 @@ class WPRP_Admin_Settings {
 				<?php
 
 				if( $active_tab == 'display_options' ) {
+				    $no_submit = true;
+					settings_fields( 'wprp_basic_settings' );
+					do_settings_sections( 'wprp_basic_settings' );
 
-					settings_fields( 'wprp_display_options' );
-					do_settings_sections( 'wprp_display_options' );
+                } elseif( $active_tab == 'wprp_schedule' ) {
+
+                    settings_fields( WPRP_Schedule::$hook );
+                    do_settings_sections( WPRP_Schedule::$hook );
 
 				} elseif( $active_tab == 'wprp_s3_backup' ) {
 
@@ -132,43 +137,13 @@ class WPRP_Admin_Settings {
 					settings_fields( 'wprp_primary_backup' );
 					do_settings_sections( 'wprp_primary_backup' );
 
-				} // end if/else
-
-				submit_button();
-
+				}
+                if (empty($no_submit)) submit_button();
 				?>
 			</form>
-
 		</div><!-- /.wrap -->
 		<?php
 	}
-
-
-	/**
-	 * This function provides a simple description for the General Options page.
-	 *
-	 * It's called from the 'wppb-demo_initialize_theme_options' function by being passed as a parameter
-	 * in the add_settings_section function.
-	 */
-	public function general_options_callback() {
-		$options = get_option('wprp_display_options');
-		var_dump($options);
-		echo '<p>' . __( 'Select which areas of content you wish to display.', 'wppb-demo-plugin' ) . '</p>';
-	} // end general_options_callback
-
-
-	/**
-	 * This function provides a simple description for the Input Examples page.
-	 *
-	 * It's called from the 'wppb-demo_theme_initialize_input_examples_options' function by being passed as a parameter
-	 * in the add_settings_section function.
-	 */
-	public function input_examples_callback() {
-		$options = get_option('wprp_input_examples');
-		var_dump($options);
-		echo '<p>' . __( 'Provides examples of the five basic element types.', 'wppb-demo-plugin' ) . '</p>';
-	} // end general_options_callback
-
 
 	/**
 	 * Initializes the theme's input example by registering the Sections,
@@ -177,174 +152,18 @@ class WPRP_Admin_Settings {
 	 *
 	 * This function is registered with the 'admin_init' hook.
 	 */
-	public function initialize_input_examples() {
-//		delete_option('wprp_backup');
-//        get_option( 'wprp_backup' );
-
-		if( false == get_option( 'wprp_s3_backup' ) ) {
-			$default_array = $this->default_input_options('s3');
-			update_option( 'wprp_s3_backup', $default_array );
-		}
-
-        if( false == get_option( 'wprp_dropbox_backup' ) ) {
-            $default_array = $this->default_input_options('dropbox');
-            update_option( 'wprp_dropbox_backup', $default_array );
-        }
-
-        if( false == get_option( 'wprp_sftp_backup' ) ) {
-            $default_array = $this->default_input_options('sftp');
-            update_option( 'wprp_sftp_backup', $default_array );
-        }
-
-
+	public function setup_tabs() {
         include_once ABSPATH . 'wp-admin/includes/template.php';
 
-		add_settings_section(
-			'wprp_s3_backup',
-			__( 'S3 Backup', 'wprp' ),
-			function(){},
-			'wprp_s3_backup'
-		);
-
-        add_settings_field(
-            's3_key',
-            __( 'Access Key', 'wprp' ),
-            array( $this, 'input_s3_key_callback'),
-            'wprp_s3_backup',
-            'wprp_s3_backup'
-        );
-
-        add_settings_field(
-            's3_secret',
-            __( 'Secret Key', 'wprp' ),
-            array( $this, 'input_s3_secret_callback'),
-            'wprp_s3_backup',
-            'wprp_s3_backup'
-        );
-
-        add_settings_field(
-            's3_bucket',
-            __( 'Bucket Name', 'wprp' ),
-            array( $this, 'input_s3_bucket_callback'),
-            'wprp_s3_backup',
-            'wprp_s3_backup'
-        );
-
-        add_settings_field(
-            's3_enabled',
-            __( 'Enabled', 'wprp' ),
-            array( $this, 'checkbox_s3_enabled_callback'),
-            'wprp_s3_backup',
-            'wprp_s3_backup'
-        );
-
-        add_settings_section(
-            'wprp_dropbox_backup',
-            __( 'Dropbox Backup', 'wprp' ),
-            function(){},
-            'wprp_dropbox_backup'
-        );
-
-        add_settings_field(
-            'dropbox_authorizationToken',
-            __( 'Authorization Token', 'wprp' ),
-            array( $this, 'input_dropbox_authorizationToken_callback'),
-            'wprp_dropbox_backup',
-            'wprp_dropbox_backup'
-        );
-
-        add_settings_field(
-            'dropbox_enabled',
-            __( 'Enabled', 'wprp' ),
-            array( $this, 'checkbox_dropbox_enabled_callback'),
-            'wprp_dropbox_backup',
-            'wprp_dropbox_backup'
-        );
-
-
-        add_settings_section(
-            'wprp_sftp_backup',
-            __( 'SFTP Backup', 'wprp' ),
-            function(){},
-            'wprp_sftp_backup'
-        );
-
-
-        add_settings_field(
-            'sftp_host',
-            __( 'Hostname', 'wprp' ),
-            array( $this, 'input_sftp_host_callback'),
-            'wprp_sftp_backup',
-            'wprp_sftp_backup'
-        );
-
-        add_settings_field(
-            'sftp_port',
-            __( 'Port', 'wprp' ),
-            array( $this, 'input_sftp_port_callback'),
-            'wprp_sftp_backup',
-            'wprp_sftp_backup'
-        );
-
-        add_settings_field(
-            'sftp_username',
-            __( 'Username', 'wprp' ),
-            array( $this, 'input_sftp_username_callback'),
-            'wprp_sftp_backup',
-            'wprp_sftp_backup'
-        );
-        add_settings_field(
-            'sftp_password',
-            __( 'Password', 'wprp' ),
-            array( $this, 'input_sftp_password_callback'),
-            'wprp_sftp_backup',
-            'wprp_sftp_backup'
-        );
-        add_settings_field(
-            'sftp_root',
-            __( 'Root', 'wprp' ),
-            array( $this, 'input_sftp_root_callback'),
-            'wprp_sftp_backup',
-            'wprp_sftp_backup'
-        );
-        add_settings_field(
-            'sftp_timeout',
-            __( 'Timeout', 'wprp' ),
-            array( $this, 'input_sftp_timeout_callback'),
-            'wprp_sftp_backup',
-            'wprp_sftp_backup'
-        );
-
-        add_settings_field(
-            'sftp_enabled',
-            __( 'Enabled', 'wprp' ),
-            array( $this, 'checkbox_sftp_enabled_callback'),
-            'wprp_sftp_backup',
-            'wprp_sftp_backup'
-        );
-
-        register_setting(
-            'wprp_s3_backup',
-            'wprp_s3_backup',
-            array( $this, 'validate_input_examples')
-        );
-
-        register_setting(
-            'wprp_dropbox_backup',
-            'wprp_dropbox_backup',
-            array( $this, 'validate_input_examples')
-        );
-
-        register_setting(
-            'wprp_sftp_backup',
-            'wprp_sftp_backup',
-            array( $this, 'validate_input_examples')
-        );
+        $this->setScheduleTab();
+        $this->setS3Tab();
+        $this->setDropboxTab();
+        $this->addSftpTab();
 
 	}
 
-	public function input_element_callback($name, $type) {
-		$options = get_option( 'wprp_' . $type . '_backup' );
+	public function input_element_callback($name, $type, $postfix = 'backup') {
+		$options = get_option( 'wprp_' . $type . '_' . $postfix );
 
 		$input_type = 'text';
 		if ($name == 'password') {
@@ -352,7 +171,7 @@ class WPRP_Admin_Settings {
         }
 
 		// Render the output
-		echo '<input type="' . $input_type . '" id="wprp_backup_' . $name . '" name="wprp_' . $type . '_backup[' . $name . ']" value="' . $options[$name] . '" />';
+		echo '<input type="' . $input_type . '" id="wprp_' . $postfix . '_' . $name . '" name="wprp_' . $type . '_' . $postfix . '[' . $name . ']" value="' . $options[$name] . '" />';
 
 	}
 
@@ -368,45 +187,36 @@ class WPRP_Admin_Settings {
         if (method_exists($this, $name)) {
             return call_user_func_array($name, $arguments);
         }
-        if (strpos('x'  . $name, 'input')) {
-            $name = str_replace(['input_', '_callback'], '', $name);
-            list($type, $name) = explode('_', $name);
-            $this->input_element_callback($name, $type);
-            return true;
+
+        if (strpos('x'  . $name, 'callback') === false) {
+            return false;
         }
 
+        $function = 'input_element_callback';
         if (strpos('x'  . $name, 'checkbox')) {
-            $name = str_replace(['checkbox_', '_callback'], '', $name);
-            list($type, $name) = explode('_', $name);
-            $this->checkbox_element_callback($name, $type);
-            return true;
+            $function = 'checkbox_element_callback';
         }
 
-        if (method_exists($this, $name)) {
-            return call_user_func_array($name, $arguments);
+
+        $postfix = 'backup';
+        if (strpos('x'  . $name, 'schedule')) {
+            $postfix = 'settings';
         }
+
+        $name = str_replace(['checkbox_', 'input_', '_callback'], '', $name);
+        list($type, $name) = explode('_', $name);
+
+        return $this->{$function}($name, $type, $postfix);
     }
 
-	public function checkbox_element_callback($name, $type)
+	public function checkbox_element_callback($name, $type, $postfix = 'backup')
     {
-        $options = get_option( 'wprp_' . $type . '_backup' );
+        $options = get_option( 'wprp_' . $type . '_' . $postfix );
 
-		$html = '<input type="checkbox" id="wprp_backup_' . $name . '" name="wprp_' . $type . '_backup[' . $name . ']" value="1"' . checked( 1, $options[$name], false ) . '/>';
+		$html = '<input type="checkbox" id="wprp_' . $postfix . '_' . $name . '" name="wprp_' . $type . '_' . $postfix . '[' . $name . ']" value="1"' . checked( 1, $options[$name], false ) . '/>';
 
 		echo $html;
 	}
-
-	public function primary_backup_select()
-    {
-        $this->backup_config('primary');
-    }
-
-
-    public function secondary_backup_select()
-    {
-        $this->backup_config('primary');
-    }
-
 
 	public function validate_input_examples( $input ) {
 
@@ -429,9 +239,228 @@ class WPRP_Admin_Settings {
 		// Return the array processing any additional functions filtered by this action
 		return apply_filters( 'validate_input_examples', $output, $input );
 
-	} // end validate_input_examples
+	}
+
+    /**
+     * Set the S3 Tab
+     */
+    protected function setS3Tab()
+    {
+        if( false == get_option( 'wprp_s3_backup' ) ) {
+            $default_array = $this->default_input_options('s3');
+            update_option( 'wprp_s3_backup', $default_array );
+        }
+
+        add_settings_section(
+            'wprp_s3_backup',
+            __('S3 Backup', 'wprp'),
+            function () {
+            },
+            'wprp_s3_backup'
+        );
+
+        add_settings_field(
+            's3_key',
+            __('Access Key', 'wprp'),
+            array($this, 'input_s3_key_callback'),
+            'wprp_s3_backup',
+            'wprp_s3_backup'
+        );
+
+        add_settings_field(
+            's3_secret',
+            __('Secret Key', 'wprp'),
+            array($this, 'input_s3_secret_callback'),
+            'wprp_s3_backup',
+            'wprp_s3_backup'
+        );
+
+        add_settings_field(
+            's3_bucket',
+            __('Bucket Name', 'wprp'),
+            array($this, 'input_s3_bucket_callback'),
+            'wprp_s3_backup',
+            'wprp_s3_backup'
+        );
+
+        add_settings_field(
+            's3_enabled',
+            __('Enabled', 'wprp'),
+            array($this, 'checkbox_s3_enabled_callback'),
+            'wprp_s3_backup',
+            'wprp_s3_backup'
+        );
+
+        register_setting(
+            'wprp_s3_backup',
+            'wprp_s3_backup',
+            array( $this, 'validate_input_examples')
+        );
+    }
+
+    /**
+     * Set Dropbox tab
+     */
+    protected function setDropboxTab()
+    {
+        if( false == get_option( 'wprp_dropbox_backup' ) ) {
+            $default_array = $this->default_input_options('dropbox');
+            update_option( 'wprp_dropbox_backup', $default_array );
+        }
+
+        add_settings_section(
+            'wprp_dropbox_backup',
+            __('Dropbox Backup', 'wprp'),
+            function () {
+            },
+            'wprp_dropbox_backup'
+        );
+
+        add_settings_field(
+            'dropbox_authorizationToken',
+            __('Authorization Token', 'wprp'),
+            array($this, 'input_dropbox_authorizationToken_callback'),
+            'wprp_dropbox_backup',
+            'wprp_dropbox_backup'
+        );
+
+        add_settings_field(
+            'dropbox_enabled',
+            __('Enabled', 'wprp'),
+            array($this, 'checkbox_dropbox_enabled_callback'),
+            'wprp_dropbox_backup',
+            'wprp_dropbox_backup'
+        );
+
+        register_setting(
+            'wprp_dropbox_backup',
+            'wprp_dropbox_backup',
+            array( $this, 'validate_input_examples')
+        );
+    }
+
+    /**
+     * Set SFTP Tab
+     */
+    protected function addSftpTab()
+    {
+        if( false == get_option( 'wprp_sftp_backup' ) ) {
+            $default_array = $this->default_input_options('sftp');
+            update_option( 'wprp_sftp_backup', $default_array );
+        }
+
+        add_settings_section(
+            'wprp_sftp_backup',
+            __('SFTP Backup', 'wprp'),
+            function () {
+            },
+            'wprp_sftp_backup'
+        );
 
 
+        add_settings_field(
+            'sftp_host',
+            __('Hostname', 'wprp'),
+            array($this, 'input_sftp_host_callback'),
+            'wprp_sftp_backup',
+            'wprp_sftp_backup'
+        );
 
+        add_settings_field(
+            'sftp_port',
+            __('Port', 'wprp'),
+            array($this, 'input_sftp_port_callback'),
+            'wprp_sftp_backup',
+            'wprp_sftp_backup'
+        );
+
+        add_settings_field(
+            'sftp_username',
+            __('Username', 'wprp'),
+            array($this, 'input_sftp_username_callback'),
+            'wprp_sftp_backup',
+            'wprp_sftp_backup'
+        );
+
+        add_settings_field(
+            'sftp_password',
+            __('Password', 'wprp'),
+            array($this, 'input_sftp_password_callback'),
+            'wprp_sftp_backup',
+            'wprp_sftp_backup'
+        );
+
+        add_settings_field(
+            'sftp_root',
+            __('Root', 'wprp'),
+            array($this, 'input_sftp_root_callback'),
+            'wprp_sftp_backup',
+            'wprp_sftp_backup'
+        );
+
+        add_settings_field(
+            'sftp_timeout',
+            __('Timeout', 'wprp'),
+            array($this, 'input_sftp_timeout_callback'),
+            'wprp_sftp_backup',
+            'wprp_sftp_backup'
+        );
+
+        add_settings_field(
+            'sftp_enabled',
+            __('Enabled', 'wprp'),
+            array($this, 'checkbox_sftp_enabled_callback'),
+            'wprp_sftp_backup',
+            'wprp_sftp_backup'
+        );
+
+        register_setting(
+            'wprp_sftp_backup',
+            'wprp_sftp_backup',
+            array( $this, 'validate_input_examples')
+        );
+    }
+
+    /**
+     * Schedule Tab Settings
+     */
+    protected function setScheduleTab()
+    {
+        if (false == get_option(WPRP_Schedule::$hook)) {
+            update_option(WPRP_Schedule::$hook, ['recurrence' => 'daily', 'enabled' => 'false']);
+        }
+
+        add_settings_section(
+            'wprp_schedule_settings',
+            __('Scheduling', 'wprp'),
+            function () {
+                echo 'Scheduling currently runs the backup and uploads it to all configured cloud locations.<br><br>';
+                echo '<strong>Valid scheduling options: ‘hourly’, ‘twicedaily’, or ‘daily’.</strong>';
+            },
+            WPRP_Schedule::$hook
+        );
+
+        add_settings_field(
+            'wprp_schedule',
+            __('Schedule Recurrence', 'wprp'),
+            array($this, 'input_schedule_recurrence_callback'),
+            WPRP_Schedule::$hook,
+            WPRP_Schedule::$hook
+        );
+
+        add_settings_field(
+            'wprp_schedule_enabled',
+            __('Enabled', 'wprp'),
+            array($this, 'checkbox_schedule_enabled_callback'),
+            WPRP_Schedule::$hook,
+            WPRP_Schedule::$hook
+        );
+
+        register_setting(
+            WPRP_Schedule::$hook,
+            WPRP_Schedule::$hook,
+            array($this, 'validate_input_examples')
+        );
+    }
 
 }

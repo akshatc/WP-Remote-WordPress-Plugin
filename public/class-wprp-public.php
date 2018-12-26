@@ -68,9 +68,8 @@ class WPRP_Public {
 		$this->loader->add_action( 'rest_api_init', $api_endpoints, 'wprp_register_routes' );
 
         $schedule = new WPRP_Schedule();
-//        $this->loader->add_action('wprp_backup_schedule', $schedule, 'wprp_backup_schedule');
+        $this->loader->add_action($schedule::$hook, $schedule, $schedule::$callback);
+        $this->loader->add_action('update_option_' . $schedule::$hook, $schedule, 'update_recurrence');
 
-//        add_action( 'wprp_backup_schedule', [self::class, 'backup_upload'] );
-//        wp_schedule_event( time(), 'daily', 'wprp_backup_schedule' );
     }
 }
