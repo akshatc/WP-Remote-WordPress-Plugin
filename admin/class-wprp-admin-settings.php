@@ -54,10 +54,10 @@ class WPRP_Admin_Settings {
 	 */
 	public function setup_plugin_options_menu() {
 
-		//Add the menu to the Plugins set of menu items
-		add_plugins_page(
-			'WP Remote', 					// The title to be displayed in the browser window for this page.
-			'WP Remote',					// The text to be displayed for this menu item
+        //Add the menu to the Tools set of menu items
+        add_management_page(
+			'WPRemote', 					// The title to be displayed in the browser window for this page.
+			'WPRemote',					// The text to be displayed for this menu item
 			'manage_options',					// Which type of users can see this menu item
 			'wprp_options',			// The unique ID - that is, the slug - for this menu item
 			array( $this, 'render_settings_page_content')				// The name of the function to call when rendering this menu's page
