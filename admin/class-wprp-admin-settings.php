@@ -108,7 +108,6 @@ class WPRP_Admin_Settings {
 				<?php
 
 				if( $active_tab == 'display_options' ) {
-				    $no_submit = true;
 					settings_fields( 'wprp_basic_settings' );
 					do_settings_sections( 'wprp_basic_settings' );
 
@@ -133,10 +132,7 @@ class WPRP_Admin_Settings {
                     do_settings_sections( 'wprp_sftp_backup' );
 
                 } else {
-
-					settings_fields( 'wprp_primary_backup' );
-					do_settings_sections( 'wprp_primary_backup' );
-
+                    echo 'ACCESS DENIED';
 				}
                 if (empty($no_submit)) submit_button();
 				?>
@@ -155,12 +151,46 @@ class WPRP_Admin_Settings {
 	public function setup_tabs() {
         include_once ABSPATH . 'wp-admin/includes/template.php';
 
+        $this->setMainTab();
         $this->setScheduleTab();
         $this->setS3Tab();
         $this->setDropboxTab();
         $this->addSftpTab();
 
 	}
+
+	public function setMainTab()
+    {
+        add_settings_section(
+            'wprp_basic_settings',
+            __('Basic Settings', 'wprp'),
+            function () {},
+            'wprp_basic_settings'
+        );
+
+        add_settings_field(
+            'wprp_basic_settings',
+            __('API Key', 'wprp'),
+            function() {
+                $info = get_option( 'wpr_api_key', '' );
+                $options = get_option( 'wprp_basic_settings', ['api_key' => ''] );
+                if (empty($options['api_key']) && !empty($info)) {
+                    $key = $info;
+                } else {
+                    $key = $options['api_key'];
+                }
+                echo '<input type="text" name="wprp_basic_settings[api_key]" value="' . $key . '" />';
+            },
+            'wprp_basic_settings',
+            'wprp_basic_settings'
+        );
+
+        register_setting(
+            'wprp_basic_settings',
+            'wprp_basic_settings',
+            array($this, 'validate_input_examples')
+        );
+    }
 
 	public function input_element_callback($name, $type, $postfix = 'backup') {
 		$options = get_option( 'wprp_' . $type . '_' . $postfix );
@@ -197,13 +227,12 @@ class WPRP_Admin_Settings {
             $function = 'checkbox_element_callback';
         }
 
-
         $postfix = 'backup';
-        if (strpos('x'  . $name, 'schedule')) {
+        if (strpos('x'  . $name, 'schedule') || strpos('x'  . $name, 'settings')) {
             $postfix = 'settings';
         }
 
-        $name = str_replace(['checkbox_', 'input_', '_callback'], '', $name);
+        $name = str_replace(['checkbox_', 'input_', '_callback', 'settings_'], '', $name);
         list($type, $name) = explode('_', $name);
 
         return $this->{$function}($name, $type, $postfix);

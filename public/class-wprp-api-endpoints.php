@@ -2,13 +2,15 @@
 
 class WPRP_Api_Endpoints {
 
-    protected $namespace = 'wprp/v1';
+    public static $namespace = 'wprp/v1';
     protected $base = [];
 
     /**
      * Register API Routes
      */
 	public function wprp_register_routes() {
+        $this->get_info_endpoint();
+        $this->core_api_endpoints();
         $this->plugin_api_endpoints();
         $this->backup_api_endpoints();
         $this->theme_api_endpoints();
@@ -26,13 +28,13 @@ class WPRP_Api_Endpoints {
 
         $this->route(
             'list',
-            WP_REST_Server::READABLE,
+            WP_REST_Server::ALLMETHODS,
             'get_plugins'
         );
 
         $this->route(
             'update',
-            WP_REST_Server::READABLE,
+            WP_REST_Server::ALLMETHODS,
             'do_plugin_update',
             [
                 'plugin' => [
@@ -43,7 +45,7 @@ class WPRP_Api_Endpoints {
 
         $this->route(
             'update/zip',
-            WP_REST_Server::READABLE,
+            WP_REST_Server::ALLMETHODS,
             'do_plugin_update',
             [
                 'plugin' => [
@@ -70,13 +72,13 @@ class WPRP_Api_Endpoints {
 
         $this->route(
             'list',
-            WP_REST_Server::READABLE,
+            WP_REST_Server::ALLMETHODS,
             'get_themes'
         );
 
         $this->route(
             'update',
-            WP_REST_Server::READABLE,
+            WP_REST_Server::ALLMETHODS,
             'do_theme_update',
             [
                 'theme' => [
@@ -100,19 +102,19 @@ class WPRP_Api_Endpoints {
 
         $this->route(
             'get',
-            WP_REST_Server::READABLE,
+            WP_REST_Server::ALLMETHODS,
             'get_backup'
         );
 
         $this->route(
             'run/remote',
-            WP_REST_Server::READABLE,
+            WP_REST_Server::ALLMETHODS,
             'run_remote'
         );
 
         $this->route(
             'run',
-            WP_REST_Server::READABLE,
+            WP_REST_Server::ALLMETHODS,
             'do_backup'
         );
 
@@ -138,8 +140,14 @@ class WPRP_Api_Endpoints {
         ];
 
         $this->route(
+            'info',
+            WP_REST_Server::ALLMETHODS,
+            'get_version_info'
+        );
+
+        $this->route(
             'update',
-            WP_REST_Server::READABLE,
+            WP_REST_Server::ALLMETHODS,
             'do_core_upgrade'
         );
 
@@ -154,7 +162,7 @@ class WPRP_Api_Endpoints {
      * @param array $args
      */
     public function route($path, $methods, $callback, $args = []) {
-        register_rest_route($this->namespace, '/' . $this->base['path'] . '/' . $path, array(
+        register_rest_route(self::$namespace, '/' . $this->base['path'] . '/' . $path, array(
             array(
                 'methods' => $methods,
                 'callback' => [$this->base['facade'], $callback],
@@ -188,16 +196,13 @@ class WPRP_Api_Endpoints {
         @ignore_user_abort( true );
 
         return true; // always verify
+
 //        if (!defined('XMLRPC_REQUEST')) {
 //            define('XMLRPC_REQUEST', true);
 //        }
 
-//        wp_die(new WP_Error('testing'));
-//        wp_send_json_error(new WP_Error('testing'));
-        return new WP_Error('testing');
-
         // Check the API Key
-		if ( ! $this->get_api_keys() ) {
+		if ( empty($this->get_api_key()) ) {
             return new WP_Error('blank-api-key');
 		}
 
@@ -208,9 +213,14 @@ class WPRP_Api_Endpoints {
 		$verify = $_POST['wpr_verify_key'];
 		unset( $_POST['wpr_verify_key'] );
 
-		if ( ! in_array( $verify, $this->generate_hashes( $_POST ), true ) ) {
+		if ($verify != $this->get_api_key()) {
+		    return new WP_Error('bad-key');
+        }
+
+		// TODO Reverify POST request with HMAC
+		/*if ( ! in_array( $verify, $this->generate_hashes( $_POST ), true ) ) {
             return new WP_Error( 'bad-verify-key' );
-		}
+		}*/
 
         wp_set_current_user(1);
 
@@ -220,7 +230,7 @@ class WPRP_Api_Endpoints {
 
 	public function generate_hashes( $vars ) {
 
-		if ( ! $api_key = $this->get_api_keys() ) {
+		if ( ! $api_key = $this->get_api_key() ) {
 			return array();
 		}
 
@@ -237,13 +247,37 @@ class WPRP_Api_Endpoints {
 	 *
 	 * @return mixed
 	 */
-	function get_api_keys() {
-		$keys = apply_filters( 'wpr_api_keys', get_option( 'wpr_api_key' ) );
+	function get_api_key() {
+        $info = get_option( 'wpr_api_key', '' );
+        $options = get_option( 'wprp_basic_settings', ['api_key' => ''] );
+        if (empty($options['api_key']) && !empty($info)) {
+            $key = $info;
+        } else {
+            $key = $options['api_key'] ?? '';
+        }
 
-		if ( ! empty( $keys ) )
-			return (array)$keys;
-
-		return array();
+        return $key;
 	}
+
+    /**
+     * Get All Info
+     */
+    protected function get_info_endpoint()
+    {
+        register_rest_route(self::$namespace, '/info', array(
+            array(
+                'methods' => WP_REST_Server::ALLMETHODS,
+                'callback' => function () {
+                    return [
+                        'core'      => WPRP_CoreFacade::get_version_info(),
+                        'plugins'   => WPRP_PluginFacade::get_plugins(),
+                        'themes'    => WPRP_ThemeFacade::get_themes(),
+                    ];
+                },
+                'permission_callback' => array($this, 'verify_request'),
+                'args' => $this->get_args()
+            )
+        ));
+    }
 
 }

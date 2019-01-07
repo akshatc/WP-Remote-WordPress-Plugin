@@ -7,6 +7,31 @@
  */
 class WPRP_Core {
 
+    /**
+     * @return array
+     */
+    public function get_version_info()
+    {
+        global $wp_version;
+
+        $url = 'https://api.wordpress.org/core/version-check/1.7/?response=upgrade&version=' . $wp_version;
+        $response = wp_remote_get($url);
+
+        $json = $response['body'];
+        $info = json_decode($json);
+        $new_version = $info->offers[0]->version;
+
+        return [
+            'version'           => $wp_version,
+            'latest_version'    => $new_version,
+            'requires_update'   => (bool) ((string) $new_version != (string) $wp_version)
+        ];
+    }
+
+    /**
+     * Core Upgrade
+     * @return bool|WP_Error
+     */
     public function do_core_upgrade() {
         $backup = new WPRP_Backup();
         $result = $backup->do_backup();

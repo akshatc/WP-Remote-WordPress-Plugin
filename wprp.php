@@ -77,6 +77,44 @@ function run_wprp() {
 }
 run_wprp();
 
+add_action( 'init', function() {
+    if ( ! isset( $_GET['the_cron_test'] ) ) {
+        return;
+    }
+    error_reporting( 1 );
+
+    $a = wp_get_schedule(WPRP_Schedule::$hook);
+    $b = get_option(WPRP_Schedule::$hook);
+    var_dump($a);
+    var_dump($b);
+//    wp_schedule_event( time(), 'every_minute', 'wprp_backup_test' );
+//    wp_clear_scheduled_hook( 'wprp_backup_test' );
+
+//    do_action( 'wprp_backup_test' );
+    die();
+} );
+
+/**
+ * Use * for origin
+ */
+add_action( 'rest_api_init', function() {
+
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS' && strpos($_SERVER['REQUEST_URI'], 'json/' . WPRP_Api_Endpoints::$namespace)) {
+        header( 'Access-Control-Allow-Headers: Authorization, Content-Type, X-Requested-With, X-CSRF-TOKEN' );
+        header( 'Access-Control-Allow-Origin: *' );
+        header( 'Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE' );
+        header( 'Access-Control-Allow-Credentials: true' );
+        die(200);
+    }
+}, 15 );
+
+/*add_filter('rest_post_dispatch', function (\WP_REST_Response $result) {
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        $result->header('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-Requested-With, X-CSRF-TOKEN', true);
+    }
+    return $result;
+});*/
+
 /**
  * Handle Errors
  *

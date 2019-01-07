@@ -5,6 +5,7 @@ class WPRP_Plugin {
     protected $is_active;
     protected $is_active_network;
     protected $plugin_file;
+    protected $backupClass;
 
 
     /**
@@ -83,6 +84,14 @@ class WPRP_Plugin {
 		return $plugins;
 	}
 
+	protected function backupClass()
+    {
+        if (empty($this->backupClass)) {
+            return $this->backupClass = new WPRP_Backup();
+        }
+        return $this->backupClass;
+    }
+
     /**
      * Do Plugin Update
      *
@@ -93,28 +102,32 @@ class WPRP_Plugin {
     {
         $this->plugin_file = $request->get_param('plugin');
 
-        $backupClass = new WPRP_Backup();
-        $backup_response = $backupClass->do_plugin_backup( $this->plugin_file );
+        // Perform backup of plugin
+        $backup = $this->backupClass()->do_plugin_backup( $this->plugin_file );
+        if ( is_wp_error($backup) ) return $backup;
 
-        // Do we have a backup before continuing?
-        if ( is_wp_error($backup_response) ) {
-            return $backup_response;
-        }
+        $this->store_current_active_status();
 
-        $this->set_is_active();
+        $response = $this->update_plugin_wrap( $request );
 
-        // Wrap update in a try/catch so we can handle the failures with grace
+        $error = $this->check_plugin_exists();
+
+        return is_wp_error($error) ? $error : $response;
+    }
+
+    /**
+     * Wrap Update_Plugin in a try/catch for error handling
+     * @param $request
+     * @return array|WP_Error
+     */
+    protected function update_plugin_wrap( $request )
+    {
         try {
             $response = $this->update_plugin( $request );
         } catch ( \Exception $e ) {}
+
         if (empty($response)) {
             $response = new WP_Error('unknown-error', 'An unknown error occurred');
-        }
-
-        // == if plugin no longer exists, restore == //
-        $error = $this->validate_plugin_update( $backupClass );
-        if ( is_wp_error( $error )) {
-            return $error;
         }
 
         return $response;
@@ -123,17 +136,16 @@ class WPRP_Plugin {
     /**
      * Validate Plugin Update
      *
-     * @param WPRP_Backup $backupClass
      * @return bool|WP_Error
      */
-    protected function validate_plugin_update( WPRP_Backup $backupClass )
+    protected function check_plugin_exists()
     {
-        $archive = $backupClass->get_path() . '/' . $backupClass->get_archive_filename();
+        $archive = $this->backupClass()->get_path() . '/' . $this->backupClass()->get_archive_filename();
         $error = false;
         if ( ! file_exists(WP_PLUGIN_DIR . '/' . $this->plugin_file) ){
             $plugin_path = rtrim(plugin_dir_path($this->plugin_file), '/');
 
-            $backupClass->do_unzip($archive, WP_PLUGIN_DIR . '/' . $plugin_path);
+            $this->backupClass()->do_unzip($archive, WP_PLUGIN_DIR . '/' . $plugin_path);
 
             $this->reActivate();
 
@@ -162,7 +174,7 @@ class WPRP_Plugin {
         include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
         require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 
-        $this->set_is_active();
+        $this->store_current_active_status();
 
         $skin = new WPRP_Plugin_Upgrader_Skin();
         $upgrader = new Plugin_Upgrader( $skin );
@@ -311,7 +323,7 @@ class WPRP_Plugin {
     /**
      * Set the is_active vars
      */
-    protected function set_is_active()
+    protected function store_current_active_status()
     {
         $this->is_active = is_plugin_active($this->plugin_file);
         $this->is_active_network = is_plugin_active_for_network($this->plugin_file);

@@ -13,6 +13,7 @@
             "includes/",
             "admin/",
             "public/",
+            "model/",
             "repo/"
         ]
     }

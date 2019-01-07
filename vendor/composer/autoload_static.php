@@ -112,12 +112,15 @@ class ComposerStaticInit3a6a418b880000e159ffc437222682c5
         'WPRP_Automatic_Upgrader_Skin' => __DIR__ . '/../..' . '/includes/class-wprp-automatic-upgrader-skin.php',
         'WPRP_Backup' => __DIR__ . '/../..' . '/repo/wprp-backup.php',
         'WPRP_BackupFacade' => __DIR__ . '/../..' . '/repo/wprp-facade.php',
+        'WPRP_Backup_Database' => __DIR__ . '/../..' . '/model/wprp-backup-database.php',
         'WPRP_Core' => __DIR__ . '/../..' . '/repo/wprp-core.php',
         'WPRP_CoreFacade' => __DIR__ . '/../..' . '/repo/wprp-facade.php',
         'WPRP_Core_Upgrader_Skin' => __DIR__ . '/../..' . '/includes/class-wprp-core-upgrader-skin.php',
+        'WPRP_Database' => __DIR__ . '/../..' . '/model/wprp-database.php',
         'WPRP_Deactivator' => __DIR__ . '/../..' . '/includes/class-wprp-deactivator.php',
         'WPRP_Facade' => __DIR__ . '/../..' . '/repo/wprp-facade.php',
         'WPRP_HM_Backup' => __DIR__ . '/../..' . '/repo/wprp-hm-backup.php',
+        'WPRP_History_Database' => __DIR__ . '/../..' . '/model/wprp-history-database.php',
         'WPRP_Loader' => __DIR__ . '/../..' . '/includes/class-wprp-loader.php',
         'WPRP_Plugin' => __DIR__ . '/../..' . '/repo/wprp-plugin.php',
         'WPRP_PluginFacade' => __DIR__ . '/../..' . '/repo/wprp-facade.php',
@@ -128,6 +131,7 @@ class ComposerStaticInit3a6a418b880000e159ffc437222682c5
         'WPRP_Theme' => __DIR__ . '/../..' . '/repo/wprp-themes.php',
         'WPRP_ThemeFacade' => __DIR__ . '/../..' . '/repo/wprp-facade.php',
         'WPRP_Theme_Upgrader_Skin' => __DIR__ . '/../..' . '/includes/class-wprp-theme-upgrader-skin.php',
+        'WPRP_Update_Database' => __DIR__ . '/../..' . '/model/wprp-update-database.php',
         'WPRP_i18n' => __DIR__ . '/../..' . '/includes/class-wprp-i18n.php',
     );
 
