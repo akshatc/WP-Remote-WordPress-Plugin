@@ -29,7 +29,8 @@ class WPRP_Activator {
 	 * @since    3.0.0
 	 */
 	public static function activate() {
-
-	}
-
+        WPRP_Update_Database::install();
+        WPRP_History_Database::install();
+        WPRP_Backup_Database::install();
+    }
 }

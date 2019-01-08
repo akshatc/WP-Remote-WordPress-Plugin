@@ -4,16 +4,15 @@ class WPRP_Plugin {
 
     protected $is_active;
     protected $is_active_network;
-    protected $plugin_file;
     protected $backupClass;
-
+    protected $filename;
 
     /**
      * Get Currently Installed Plugins
      *
      * @return array
      */
-	public function get_plugins()
+	public function get_info()
 	{
 
 		require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
@@ -98,12 +97,12 @@ class WPRP_Plugin {
      * @param WP_REST_Request $request
      * @return array|WP_Error
      */
-	public function do_plugin_update ( WP_REST_Request $request )
+	public function do_update ( WP_REST_Request $request )
     {
-        $this->plugin_file = $request->get_param('plugin');
+        $this->filename = $request->get_param('filename');
 
         // Perform backup of plugin
-        $backup = $this->backupClass()->do_plugin_backup( $this->plugin_file );
+        $backup = $this->backupClass()->do_plugin_backup( $this->filename );
         if ( is_wp_error($backup) ) return $backup;
 
         $this->store_current_active_status();
@@ -112,8 +111,12 @@ class WPRP_Plugin {
 
         $error = $this->check_plugin_exists();
 
-        return is_wp_error($error) ? $error : $response;
+        if (is_wp_error($error)) {
+            return $error;
+        }
+        return $response;
     }
+
 
     /**
      * Wrap Update_Plugin in a try/catch for error handling
@@ -142,8 +145,8 @@ class WPRP_Plugin {
     {
         $archive = $this->backupClass()->get_path() . '/' . $this->backupClass()->get_archive_filename();
         $error = false;
-        if ( ! file_exists(WP_PLUGIN_DIR . '/' . $this->plugin_file) ){
-            $plugin_path = rtrim(plugin_dir_path($this->plugin_file), '/');
+        if ( ! file_exists(WP_PLUGIN_DIR . '/' . $this->filename) ){
+            $plugin_path = rtrim(plugin_dir_path($this->filename), '/');
 
             $this->backupClass()->do_unzip($archive, WP_PLUGIN_DIR . '/' . $plugin_path);
 
@@ -162,7 +165,7 @@ class WPRP_Plugin {
      * @return array|WP_Error
      */
     protected function update_plugin( WP_REST_Request $request ) {
-        if ( ! file_exists(WP_PLUGIN_DIR . '/' . $this->plugin_file) ){
+        if ( ! file_exists(WP_PLUGIN_DIR . '/' . $this->filename) ){
             return new WP_Error('404', 'Plugin not found');
         }
 
@@ -186,7 +189,7 @@ class WPRP_Plugin {
 
         // Do the plugin upgrade
         ob_start();
-        $result = $upgrader->upgrade( $this->plugin_file );
+        $result = $upgrader->upgrade( $this->filename );
         if ($data = ob_get_contents()) ob_end_clean();
 
         if (is_wp_error(
@@ -209,8 +212,8 @@ class WPRP_Plugin {
             'active_status' => array(
                 'was_active'            => $this->is_active,
                 'was_active_network'    => $this->is_active_network,
-                'is_active'             =>  is_plugin_active( $this->plugin_file ),
-                'is_active_network'     =>  is_plugin_active_for_network( $this->plugin_file ),
+                'is_active'             =>  is_plugin_active( $this->filename ),
+                'is_active_network'     =>  is_plugin_active_for_network( $this->filename ),
             ),
             'data' => $data
         );
@@ -226,7 +229,7 @@ class WPRP_Plugin {
         if ( !empty($request->get_param('zip_url')) ) {
             global $wprp_zip_update;
             $wprp_zip_update = array(
-                'plugin_file' => $this->plugin_file,
+                'plugin_file' => $this->filename,
                 'package' => $request->get_param('zip_url'),
             );
             add_filter('pre_site_transient_update_plugins', [self::class, '_wprp_forcably_filter_update_plugins']);
@@ -316,7 +319,7 @@ class WPRP_Plugin {
     protected function reActivate()
     {
         if ($this->is_active) {
-            activate_plugin($this->plugin_file, '', $this->is_active_network, true);
+            activate_plugin($this->filename, '', $this->is_active_network, true);
         }
     }
 
@@ -325,8 +328,8 @@ class WPRP_Plugin {
      */
     protected function store_current_active_status()
     {
-        $this->is_active = is_plugin_active($this->plugin_file);
-        $this->is_active_network = is_plugin_active_for_network($this->plugin_file);
+        $this->is_active = is_plugin_active($this->filename);
+        $this->is_active_network = is_plugin_active_for_network($this->filename);
     }
 
 }

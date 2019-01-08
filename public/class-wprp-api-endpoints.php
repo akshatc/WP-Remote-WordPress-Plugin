@@ -14,6 +14,7 @@ class WPRP_Api_Endpoints {
         $this->plugin_api_endpoints();
         $this->backup_api_endpoints();
         $this->theme_api_endpoints();
+        $this->history_api_endpoints();
 	}
 
     /**
@@ -27,17 +28,17 @@ class WPRP_Api_Endpoints {
         ];
 
         $this->route(
-            'list',
+            'info',
             WP_REST_Server::ALLMETHODS,
-            'get_plugins'
+            'get_info'
         );
 
         $this->route(
             'update',
             WP_REST_Server::ALLMETHODS,
-            'do_plugin_update',
+            'do_update',
             [
-                'plugin' => [
+                'filename' => [
                     'required' => true
                 ],
             ]
@@ -46,9 +47,9 @@ class WPRP_Api_Endpoints {
         $this->route(
             'update/zip',
             WP_REST_Server::ALLMETHODS,
-            'do_plugin_update',
+            'do_update',
             [
-                'plugin' => [
+                'filename' => [
                     'required' => true
                 ],
                 'zip' => [
@@ -58,10 +59,8 @@ class WPRP_Api_Endpoints {
         );
     }
 
-
-
     /**
-     * Plugin API Endpoints
+     * Theme API Endpoints
      */
     protected function theme_api_endpoints()
     {
@@ -73,22 +72,21 @@ class WPRP_Api_Endpoints {
         $this->route(
             'list',
             WP_REST_Server::ALLMETHODS,
-            'get_themes'
+            'get_info'
         );
 
         $this->route(
             'update',
             WP_REST_Server::ALLMETHODS,
-            'do_theme_update',
+            'do_update',
             [
-                'theme' => [
+                'filename' => [
                     'required' => true
                 ],
             ]
         );
 
     }
-
 
     /**
      * Backup API Endpoints
@@ -142,13 +140,31 @@ class WPRP_Api_Endpoints {
         $this->route(
             'info',
             WP_REST_Server::ALLMETHODS,
-            'get_version_info'
+            'get_info'
         );
 
         $this->route(
             'update',
             WP_REST_Server::ALLMETHODS,
             'do_core_upgrade'
+        );
+
+    }
+
+    /**
+     * History API Endpoints
+     */
+    protected function history_api_endpoints()
+    {
+        $this->base = [
+            'path' => 'history',
+            'facade' => 'WPRP_HistoryFacade'
+        ];
+
+        $this->route(
+            'info',
+            WP_REST_Server::ALLMETHODS,
+            'get_info'
         );
 
     }
@@ -269,9 +285,9 @@ class WPRP_Api_Endpoints {
                 'methods' => WP_REST_Server::ALLMETHODS,
                 'callback' => function () {
                     return [
-                        'core'      => WPRP_CoreFacade::get_version_info(),
-                        'plugins'   => WPRP_PluginFacade::get_plugins(),
-                        'themes'    => WPRP_ThemeFacade::get_themes(),
+                        'core'      => WPRP_CoreFacade::get_info(),
+                        'plugins'   => WPRP_PluginFacade::get_info(),
+                        'themes'    => WPRP_ThemeFacade::get_info(),
                     ];
                 },
                 'permission_callback' => array($this, 'verify_request'),

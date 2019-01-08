@@ -9,9 +9,9 @@ class WPRP_Theme
      * @return array|bool|WP_Error
      * @throws \Exception
      */
-    public function do_theme_update( WP_REST_Request $request )
+    public function do_update( WP_REST_Request $request )
     {
-        $theme = $request->get_param('theme');
+        $theme = $request->get_param('filename');
 
         $backupClass = new WPRP_Backup();
         $backupClass->do_theme_backup( $theme );
@@ -43,7 +43,7 @@ class WPRP_Theme
      *
      * @return array
      */
-    public function get_themes()
+    public function get_info()
     {
         require_once(ABSPATH . '/wp-admin/includes/theme.php');
 

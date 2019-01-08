@@ -10,7 +10,7 @@ class WPRP_Core {
     /**
      * @return array
      */
-    public function get_version_info()
+    public function get_info()
     {
         global $wp_version;
 
