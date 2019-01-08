@@ -3,7 +3,7 @@
     "description": "Remote backup and update manager",
     "minimum-stability": "stable",
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.1",
         "league/flysystem-aws-s3-v3": "^1.0",
         "spatie/flysystem-dropbox": "^1.0",
         "league/flysystem-sftp": "^1.0"
