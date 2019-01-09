@@ -91,7 +91,8 @@ function _wprp_update_plugin( $plugin_file, $args ) {
 
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
-	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-plugin-upgrader-skin.php';
+    require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-plugin-upgrader-skin.php';
+    require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-automatic-upgrader-skin.php';
 
 	// check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
@@ -146,11 +147,24 @@ function _wprp_update_plugin( $plugin_file, $args ) {
 		wp_update_plugins();
 	}
 
-	// Do the upgrade
-	ob_start();
-	$result = $upgrader->upgrade( $plugin_file );
-	$data = ob_get_contents();
-	ob_clean();
+    // Remove the Language Upgrader
+    remove_action('upgrader_process_complete', array('Language_Pack_Upgrader', 'async_upgrade'), 20);
+
+    // Do the upgrade
+    ob_start();
+    $result = $upgrader->upgrade($plugin_file);
+    if ($data = ob_get_contents()) {
+        ob_end_clean();
+    }
+
+    // Run the language upgrader
+    ob_start();
+    $skin2 = new WPRP_Automatic_Upgrader_Skin();
+    $lang_upgrader = new Language_Pack_Upgrader($skin2);
+    $result2 = $lang_upgrader->upgrade($upgrader);
+    if ($data2 = ob_get_contents()) {
+        ob_end_clean();
+    }
 
 	if ( isset($manage_wp_plugin_update) && $manage_wp_plugin_update )
 		remove_filter( 'pre_site_transient_update_plugins', '_wprp_forcably_filter_update_plugins' );

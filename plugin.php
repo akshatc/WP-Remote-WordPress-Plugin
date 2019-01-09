@@ -3,7 +3,7 @@
 /*
 Plugin Name: WP Remote
 Description: Manage your WordPress site with <a href="https://wpremote.com/">WP Remote</a>.
-Version: 2.8.4.1
+Version: 2.8.4.2
 Author: maekit
 Author URI: https://maek.it/
 */
