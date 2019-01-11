@@ -156,7 +156,7 @@ function _wprp_activate_theme( $theme ) {
  * Update a theme
  *
  * @param mixed $theme
- * @return array
+ * @return array|WP_Error
  */
 function _wprp_update_theme( $theme ) {
 
@@ -166,13 +166,16 @@ function _wprp_update_theme( $theme ) {
 	include_once ( ABSPATH . 'wp-admin/includes/admin.php' );
 	require_once ( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
 	require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-theme-upgrader-skin.php';
+    require_once WPRP_PLUGIN_PATH . 'inc/class-wprp-automatic-upgrader-skin.php';
 
-	// check for filesystem access
+    // check for filesystem access
 	if ( ! _wpr_check_filesystem_access() )
 		return new WP_Error( 'filesystem-not-writable', __( 'The filesystem is not writable with the supplied credentials', 'wpremote' ) );
 
 	$skin = new WPRP_Theme_Upgrader_Skin();
 	$upgrader = new Theme_Upgrader( $skin );
+
+    remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
 
 	// Do the upgrade
 	ob_start();
@@ -180,17 +183,24 @@ function _wprp_update_theme( $theme ) {
 	$data = ob_get_contents();
 	ob_clean();
 
-	if ( ! empty( $skin->error ) )
+    // Run the language upgrader
+    try {
+        ob_start();
+        $skin2 = new WPRP_Automatic_Upgrader_Skin();
+        $lang_upgrader = new Language_Pack_Upgrader($skin2);
+        $result2 = $lang_upgrader->upgrade($upgrader);
+        if ($data2 = ob_get_contents()) {
+            ob_end_clean();
+        }
+    } catch (\Exception $e) {} // Fail silently
 
-		return new WP_Error( 'theme-upgrader-skin', $upgrader->strings[$skin->error] );
-
-	else if ( is_wp_error( $result ) )
-
-		return $result;
-
-	else if ( ( ! $result && ! is_null( $result ) ) || $data )
-
-		return new WP_Error( 'theme-update', __( 'Unknown error updating theme.', 'wpremote' ) );
+	if ( ! empty( $skin->error ) ){
+        return new WP_Error( 'theme-upgrader-skin', $upgrader->strings[$skin->error] );
+    } elseif ( is_wp_error( $result ) ) {
+        return $result;
+    } elseif ( ( ! $result && ! is_null( $result ) ) || $data ) {
+        return new WP_Error('theme-update', __('Unknown error updating theme.', 'wpremote'));
+    }
 
 	return array( 'status' => 'success' );
 

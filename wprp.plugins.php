@@ -76,6 +76,45 @@ function _wprp_get_plugins() {
 }
 
 /**
+ * Wrap the Update Plugin function with a failsafe fallback
+ *
+ * @param $plugin_file
+ * @param $args
+ * @return array|bool|WP_Error
+ */
+function _wprp_update_plugin_wrap( $plugin_file, $args )
+{
+    @ignore_user_abort( true );
+
+    $response = false;
+    $is_active         = is_plugin_active( $plugin_file );
+    $is_active_network = is_plugin_active_for_network( $plugin_file );
+
+    try {
+        $response = _wprp_update_plugin($plugin_file, $args);
+    } catch (\Exception $exception) {}
+
+    // FALLBACK for when the plugin is deleted. Just re-install.
+    if ( ! file_exists(WP_PLUGIN_DIR . '/' . $plugin_file) ){
+        $plugin_slug = rtrim(plugin_dir_path($plugin_file), '/');
+
+        _wprp_install_plugin($plugin_slug);
+
+        if ($is_active) {
+            activate_plugin($plugin_file, '', $is_active_network, true);
+        }
+
+        $response = new WP_Error('rollback','Plugin update failed. Plugin has been re-installed.');
+    }
+
+    if ($response === false) {
+        return new WP_Error('update-failed', 'No message was set.');
+    }
+
+    return $response;
+}
+
+/**
  * Update a plugin
  *
  * @access private
