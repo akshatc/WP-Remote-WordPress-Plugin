@@ -289,7 +289,8 @@ foreach( WPR_API_Request::get_actions() as $action ) {
 
 		case 'supports_backups' :
 
-			$actions[$action] = true;
+		    // Should check all required methods to see if backups are supported
+			$actions[$action] = is_writeable(WPRP_Backups::get_instance()->get_path());
 
 		break;
 
